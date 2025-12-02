@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Meine Drucke</title>
+    <link rel="stylesheet" href="styles/meine-drucke.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="page-wrapper">
+    <header class="page-header">
+        <a href="geraete.html" class="back-link"><- Zurück zum Katalog</a>
+        <h1>Meine Drucke</h1>
+        <p class="subtitle">Verfolge den Status deiner Buchungen und sieh <a href="#">Live-Videos</a> von laufenden Drucken</p>
+    </header>
+
+    <main class="main-content">
+        <section class="lookup-box">
+            <h2>Buchungen abrufen</h2>
+            <p>Gib deine E-Mail-Adresse ein, um deine Buchungen anzuzeigen</p>
+            <div class="input-group">
+                <input type="email" id="emailInput" placeholder="Max.mustermann@gmail.com" />
+                <button id="searchBtn">🔍 Suchen</button>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <p>© 2025 CampusPrint, All Rights Reserved.</p>
+        <div class="social-icons">
+            <a href="#"><img src="assets/icon-facebook.svg" alt="Facebook" /></a>
+            <a href="#"><img src="assets/icon-instagram.svg" alt="Instagram" /></a>
+            <a href="#"><img src="assets/icon-x.svg" alt="X" /></a>
+            <a href="#"><img src="assets/icon-youtube.svg" alt="YouTube" /></a>
+        </div>
+    </footer>
+</div>
+
+<script type="module" src="scripts/meine-drucke.ts"></script>
+</body>
+</html>
