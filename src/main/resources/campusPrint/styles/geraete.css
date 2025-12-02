@@ -1,0 +1,88 @@
+html, body {
+    font-family: 'Inter', sans-serif;
+    margin: 0;
+    padding: 0;
+    background: #f4f4f4;
+}
+
+header {
+    text-align: center;
+    padding: 2rem;
+    background-color: #e0f2fe;
+}
+
+.geraete-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.card {
+    background: #fff;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.card img {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+}
+
+.card-body {
+    padding: 1rem;
+}
+
+.card h3 {
+    margin: 0 0 0.5rem;
+}
+
+.card p {
+    font-size: 0.9rem;
+    color: #444;
+}
+
+.status {
+    display: inline-block;
+    padding: 0.25rem 0.6rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.status.verfuegbar {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.status.wartung {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.btn {
+    background: #3b82f6;
+    color: white;
+    border: none;
+    padding: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    width: 100%;
+    font-size: 1rem;
+    border-radius: 0 0 10px 10px;
+}
+
+footer {
+    text-align: center;
+    padding: 1.5rem;
+    background: #111;
+    color: white;
+}
