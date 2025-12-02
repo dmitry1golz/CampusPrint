@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Login</title>
+    <link rel="stylesheet" href="styles/admin-login.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="page-wrapper">
+    <header class="top-bar">
+        <div class="logo">Campus Print</div>
+        <nav class="nav-links">
+            <a href="#">Meine Drucke</a>
+            <a href="#">Katalog</a>
+            <a href="#" class="admin-btn">Admin</a>
+        </nav>
+    </header>
+
+    <main class="main-content">
+        <div class="login-box">
+            <p class="login-hint">Nur für Laborpersonal</p>
+            <h2>🛡️ Admin Login</h2>
+
+            <form id="adminLoginForm">
+                <label for="email">E-Mail</label>
+                <input type="email" id="email" placeholder="admin@campusprint.de" required />
+
+                <label for="password">Passwort</label>
+                <input type="password" id="password" placeholder="••••••••" required />
+
+                <button type="submit">Als Admin anmelden</button>
+            </form>
+
+            <a href="index.html" class="back-link">← Zurück zu Startseite</a>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>© 2025 CampusPrint, All Rights Reserved.</p>
+        <div class="social-icons">
+            <a href="#"><img src="assets/icon-facebook.svg" alt="Facebook" /></a>
+            <a href="#"><img src="assets/icon-instagram.svg" alt="Instagram" /></a>
+            <a href="#"><img src="assets/icon-x.svg" alt="X" /></a>
+            <a href="#"><img src="assets/icon-youtube.svg" alt="YouTube" /></a>
+        </div>
+    </footer>
+</div>
+
+<script type="module" src="scripts/admin-login.ts"></script>
+</body>
+</html>
