@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Gerätekatalog</title>
+    <link rel="stylesheet" href="styles/geraete.css"/>
+</head>
+<body>
+<div class="page-wrapper">
+    <header>
+        <h1>Gerätekatalog</h1>
+        <p>Wähle ein Gerät und buche einen Zeitslot</p>
+    </header>
+
+    <section class="filter-section">
+        <div class="filter-buttons">
+            <button class="filter-btn active" data-category="Alle">Alle</button>
+            <button class="filter-btn" data-category="3D-Drucker">3D-Drucker</button>
+            <button class="filter-btn" data-category="Plotter">Plotter</button>
+            <button class="filter-btn" data-category="Laserschneider">Laserschneider</button>
+        </div>
+    </section>
+
+    <main class="geraete-container" id="geraete-container">
+        <!-- Cards will be inserted here -->
+        <script type="module" src="scripts/geraete.ts"></script>
+
+    </main>
+
+    <footer>
+        <p>© 2025 CampusPrint, All Rights Reserved.</p>
+    </footer>
+</div>
+
+<script type="module" src="scripts/geraete.ts"></script>
+</body>
+</html>
