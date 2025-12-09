@@ -50,7 +50,7 @@ header .containerHead {
     border: 1px solid transparent;
 }
 
-/* Синие кнопки */
+/* Blue Buttons */
 .nav-links a.blue-button {
     background-color: #3b82f6; /* синий */
     color: white;
@@ -70,31 +70,18 @@ header .containerHead {
     background-color: #f3f4f6;
 }
 
-/* ========== FOOTER ========== */
-footer.footer {
-    background-color: #111111;
-    border-top: 2px solid #e5e7eb;
-    font-family: 'Inter', sans-serif;
-    padding: 2rem 2rem;
-}
-
-
-footer .footer p {
-    font-size: 1rem;
-    color: #3232d7;
-}
-
-footer .social-icons {
-    margin-top: 1rem;
-    margin-bottom: 1rem;
+.footer {
+    background-color: #111;
+    color: white;
+    padding: 1.5rem 2rem;
     display: flex;
-    justify-content: right;
-    gap: 1.25rem;
+    justify-content: space-between;
+    align-items: center;
 }
 
-footer .social-icons img {
+.footer .social-icons img {
     width: 24px;
-    height: 24px;
+    margin-left: 1rem;
 }
 
 
