@@ -13,7 +13,7 @@ body {
 
 .hero {
     text-align: center;
-    background: linear-gradient(to right, #dbeafe, #fce7f3);
+    background: linear-gradient(to right, #b4f2de, #adadea);
     padding: 4rem 2rem;
 }
 
@@ -91,16 +91,3 @@ body {
     color: #111;
 }
 
-.footer {
-    background: rgba(46, 46, 45, 0.26);
-    color: white;
-    padding: 1.5rem 2rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.footer a img {
-    width: 24px;
-    margin-left: 5px;
-}
