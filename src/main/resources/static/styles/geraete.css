@@ -1,0 +1,148 @@
+html, body {
+    font-family: 'Inter', sans-serif;
+    height: 100%;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    background: #f4f4f4;
+}
+
+.page-wrapper {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+header {
+    text-align: center;
+    padding: 2rem;
+    background-color: #e0f2fe;
+}
+
+.filter-section {
+    text-align: center;
+    margin-top: 1rem;
+}
+
+.filter-buttons {
+    display: inline-flex;
+    gap: 1rem;
+    background: #f1f5f9;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+}
+
+.filter-btn {
+    background: transparent;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 1rem;
+    color: #475569;
+    padding: 0.4rem 0.75rem;
+    border-radius: 6px;
+    transition: background 0.2s ease;
+}
+
+.filter-btn:hover {
+    background-color: #e0e7ff;
+}
+
+.filter-btn.active {
+    background-color: white;
+    color: #1e293b;
+}
+
+
+
+main.geraete-container {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.card {
+    background: #fff;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.no-data {
+    grid-column: 1 / -1;
+    text-align: center;
+    font-size: 1.2rem;
+    color: #555;
+    padding: 4rem 0;
+}
+
+.card img {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+}
+
+.card-body {
+    padding: 1rem;
+}
+
+.card h3 {
+    margin: 0 0 0.5rem;
+}
+
+.card p {
+    font-size: 0.9rem;
+    color: #444;
+}
+
+.status {
+    display: inline-block;
+    padding: 0.25rem 0.6rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.status.verfuegbar {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.status.wartung {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.btn {
+    background: #3b82f6;
+    color: white;
+    border: none;
+    padding: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    width: 100%;
+    font-size: 1rem;
+    border-radius: 0 0 10px 10px;
+}
+
+.footer {
+    background-color: #111;
+    color: white;
+    padding: 1.5rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.footer .social-icons img {
+    width: 24px;
+    margin-left: 1rem;
+}
