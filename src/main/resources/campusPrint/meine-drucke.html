@@ -3,40 +3,45 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Meine Drucke</title>
+    <title>Meine Drucke – CampusPrint</title>
+
     <link rel="stylesheet" href="styles/meine-drucke.css" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles/foot-head.css" />
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
 </head>
 <body>
 <div class="page-wrapper">
-    <header class="page-header">
-        <a href="geraete.html" class="back-link"><- Zurück zum Katalog</a>
-        <h1>Meine Drucke</h1>
-        <p class="subtitle">Verfolge den Status deiner Buchungen und sieh <a href="#">Live-Videos</a> von laufenden Drucken</p>
-    </header>
+    <!-- Header -->
+    <div data-include="header.html"></div>
 
     <main class="main-content">
-        <section class="lookup-box">
+        <a href="geraete.html" class="back-link">← Zurück zum Katalog</a>
+
+        <h1>Meine Drucke</h1>
+        <p class="subtitle">
+            Verfolge den Status deiner Buchungen und sieh Live-Videos von laufenden Drucken
+        </p>
+
+        <section class="search-box">
             <h2>Buchungen abrufen</h2>
             <p>Gib deine E-Mail-Adresse ein, um deine Buchungen anzuzeigen</p>
-            <div class="input-group">
-                <input type="email" id="emailInput" placeholder="Max.mustermann@gmail.com" />
-                <button id="searchBtn">🔍 Suchen</button>
-            </div>
+
+            <form id="drucke-form">
+                <input type="email" id="email" placeholder="deine.email@student.de" required />
+                <button type="submit">🔍 Suchen</button>
+            </form>
+        </section>
+
+        <section id="drucke-ergebnisse" class="results-container">
         </section>
     </main>
 
-    <footer class="footer">
-        <p>© 2025 CampusPrint, All Rights Reserved.</p>
-        <div class="social-icons">
-            <a href="#"><img src="assets/icon-facebook.svg" alt="Facebook" /></a>
-            <a href="#"><img src="assets/icon-instagram.svg" alt="Instagram" /></a>
-            <a href="#"><img src="assets/icon-x.svg" alt="X" /></a>
-            <a href="#"><img src="assets/icon-youtube.svg" alt="YouTube" /></a>
-        </div>
-    </footer>
+    <!-- Footer -->
+    <div data-include="footer.html"></div>
 </div>
 
+<script src="scripts/include.js"></script>
 <script type="module" src="scripts/meine-drucke.ts"></script>
 </body>
 </html>
