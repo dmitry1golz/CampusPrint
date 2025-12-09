@@ -9,98 +9,80 @@ interface Geraet {
     category: string;
 }
 
-let allGeraete: Geraet[] = [];
+let alleGeraete: Geraet[] = [];
 
-/**
- * Card rendering function
- */
-function renderGeraete(data: Geraet[], container: HTMLElement): void {
+function renderGeraete(data: Geraet[]): void {
+    const container = document.getElementById('geraete-container');
+    if (!container) return;
+
     container.innerHTML = '';
 
     if (data.length === 0) {
-        const message = document.createElement('div');
-        message.className = 'no-data';
-        message.textContent = 'Drucker noch nicht hinzugefügt';
-        container.appendChild(message);
+        container.innerHTML = '<div class="no-data">Keine Geräte verfügbar</div>';
         return;
     }
 
-    data.forEach((geraet) => {
+    data.forEach((g) => {
         const card = document.createElement('div');
         card.className = 'card';
-        card.setAttribute('data-category', geraet.category);
-
         card.innerHTML = `
-      <img src="${geraet.image}" alt="${geraet.name}" />
+      <img src="${g.image}" alt="${g.name}" />
       <div class="card-body">
-        <span class="status ${geraet.status}">
-          ${geraet.status === 'verfuegbar' ? 'Verfügbar' : 'Wartung'}
+        <span class="status ${g.status}">
+          ${g.status === 'verfuegbar' ? 'Verfügbar' : 'Wartung'}
         </span>
-        <h3>${geraet.name}</h3>
-        <p>${geraet.description}</p>
+        <h3>${g.name}</h3>
+        <p>${g.description}</p>
         <ul>
-          <li><strong>Build Volume:</strong> ${geraet.volume}</li>
-          <li><strong>Layer Height:</strong> ${geraet.layer}</li>
-          <li><strong>Nozzle:</strong> ${geraet.nozzle}</li>
+          <li><strong>Build Volume:</strong> ${g.volume}</li>
+          <li><strong>Layer Height:</strong> ${g.layer}</li>
+          <li><strong>Nozzle:</strong> ${g.nozzle}</li>
         </ul>
       </div>
       <button class="btn">Buchen</button>
     `;
 
+        const button = card.querySelector('.btn') as HTMLButtonElement;
+        button.addEventListener('click', () => {
+            window.location.href = `buchung.html?geraet=${encodeURIComponent(g.name)}`;
+        });
+
         container.appendChild(card);
     });
 }
 
-/**
- * Downloading a JSON file from the server
- */
-async function loadGeraete(): Promise<void> {
-    const container = document.getElementById('geraete-container');
-    if (!container) return;
-
-    try {
-        const response = await fetch('../data/geraete.json');
-        if (!response.ok) throw new Error('Fehler beim Laden der Daten');
-        const data: Geraet[] = await response.json();
-        allGeraete = data;
-        renderGeraete(allGeraete, container);
-    } catch (error) {
-        console.error(error);
-        container.innerHTML = `<div class="no-data">Ошибка загрузки данных</div>`;
-    }
-}
-
-/**
- * Configuring filter buttons
- */
 function setupFilterButtons(): void {
     const buttons = document.querySelectorAll('.filter-btn');
     const container = document.getElementById('geraete-container');
     if (!container) return;
 
-    buttons.forEach((button) => {
-        button.addEventListener('click', () => {
-            buttons.forEach((btn) => btn.classList.remove('active'));
-            button.classList.add('active');
+    buttons.forEach((btn) => {
+        btn.addEventListener('click', () => {
+            document.querySelector('.filter-btn.active')?.classList.remove('active');
+            btn.classList.add('active');
 
-            const category = button.getAttribute('data-category');
-
+            const category = btn.getAttribute('data-category');
             if (category === 'Alle') {
-                renderGeraete(allGeraete, container);
+                renderGeraete(alleGeraete);
             } else {
-                const filtered = allGeraete.filter(
-                    (geraet) => geraet.category === category
-                );
-                renderGeraete(filtered, container);
+                const filtered = alleGeraete.filter((g) => g.category === category);
+                renderGeraete(filtered);
             }
         });
     });
 }
 
-/**
- * Initialisierung beim Laden der Seite
- */
-document.addEventListener('DOMContentLoaded', async () => {
-    await loadGeraete();
-    setupFilterButtons();
+document.addEventListener('DOMContentLoaded', () => {
+    fetch('data/geraete.json')
+        .then((res) => res.json())
+        .then((data: Geraet[]) => {
+            alleGeraete = data;
+            renderGeraete(alleGeraete);
+            setupFilterButtons();
+        })
+        .catch((err) => {
+            const container = document.getElementById('geraete-container');
+            if (container) container.innerHTML = '<div class="no-data">Fehler beim Laden</div>';
+            console.error('Fehler beim Laden:', err);
+        });
 });

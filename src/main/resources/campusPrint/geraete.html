@@ -1,38 +1,40 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Gerätekatalog</title>
-    <link rel="stylesheet" href="styles/geraete.css"/>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gerätekatalog – CampusPrint</title>
+    <link rel="stylesheet" href="styles/geraete.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
 </head>
 <body>
 <div class="page-wrapper">
-    <header>
-        <h1>Gerätekatalog</h1>
-        <p>Wähle ein Gerät und buche einen Zeitslot</p>
-    </header>
+    <!-- Header -->
+    <div data-include="partials/header.html"></div>
 
-    <section class="filter-section">
-        <div class="filter-buttons">
-            <button class="filter-btn active" data-category="Alle">Alle</button>
-            <button class="filter-btn" data-category="3D-Drucker">3D-Drucker</button>
-            <button class="filter-btn" data-category="Plotter">Plotter</button>
-            <button class="filter-btn" data-category="Laserschneider">Laserschneider</button>
-        </div>
-    </section>
+    <main>
+        <section class="katalog-header">
+            <h1>Gerätekatalog</h1>
+            <p>Wähle ein Gerät und buche einen Zeitslot</p>
 
-    <main class="geraete-container" id="geraete-container">
-        <!-- Cards will be inserted here -->
-        <script type="module" src="scripts/geraete.ts"></script>
+            <div class="filter-buttons">
+                <button class="filter-btn active" data-category="Alle">Alle</button>
+                <button class="filter-btn" data-category="3D-Drucker">3D-Drucker</button>
+                <button class="filter-btn" data-category="Plotter">Plotter</button>
+                <button class="filter-btn" data-category="Laserschneider">Laserschneider</button>
+            </div>
+        </section>
 
+        <section class="geraete-container" id="geraete-container">
+            <!-- Karten erscheinen hier -->
+        </section>
     </main>
 
-    <footer>
-        <p>© 2025 CampusPrint, All Rights Reserved.</p>
-    </footer>
+    <!-- Footer -->
+    <div data-include="partials/footer.html"></div>
 </div>
 
-<script type="module" src="scripts/geraete.ts"></script>
+<script src="scripts/include.js"></script>
+<script src="scripts/geraete.js"></script> <!-- noch keine js -->
 </body>
 </html>

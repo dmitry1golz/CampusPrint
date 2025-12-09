@@ -133,9 +133,16 @@ main.geraete-container {
     border-radius: 0 0 10px 10px;
 }
 
-footer {
-    text-align: center;
-    padding: 1.5rem;
-    background: #111;
+.footer {
+    background-color: #111;
     color: white;
+    padding: 1.5rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.footer .social-icons img {
+    width: 24px;
+    margin-left: 1rem;
 }
