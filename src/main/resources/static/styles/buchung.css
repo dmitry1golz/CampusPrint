@@ -12,13 +12,13 @@ html, body {
     min-height: 100vh;
 }
 
-.top-bar {
-    display: flex;
-    justify-content: space-between;
-    padding: 1rem 2rem;
-    background: #fff;
-    border-bottom: 1px solid #ddd;
-}
+/*.top-bar {*/
+/*    display: flex;*/
+/*    justify-content: space-between;*/
+/*    padding: 1rem 2rem;*/
+/*    background: #fff;*/
+/*    border-bottom: 1px solid #ddd;*/
+/*}*/
 
 .nav-links a {
     margin-left: 1.5rem;
