@@ -31,3 +31,10 @@ build/
 
 ### VS Code ###
 .vscode/
+
+
+### Node Modules (hauptsächlich Typescript Compiler)
+node_modules
+
+### Kompilierte TS / JS Datein
+src/main/resources/static/js/
