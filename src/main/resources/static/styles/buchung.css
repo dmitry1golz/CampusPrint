@@ -36,17 +36,36 @@ html, body {
 .main-content {
     flex: 1;
     max-width: 600px;
+    width: 100%;
     margin: 2rem auto;
-    padding: 2rem;
+    padding: 2rem 1rem;
+    box-sizing: border-box;
     background: white;
     border-radius: 10px;
     box-shadow: 0 4px 10px rgba(0,0,0,0.05);
 }
 
+/* Spacing of Form Items */
 .booking-form {
     display: flex;
     flex-direction: column;
     gap: 1rem;
+}
+
+/* Spacing of Items belonging to one form Group */
+.formGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+/* Multiple Form Groups in a row */
+.formGroupRow {
+    display: flex;
+    gap: 1rem;
+}
+.formGroupRow div {
+    flex: 1;
 }
 
 label {
@@ -58,17 +77,11 @@ input, textarea {
     font-size: 1rem;
     border: 1px solid #ccc;
     border-radius: 6px;
-    width: 100%;
 }
 
 textarea {
     resize: vertical;
     min-height: 80px;
-}
-
-.time-row {
-    display: flex;
-    gap: 1rem;
 }
 
 .buttons {
@@ -78,6 +91,7 @@ textarea {
 }
 
 .submit-btn {
+    flex: 1;
     background-color: #3b82f6;
     color: white;
     border: none;
@@ -88,6 +102,7 @@ textarea {
 }
 
 .cancel-btn {
+    flex: 0;
     background-color: #f3f4f6;
     color: #111;
     border: none;
