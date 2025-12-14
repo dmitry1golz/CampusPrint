@@ -14,6 +14,9 @@ const errorStateElement = document.getElementById('pageState-error');
 const readyStateElement = document.getElementById('pageState-ready');
 
 const form = document.getElementById('bookingForm') as HTMLFormElement;
+
+const dateSelectorPreviousMonth = document.getElementById('dateSelectorPreviousMonth')!;
+const dateSelectorNextMonth = document.getElementById('dateSelectorNextMonth')!;
 // ----------------------------------------
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -69,6 +72,34 @@ document.addEventListener('DOMContentLoaded', () => {
         window.location.href = "meine-drucke.html"; 
     });
 
+    dateSelectorPreviousMonth.addEventListener('click', () => {
+        if (currentDateSelectorMonth === 0) {
+            currentDateSelectorYear--;
+            currentDateSelectorMonth = 11;
+        } else {
+            currentDateSelectorMonth--;
+        }
+        renderDateSelector(
+            currentlySelectedDate,
+            currentDateSelectorYear,
+            currentDateSelectorMonth
+        );
+    });
+
+    dateSelectorNextMonth.addEventListener('click', () => {
+        if (currentDateSelectorMonth === 11) {
+            currentDateSelectorYear++;
+            currentDateSelectorMonth = 0;
+        } else {
+            currentDateSelectorMonth++;
+        }
+        renderDateSelector(
+            currentlySelectedDate,
+            currentDateSelectorYear,
+            currentDateSelectorMonth
+        );
+    });
+
     currentDateSelectorYear = new Date().getFullYear();
     currentDateSelectorMonth = new Date().getMonth();
 
@@ -90,6 +121,11 @@ function renderDateSelector(selectedDate: Date | undefined, year: number, month:
     const monthYearDateObj = new Date(year, month);
     const headerValue = monthYearDateObj.toLocaleString('default', { month: 'long', year: 'numeric' });
     dateHeaderValue.innerText = headerValue;
+
+    // Clear grid (only leave first Weekdayname row)
+    while (dateGridDiv.children.length > 1) {
+        dateGridDiv.removeChild(dateGridDiv.lastElementChild!);
+    }
 
     // Array of all the numbers and spaces
     var dateGridTextArray: string[] = [];
