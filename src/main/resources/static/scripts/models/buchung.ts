@@ -1,8 +1,8 @@
 interface PrintBooking {
     id: string;
     printerName: string;
-    date: string;
-    time: string;
+    startDate: string;
+    endDate: string;
     notes?: string;
     message?: string;
     videoUrl?: string;
@@ -11,7 +11,7 @@ interface PrintBooking {
 
 interface NewPrintBooking {
     printerId: string;
-    date: string;
-    time: string;
+    startDate: string;
+    endDate: string;
     notes?: string;
 }
