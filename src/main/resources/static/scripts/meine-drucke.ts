@@ -29,7 +29,6 @@ document.addEventListener('DOMContentLoaded', () => {
             alert("Fehler beim Laden der Druckbuchungen.");
         }
     });
-    renderDrucke(container, mockBookings()); // TODO Demo-Zwecke
 });
 
 async function fetchPrints(email: string): Promise<PrintBooking[]> {
