@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Meine Drucke – CampusPrint</title>
 
-    <link rel="stylesheet" href="styles/meine-drucke.css" />
-    <link rel="stylesheet" href="styles/foot-head.css" />
+    <link rel="stylesheet" href="styles/meine-drucke.css"/>
+    <link rel="stylesheet" href="styles/foot-head.css"/>
 
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet"/>
 </head>
 <body>
 <div class="page-wrapper">
@@ -28,12 +28,13 @@
             <p>Gib deine E-Mail-Adresse ein, um deine Buchungen anzuzeigen</p>
 
             <form id="drucke-form">
-                <label for="email"></label><input type="email" id="email" placeholder="deine.email@student.de" required />
+                <label for="email"></label>
+                <input type="email" id="email" placeholder="deine.email@student.de" required/>
                 <button type="submit">🔍 Suchen</button>
             </form>
         </section>
 
-        <section id="drucke-ergebnisse" class="results-container">
+        <section id="drucke-ergebnisse">
         </section>
     </main>
 
@@ -41,7 +42,7 @@
     <div data-include="footer.html"></div>
 </div>
 
-<script src="scripts/include.js"></script>
-<script type="module" src="scripts/meine-drucke.ts"></script>
+<script src="js/include.js"></script>
+<script type="module" src="js/meine-drucke.js"></script>
 </body>
 </html>

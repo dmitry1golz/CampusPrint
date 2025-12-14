@@ -4,20 +4,16 @@ html, body {
     margin: 0;
     display: flex;
     flex-direction: column;
-    background: #f4f4f4;
+    background: #ffffff;
 }
 
 .page-wrapper {
     display: flex;
+    text-align: center;
     flex-direction: column;
     min-height: 100vh;
 }
 
-header {
-    text-align: center;
-    padding: 2rem;
-    background-color: #e0f2fe;
-}
 
 .filter-section {
     text-align: center;
@@ -26,8 +22,8 @@ header {
 
 .filter-buttons {
     display: inline-flex;
-    gap: 1rem;
-    background: #f1f5f9;
+    gap: 2rem;
+    background: #d4d5d8;
     padding: 0.5rem 1rem;
     border-radius: 8px;
 }
@@ -49,7 +45,7 @@ header {
 }
 
 .filter-btn.active {
-    background-color: white;
+    background-color: #ffffff;
     color: #1e293b;
 }
 
@@ -133,16 +129,4 @@ main.geraete-container {
     border-radius: 0 0 10px 10px;
 }
 
-.footer {
-    background-color: #111;
-    color: white;
-    padding: 1.5rem 2rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
 
-.footer .social-icons img {
-    width: 24px;
-    margin-left: 1rem;
-}
