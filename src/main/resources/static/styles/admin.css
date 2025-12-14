@@ -10,9 +10,34 @@
     --text-muted: #6c757d;
 }
 
-body {
-    font-family: var(--font-main);
+html, body {
+    height: 100%;
+    margin: 0;
+    /* Deine globalen Fonts und Farben */
+    font-family: 'Roboto', sans-serif; /* Oder 'Inter', wie du magst */
+    background-color: #f8f9fa;
+    color: #212529;
 }
+
+.page-wrapper {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; 
+}
+
+.main-content {
+    flex: 1; 
+    width: 100%;
+    display: block; 
+}
+
+/* body {
+    font-family: var(--font-main);
+    height: 100%;
+    margin: 0;
+    background-color: #f9f9f9;
+    color: #111;
+} */
 
 /* Layout Container */
 .admin-container {
