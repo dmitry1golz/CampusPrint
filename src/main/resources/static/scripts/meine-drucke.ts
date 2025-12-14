@@ -16,14 +16,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (!form || !emailInput || !container) return;
 
+    // E-Mail aus Cookie laden und ins Input-Feld setzen
+    const savedEmail = getCookie('userEmail');
+    if (savedEmail) {
+        emailInput.value = savedEmail;
+        // Automatisch die Druckbuchungen laden
+        const bookings: PrintBooking[] = mockBookings();
+        renderDrucke(container, bookings);
+    }
+
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
         const email = emailInput.value.trim();
         if (!email) return;
+
+        // E-Mail im Cookie speichern (30 Tage gültig)
+        setCookie('userEmail', email, 30);
+
         try {
             // const bookings = await fetchPrints(email);
-            // const bookings : PrintBooking[] = []; für leere Ergebnisse
-            const bookings : PrintBooking[] = mockBookings();
+            const bookings: PrintBooking[] = mockBookings();
             renderDrucke(container, bookings);
         } catch (err) {
             console.error(err);
@@ -147,6 +159,26 @@ function metaCol(label: string, value: string): HTMLElement {
 function capitalize(s: string): string {
     if (!s) return s;
     return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
+function setCookie(name: string, value: string, days: number = 30): void {
+    const date = new Date();
+    date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
+    const expires = 'expires=' + date.toUTCString();
+    document.cookie = `${name}=${encodeURIComponent(value)}; ${expires}; path=/; SameSite=Lax`;
+}
+
+function getCookie(name: string): string | null {
+    const nameEQ = name + '=';
+    const ca = document.cookie.split(';');
+    for (let i = 0; i < ca.length; i++) {
+        let c = ca[i];
+        while (c.charAt(0) === ' ') c = c.substring(1);
+        if (c.indexOf(nameEQ) === 0) {
+            return decodeURIComponent(c.substring(nameEQ.length));
+        }
+    }
+    return null;
 }
 
 function mockBookings(): PrintBooking[] {
