@@ -38,3 +38,14 @@ node_modules
 
 ### Kompilierte TS / JS Datein
 src/main/resources/static/js/
+
+
+### Allgemeine Java/JVM-Einträge ###
+# Bytecode-Dateien
+*.class
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.rar
