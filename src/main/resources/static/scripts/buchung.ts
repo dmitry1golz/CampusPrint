@@ -55,8 +55,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const booking: NewPrintBooking = {
             printerId: geraet.id,
-            date: date,
-            time: `${start} - ${end}`,
+            startDate: `${date} - ${start}`,
+            endDate: `${date} - ${end}`,
             notes: notes, // treat empty string as null?
         }
 

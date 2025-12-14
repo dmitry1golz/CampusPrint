@@ -92,8 +92,16 @@ function createCard(b: PrintBooking): HTMLElement {
     const body = document.createElement('div');
     body.className = 'card-body';
 
-    body.appendChild(metaCol('Datum', b.date));
-    body.appendChild(metaCol('Uhrzeit', b.time));
+
+    const startDate = parseGermanDate(b.startDate);
+    const endDate = parseGermanDate(b.endDate);
+
+    const dateString = formatDate(startDate, endDate);
+    const timeString = formatTime(startDate, endDate);
+
+    body.appendChild(metaCol('Datum', dateString));
+    body.appendChild(metaCol('Uhrzeit', timeString));
+
     body.appendChild(metaCol('Notizen', b.notes || '-'));
     if (b.message) {
         body.appendChild(metaCol('Nachricht', b.message));
@@ -132,6 +140,34 @@ function createCard(b: PrintBooking): HTMLElement {
     }
 
     return article;
+}
+
+function formatDate(startDate: Date, endDate: Date): string {
+    const start = startDate.toLocaleDateString('de-DE');
+    const end = endDate.toLocaleDateString('de-DE');
+
+    return start === end ? start : `${start} \- ${end}`;
+}
+
+function formatTime(startDate: Date, endDate: Date): string {
+    const start = startDate.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+    const end = endDate.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+
+    return `${start} \- ${end}`;
+}
+
+function parseGermanDate(dateString: string): Date {
+    const [datePart, timePart] = dateString.split(' ');
+    const [day, month, year] = datePart.split('.');
+    const [hours, minutes] = timePart.split(':');
+
+    return new Date(
+        parseInt(year),
+        parseInt(month) - 1,
+        parseInt(day),
+        parseInt(hours),
+        parseInt(minutes)
+    );
 }
 
 function metaCol(label: string, value: string): HTMLElement {
