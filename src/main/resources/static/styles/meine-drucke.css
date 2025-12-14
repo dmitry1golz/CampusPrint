@@ -96,11 +96,97 @@ html, body {
     background-color: #2563eb;
 }
 
-/* ========== Results ========== */
-.results-container {
-    min-height: 120px;
-    background: white;
+/* Druckergebnis-Card */
+.druckergebnis-card {
     border-radius: 8px;
-    padding: 1rem;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    padding: 1.25rem;
+    background: #ffffff;
+    box-shadow: 0 1px 0 rgba(0,0,0,0.03);
+    margin-bottom: 1rem;
+}
+
+/* Header mit Titel und Status */
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.card-title h3 {
+    margin: 0;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #0f172a;
+}
+
+.booking-id {
+    font-size: 0.85rem;
+    color: #6b7280;
+    margin-top: 0.25rem;
+}
+
+/* Status-Pill */
+.status-pill {
+    padding: 0.25rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #fff;
+    align-self: center;
+}
+
+.status-pill.rejected {
+    background: #ef4444; /* rot */
+}
+
+.status-pill.pending {
+    background: #f59e0b; /* Amber */
+    color: #0f172a;      /* dunkler Text für guten Kontrast */
+    box-shadow: 0 1px 0 rgba(0,0,0,0.04);
+}
+
+.status-pill.confirmed {
+    background: #3b82f6; /* Blue */
+}
+
+.status-pill.completed {
+    background: #16a34a; /* Grün (erledigt) */
+}
+
+.status-pill.running {
+    background: #8b5cf6; /* Violett (läuft) */
+}
+
+/* Body mit drei Spalten (Datum / Uhrzeit / Notizen) */
+.card-body {
+    display: flex;
+    justify-content: flex-start;
+    gap: 2.5rem;
+    flex-wrap: wrap;
+}
+
+.card-col {
+    min-width: 140px;
+}
+
+.meta-label {
+    font-size: 0.8rem;
+    color: #6b7280;
+    margin-bottom: 0.35rem;
+}
+
+.meta-value {
+    font-size: 0.95rem;
+    color: #111827;
+    font-weight: 500;
+}
+
+/* Responsiv: bei schmalen Bildschirmen untereinander */
+@media (max-width: 640px) {
+    .card-body {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
 }
