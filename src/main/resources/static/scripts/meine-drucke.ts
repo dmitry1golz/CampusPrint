@@ -1,15 +1,5 @@
+import { getBookingsForEmail } from './services/buchung-service.js';
 import { getCookie, setCookie } from './utils.js';
-
-interface PrintBooking {
-    id: string;
-    printer: string;
-    date: string;
-    time: string;
-    notes?: string;
-    message?: string;
-    videoUrl?: string;
-    status: 'pending' | 'confirmed' | 'completed' | 'rejected' | 'running' | string;
-}
 
 document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('drucke-form') as HTMLFormElement | null;
@@ -23,7 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (savedEmail) {
         emailInput.value = savedEmail;
         // Automatisch die Druckbuchungen laden
-        const bookings: PrintBooking[] = mockBookings();
+        const bookings: PrintBooking[] = getBookingsForEmail(savedEmail);
         renderDrucke(container, bookings);
     }
 
@@ -37,7 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         try {
             // const bookings = await fetchPrints(email);
-            const bookings: PrintBooking[] = mockBookings();
+            const bookings: PrintBooking[] = getBookingsForEmail(email);
             renderDrucke(container, bookings);
         } catch (err) {
             console.error(err);
@@ -46,16 +36,16 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-async function fetchPrints(email: string): Promise<PrintBooking[]> {
-    try {
-        const res = await fetch('/api/prints?email=' + encodeURIComponent(email));
-        if (!res.ok) throw new Error('API antwortet nicht');
-        const data = await res.json();
-        return data as PrintBooking[];
-    } catch {
-        return mockBookings();
-    }
-}
+// async function fetchPrints(email: string): Promise<PrintBooking[]> {
+//     try {
+//         const res = await fetch('/api/prints?email=' + encodeURIComponent(email));
+//         if (!res.ok) throw new Error('API antwortet nicht');
+//         const data = await res.json();
+//         return data as PrintBooking[];
+//     } catch {
+//         return MOCK_BOOKING;
+//     }
+// }
 
 function renderDrucke(container: HTMLElement, bookings: PrintBooking[]) {
     container.innerHTML = '';
@@ -78,7 +68,7 @@ function createCard(b: PrintBooking): HTMLElement {
     const titleWrap = document.createElement('div');
     titleWrap.className = 'card-title';
     const h3 = document.createElement('h3');
-    h3.textContent = b.printer;
+    h3.textContent = b.printerName;
     const bookingId = document.createElement('div');
     bookingId.className = 'booking-id';
     bookingId.textContent = `Buchungs-ID: ${b.id}`;
@@ -161,55 +151,4 @@ function metaCol(label: string, value: string): HTMLElement {
 function capitalize(s: string): string {
     if (!s) return s;
     return s.charAt(0).toUpperCase() + s.slice(1);
-}
-
-
-
-function mockBookings(): PrintBooking[] {
-    return [
-        {
-            id: 'book-1763276488435',
-            printer: 'Ultimaker S5',
-            date: '21.11.2025',
-            time: '13:00 - 19:00',
-            notes: 'Prototypen',
-            status: 'rejected',
-            message: "Der Zeitslot ist leider nicht verfügbar. Ich könnte dir anbieren, den Druck am 25.11.2025 " +
-                "durchzuführen. Sonst melde dich unter admin@campusprint.de, damit wir einen Termin finden."
-        },
-        {
-            id: 'book-1763276489000',
-            printer: 'Prusa MK3',
-            date: '22.11.2025',
-            time: '09:00 - 12:00',
-            notes: 'Testdruck',
-            videoUrl: 'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fwww.schaan.li%2Fapplication' +
-                '%2Ffiles%2Fthumbnails%2Flarge%2F9116%2F5174%2F4032%2F3D-Druck.jpg',
-            status: 'running'
-        },
-        {
-            id: 'book-1763276490123',
-            printer: 'Ender 3',
-            date: '23.11.2025',
-            time: '08:00 - 14:00',
-            notes: 'Miniatur-Serie',
-            status: 'pending'
-        },
-        {
-            id: 'book-1763276491456',
-            printer: 'Formlabs Form 3',
-            date: '24.11.2025',
-            time: '10:00 - 16:00',
-            notes: 'Gehäuse Prototyp',
-            status: 'confirmed'
-        },
-        {
-            id: 'book-1763276493012',
-            printer: 'Anycubic Photon',
-            date: '20.11.2025',
-            time: '07:00 - 13:00',
-            notes: 'Kleinteile Batch',
-            status: 'completed'
-        },
-    ];
 }

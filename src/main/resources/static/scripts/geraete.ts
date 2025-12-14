@@ -1,14 +1,3 @@
-interface Geraet {
-    name: string;
-    description: string;
-    volume: string;
-    layer: string;
-    nozzle: string;
-    image: string;
-    status: 'verfuegbar' | 'wartung';
-    category: string;
-}
-
 let alleGeraete: Geraet[] = [];
 
 function renderGeraete(data: Geraet[]): void {
@@ -29,7 +18,7 @@ function renderGeraete(data: Geraet[]): void {
       <img src="${g.image}" alt="${g.name}" />
       <div class="card-body">
         <span class="status ${g.status}">
-          ${g.status === 'verfuegbar' ? 'Verfügbar' : 'Wartung'}
+          ${g.status}
         </span>
         <h3>${g.name}</h3>
         <p>${g.description}</p>
@@ -65,7 +54,8 @@ function setupFilterButtons(): void {
             if (category === 'Alle') {
                 renderGeraete(alleGeraete);
             } else {
-                const filtered = alleGeraete.filter((g) => g.category === category);
+                // TODO does not work because UI and DB names differ?
+                const filtered = alleGeraete.filter((g) => g.type === category);
                 renderGeraete(filtered);
             }
         });
