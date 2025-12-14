@@ -5,6 +5,7 @@ interface PrintBooking {
     time: string;
     notes?: string;
     message?: string;
+    videoUrl?: string;
     status: 'pending' | 'confirmed' | 'completed' | 'rejected' | 'running' | string;
 }
 
@@ -73,17 +74,13 @@ function createCard(b: PrintBooking): HTMLElement {
 
     const status = document.createElement('span');
     status.className = 'status-pill ' + b.status;
-    status.textContent = capitalize(b.status === 'pending'
-        ? 'ausstehend'
-        : b.status === 'confirmed'
-        ? 'bestätigt'
-        : b.status === 'completed'
-        ? 'abgeschlossen'
-        : b.status === 'rejected'
-        ? 'abgelehnt'
-        : b.status === 'running'
-        ? 'in Bearbeitung'
-        : b.status);
+    status.textContent = capitalize(
+        b.status === 'pending' ? 'ausstehend' :
+        b.status === 'confirmed' ? 'bestätigt' :
+        b.status === 'completed' ? 'abgeschlossen' :
+        b.status === 'rejected' ? 'abgelehnt' :
+        b.status === 'running' ? 'in Bearbeitung' : b.status
+    );
 
     header.appendChild(titleWrap);
     header.appendChild(status);
@@ -94,12 +91,41 @@ function createCard(b: PrintBooking): HTMLElement {
     body.appendChild(metaCol('Datum', b.date));
     body.appendChild(metaCol('Uhrzeit', b.time));
     body.appendChild(metaCol('Notizen', b.notes || '-'));
-    if ( b.message ) {
-        body.appendChild(metaCol('Nachricht', b.message || '-'));
+    if (b.message) {
+        body.appendChild(metaCol('Nachricht', b.message));
     }
 
     article.appendChild(header);
     article.appendChild(body);
+
+    // NEU: Live-Übertragung-Sektion (nur wenn videoUrl vorhanden)
+    if (b.videoUrl) {
+        const liveSection = document.createElement('div');
+        liveSection.className = 'live-feed-section';
+
+        const liveHeader = document.createElement('div');
+        liveHeader.className = 'live-feed-header';
+        liveHeader.innerHTML = '📹 <strong>Live-Übertragung</strong>';
+
+        const videoWrapper = document.createElement('div');
+        videoWrapper.className = 'live-feed-video';
+
+        const img = document.createElement('img');
+        img.src = b.videoUrl;
+        img.alt = 'Live camera feed';
+        img.loading = 'lazy';
+
+        const caption = document.createElement('div');
+        caption.className = 'live-feed-caption';
+        caption.textContent = 'Live-Kamera des Druckers • Aktualisiert automatisch';
+
+        videoWrapper.appendChild(img);
+        liveSection.appendChild(liveHeader);
+        liveSection.appendChild(videoWrapper);
+        liveSection.appendChild(caption);
+
+        article.appendChild(liveSection);
+    }
 
     return article;
 }
@@ -141,6 +167,8 @@ function mockBookings(): PrintBooking[] {
             date: '22.11.2025',
             time: '09:00 - 12:00',
             notes: 'Testdruck',
+            videoUrl: 'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fwww.schaan.li%2Fapplication' +
+                '%2Ffiles%2Fthumbnails%2Flarge%2F9116%2F5174%2F4032%2F3D-Druck.jpg',
             status: 'running'
         },
         {
