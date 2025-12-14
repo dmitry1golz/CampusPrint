@@ -1,0 +1,42 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "tsc-watch-direct",
+            "type": "shell",
+            "command": "npm run ts-watch",
+            
+            "isBackground": true, 
+            
+            "problemMatcher": "$tsc-watch",
+            
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "reveal": "never",
+                "showReuseMessage": false
+            }
+        },
+        {
+            "label": "maven-compile-classes",
+            "type": "shell",
+            "command": ".\\mvnw.cmd compile", // Für Linux und MacOS: "./mvnw compile"
+            "group": "build",
+            "presentation": {
+                "reveal": "never",
+                "showReuseMessage": false, 
+                "panel": "shared",
+                "close": true // Schließt das Terminal nach Abschluss der Aufgabe; Kann entfernt werden
+            },
+        },
+        {
+            "label": "full-dev-prep-compound",
+            "dependsOn": [
+                "maven-compile-classes",
+                "tsc-watch-direct"
+            ],
+        }
+    ]
+}

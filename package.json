@@ -1,0 +1,13 @@
+{
+  "dependencies": {
+    "typescript": "^5.9.3"
+  },
+  "scripts": {
+    "compile": "npx tsc -p src/main/resources/tsconfig.json",
+    "ts-watch": "npx tsc -p src/main/resources/tsconfig.json --watch",
+    "ts-watch-bg-win": "start cmd /c \"npx tsc -p src/main/resources/tsconfig.json --watch\"",
+    "ts-watch-bg-os": "npx tsc -p src/main/resources/tsconfig.json --watch &",
+    "ts-watch-stop-os": "kill $(pgrep -f 'npx tsc -p')",
+    "ts-watch-stop-win": "start taskkill /F /IM node.exe"
+  }
+}

@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Dashboard – CampusPrint</title>
+    
+    <link rel="stylesheet" href="styles/foot-head.css" />
+    <link rel="stylesheet" href="styles/admin.css" />
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+<div class="page-wrapper">
+    <div data-include="header.html"></div>
+
+    <main class="main-content">
+        <div class="admin-container">
+            <div class="admin-header">
+                <h1>Admin Dashboard</h1>
+                <p class="subtitle">Verwaltung aller 3D-Druck & Laser Buchungen</p>
+            </div>
+
+            <div class="tabs-nav">
+                <button class="tab-btn active" data-target="pending">Ausstehend <span id="count-pending">(0)</span></button>
+                <button class="tab-btn" data-target="active">Aktiv <span id="count-active">(0)</span></button>
+                <button class="tab-btn" data-target="completed">Abgeschlossen <span id="count-completed">(0)</span></button>
+                <button class="tab-btn" data-target="equipment">
+                    <i data-lucide="printer" style="width: 16px;"></i> Geräte <span id="count-equipment">(0)</span>
+                </button>
+            </div>
+
+            <div class="tabs-content">
+                
+                <div id="tab-pending" class="tab-pane active">
+                    <div id="pending-list" class="booking-grid"></div>
+                    <div id="pending-empty" class="empty-msg hidden">
+                        <i data-lucide="check-circle" class="empty-icon"></i>
+                        <p>Keine ausstehenden Buchungen.</p>
+                    </div>
+                </div>
+
+                <div id="tab-active" class="tab-pane">
+                    <div id="active-list" class="booking-grid"></div>
+                    <div id="active-empty" class="empty-msg hidden">
+                        <p>Keine aktiven Buchungen.</p>
+                    </div>
+                </div>
+
+                <div id="tab-completed" class="tab-pane">
+                    <div id="completed-list" class="booking-grid"></div>
+                    <div id="completed-empty" class="empty-msg hidden">
+                        <p>Keine Historie vorhanden.</p>
+                    </div>
+                </div>
+
+                <div id="tab-equipment" class="tab-pane">
+                    <button id="btn-show-add-equipment" class="btn-primary mb-4">
+                        <i data-lucide="plus" style="width: 16px; vertical-align: text-bottom;"></i> Neues Gerät
+                    </button>
+                    
+                    <div id="add-equipment-form" class="form-card hidden">
+                        <h3>Neues Gerät anlegen</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="eq-name">Name</label>
+                                <input type="text" id="eq-name" placeholder="z.B. Prusa MK3" />
+                            </div>
+                            <div class="form-group">
+                                <label for="eq-type">Typ</label>
+                                <select id="eq-type">
+                                    <option value="3D-Drucker">3D-Drucker</option>
+                                    <option value="Laserschneider">Laserschneider</option>
+                                    <option value="Plotter">Plotter</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="eq-desc">Beschreibung</label>
+                            <textarea id="eq-desc" rows="2" placeholder="Kurze Beschreibung..."></textarea>
+                        </div>
+                        <div class="form-actions">
+                            <button id="btn-save-equipment" class="btn-primary">Speichern</button>
+                            <button id="btn-cancel-equipment" class="btn-secondary">Abbrechen</button>
+                        </div>
+                    </div>
+
+                    <div id="equipment-list" class="booking-grid"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div data-include="footer.html"></div>
+</div>
+
+<div id="reject-modal" class="modal-overlay hidden">
+    <div class="modal-box">
+        <h3>Buchung ablehnen</h3>
+        <p class="text-muted">Bitte gib eine Begründung für den Studenten an:</p>
+        <textarea id="reject-reason" rows="4" placeholder="Grund für die Ablehnung..."></textarea>
+        <div class="modal-actions">
+            <button id="btn-cancel-reject" class="btn-secondary">Abbrechen</button>
+            <button id="btn-confirm-reject" class="btn-danger">Ablehnen</button>
+        </div>
+    </div>
+</div>
+
+<script src="js/include.js"></script>
+
+<script type="module" src="js/admin.js"></script> 
+
+</body>
+</html>

@@ -1,12 +1,17 @@
 {
   "compilerOptions": {
-    "target": "ES6",
-    "module": "ES6",
-    "outDir": "./scripts",
-    "strict": true,
-    "esModuleInterop": true
+    "target": "ES6",            
+    "module": "ES2015",
+    "lib": ["dom", "es2020"],
+    "strict": true,             
+    "moduleResolution": "node", 
+    "removeComments": true,
+    // Kein "outDir", damit JS neben TS landet
+    // "outDir": "./dist"
+    "sourceMap": true,
+    "outDir": "./static/js",
+    "rootDir": "./static/scripts"      
   },
-  "include": [
-    "scripts/**/*.ts"
-  ]
+  "include": ["static/scripts/**/*"],  
+  "exclude": ["node_modules", "static/js"]
 }
