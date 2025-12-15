@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
         button.addEventListener('click', () => {
             // TODO nur fürs testen der buchen seite, sollte eigentlich auch auf Druckerauswahl gehen?
             // TODO oder soll die buchen seite ohne vorher ausgewählten drucker funktionieren
-            window.location.href = '/buchung.html?geraet_id=b856dff6-f4f8-4af1-bb44-888561eb584d';
+            window.location.href = '/buchung.html?geraet_id=p1';
         });
     });
 
