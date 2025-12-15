@@ -1,3 +1,4 @@
+import { NewPrintBooking } from "./models/buchung.js";
 import { createNewBooking } from "./services/buchung-service.js";
 import { getGeraetById } from "./services/geraet-service.js";
 import { setCookie } from "./utils.js";

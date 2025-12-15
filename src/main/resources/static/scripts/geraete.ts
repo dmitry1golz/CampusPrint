@@ -1,3 +1,5 @@
+import {Geraet} from "./models/geraet"
+
 let alleGeraete: Geraet[] = [];
 
 function renderGeraete(data: Geraet[]): void {
