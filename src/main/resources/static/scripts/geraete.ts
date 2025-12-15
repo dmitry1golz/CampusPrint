@@ -1,5 +1,5 @@
-import {getAllGeraete} from "./services/geraet-service.js";
-import {Geraet} from "./models/geraet.js";
+import { Geraet } from "./models/geraet.js";
+import { getAllGeraete } from "./services/geraet-service.js";
 
 
 let alleGeraete: Geraet[] = getAllGeraete();
