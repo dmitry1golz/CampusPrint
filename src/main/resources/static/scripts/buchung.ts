@@ -1,12 +1,25 @@
-import { createNewBooking } from "./services/buchung-service.js";
+import { createNewBooking, getBuchungsverfuegbarkeitByGeraetId } from "./services/buchung-service.js";
 import { getGeraetById } from "./services/geraet-service.js";
 import { setCookie } from "./utils.js";
 
 type BuchenPageState = 'loading' | 'error' | 'ready';
+interface DateSelectorOption {
+    value: string;
+    selectable: boolean;
+    status: 'invalid-date' | 'availible' | 'unavailible' | 'booked' | 'partially-booked';
+}
+const invalidDate: DateSelectorOption = {
+    value: "",
+    selectable: false,
+    status: 'invalid-date',
+}
 
 var currentlySelectedDate: Date | undefined;
 var currentDateSelectorYear: number;
 var currentDateSelectorMonth: number;
+
+var geraet: Geraet;
+var buchungsverfuegbarkeit: Buchungsverfuegbarkeit;
 
 // ---------- Constant Elements -----------
 const loadingStateElement = document.getElementById('pageState-loading');
@@ -28,11 +41,13 @@ document.addEventListener('DOMContentLoaded', () => {
         updateState('error');
         return;
     }
-    const geraet = getGeraetById(geraetId!);
-    if (!geraet) {
+    const tmpGeraet = getGeraetById(geraetId!);
+    if (!tmpGeraet) {
         updateState('error');
         return;
     }
+    geraet = tmpGeraet;
+    buchungsverfuegbarkeit = getBuchungsverfuegbarkeitByGeraetId(geraetId);
 
     // Set Printer Data
     document.getElementById('printerInfo-Name')!.innerText=geraet.name;
@@ -128,7 +143,7 @@ function renderDateSelector(selectedDate: Date | undefined, year: number, month:
     }
 
     // Array of all the numbers and spaces
-    var dateGridTextArray: string[] = [];
+    var dateGridTextArray: DateSelectorOption[] = [];
 
     // Get Where the first day starts
     // getDay(): 0 = Sontag, 1 = Montag, ... 6 = Samstag
@@ -136,17 +151,55 @@ function renderDateSelector(selectedDate: Date | undefined, year: number, month:
     const firstWeekDay = (new Date(year, month, 1).getDay() + 6) % 7;
     // Check how many spaes need to be put in first
     for (var i = 0; i < firstWeekDay; i++) {
-        dateGridTextArray.push("");
+        dateGridTextArray.push(invalidDate);
     }
 
     for(var i = 1; i <= daysInMonth(year, month); i++) {
-        dateGridTextArray.push(i.toString());
+        const now = new Date();
+        const currentDayDate = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+        const currentDate = new Date(year, month, i)
+        console.log()
+        if (currentDate < currentDayDate) {
+            // Date is in the Past
+            dateGridTextArray.push({
+                selectable: false,
+                value: i.toString(),
+                status: "unavailible",
+            });
+        } else if (buchungsverfuegbarkeit.blockedWeekDays.find((blockedWeekDay) => blockedWeekDay === ((currentDate.getDay() + 6) % 7)) !== undefined) {
+            // Day is a blocked day
+            dateGridTextArray.push({
+                selectable: false,
+                value: i.toString(),
+                status: "unavailible",
+            });
+        } else if (buchungsverfuegbarkeit.fullyBookedDays.find((bookedDay) => bookedDay.getTime() === currentDate.getTime()) !== undefined) {
+            // Day is a booked day
+            dateGridTextArray.push({
+                selectable: false,
+                value: i.toString(),
+                status: "booked",
+            });
+        } else if (buchungsverfuegbarkeit.partialyBookedDays.find((partialyBookedDay) => partialyBookedDay.getTime() === currentDate.getTime()) !== undefined) {
+            // Day is a partialy booked day
+            dateGridTextArray.push({
+                selectable: false,
+                value: i.toString(),
+                status: "partially-booked",
+            });
+        } else {
+            dateGridTextArray.push({
+                selectable: true,
+                value: i.toString(),
+                status: "availible",
+            });
+        }
     }
 
     // Add Trailing Spaces
     var remaining = (7 - (dateGridTextArray.length % 7)) % 7;
     for (var i = 0; i < remaining; i++) {
-        dateGridTextArray.push("");
+        dateGridTextArray.push(invalidDate);
     }
 
     // Render Array
@@ -155,11 +208,25 @@ function renderDateSelector(selectedDate: Date | undefined, year: number, month:
         currentRow.classList.add('dateSelectorRow');
 
         for (var y = 0; y < 7; y++) {
-            var currentCalNumber = document.createElement('div');
-            currentCalNumber.innerText = dateGridTextArray[(x * 7) + y];
-            if (currentCalNumber.innerText === "") {
-                currentCalNumber.style.visibility = 'hidden'
-            } 
+            const currentCalNumber = document.createElement('div');
+            const dateObj = dateGridTextArray[(x * 7) + y];
+            currentCalNumber.innerText = dateObj.value;
+            switch (dateObj.status) {
+                case "invalid-date":
+                    currentCalNumber.style.visibility = 'hidden'
+                    break;
+                case "availible":
+                    break;
+                case "unavailible":
+                    currentCalNumber.style.backgroundColor = '#7c7c7c'
+                    break;
+                case "booked":
+                    currentCalNumber.style.backgroundColor = '#d93434ff'
+                    break;
+                case "partially-booked":
+                    currentCalNumber.style.backgroundColor = '#db934bff'
+                    break;
+            }
             currentRow.appendChild(currentCalNumber);
         }
 

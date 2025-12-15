@@ -15,3 +15,9 @@ interface NewPrintBooking {
     endDate: string;
     notes?: string;
 }
+
+interface Buchungsverfuegbarkeit {
+    blockedWeekDays: number[];
+    fullyBookedDays: Date[];
+    partialyBookedDays: Date[];
+}

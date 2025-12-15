@@ -66,3 +66,22 @@ export function createNewBooking(newBooking: NewPrintBooking) {
     MOCK_BOOKING.push(booking);
     counter++;
 }
+
+export function getBuchungsverfuegbarkeitByGeraetId(id: string): Buchungsverfuegbarkeit {
+    // While no backend, ID is never checked
+    // Static MOCK Data
+    return {
+        blockedWeekDays: [
+            5, 6 // Sa und So geblockt (0 Indexed)
+        ],
+        fullyBookedDays: [
+            new Date(2025, 11, 16),
+            new Date(2025, 11, 17),
+        ],
+        partialyBookedDays: [
+            new Date(2025, 11, 18),
+            new Date(2025, 11, 22),
+            new Date(2026, 0, 13),
+        ]
+    };
+}
