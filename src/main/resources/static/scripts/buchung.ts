@@ -6,12 +6,16 @@ type BuchenPageState = 'loading' | 'error' | 'ready';
 interface DateSelectorOption {
     value: string;
     selectable: boolean;
+    isSelected: boolean;
     status: 'invalid-date' | 'availible' | 'unavailible' | 'booked' | 'partially-booked';
+    date: Date;
 }
 const invalidDate: DateSelectorOption = {
     value: "",
     selectable: false,
+    isSelected: false,
     status: 'invalid-date',
+    date: new Date(0, 0 ,0),
 }
 
 var currentlySelectedDate: Date | undefined;
@@ -60,7 +64,6 @@ document.addEventListener('DOMContentLoaded', () => {
         // TODO name not used
         const name = (document.getElementById('name') as HTMLInputElement).value;
         const email = (document.getElementById('email') as HTMLInputElement).value;
-        const date = (document.getElementById('date') as HTMLInputElement).value;
         const start = (document.getElementById('start') as HTMLInputElement).value;
         const end = (document.getElementById('end') as HTMLInputElement).value;
         const notes = (document.getElementById('notes') as HTMLTextAreaElement).value;
@@ -70,11 +73,27 @@ document.addEventListener('DOMContentLoaded', () => {
             alert("Die Endzeit muss nach der Startzeit liegen.");
             return;
         }
+        if (currentlySelectedDate === undefined) {
+            alert("Es muss ein Datum ausgewählt sein.");
+            return;
+        }
 
         const booking: NewPrintBooking = {
             printerId: geraet.id,
-            startDate: `${date} - ${start}`,
-            endDate: `${date} - ${end}`,
+            startDate: new Date(
+                currentlySelectedDate.getFullYear(),
+                currentlySelectedDate.getMonth(),
+                currentlySelectedDate.getDate(),
+                parseInt(start.split(":")[0]),
+                parseInt(start.split(":")[1]),
+            ),
+            endDate: new Date(
+                currentlySelectedDate.getFullYear(),
+                currentlySelectedDate.getMonth(),
+                currentlySelectedDate.getDate(),
+                parseInt(end.split(":")[0]),
+                parseInt(end.split(":")[1]),
+            ),
             notes: notes, // treat empty string as null?
         }
 
@@ -158,40 +177,49 @@ function renderDateSelector(selectedDate: Date | undefined, year: number, month:
         const now = new Date();
         const currentDayDate = new Date(now.getFullYear(), now.getMonth(), now.getDate())
         const currentDate = new Date(year, month, i)
-        console.log()
         if (currentDate < currentDayDate) {
             // Date is in the Past
             dateGridTextArray.push({
                 selectable: false,
+                isSelected: false,
                 value: i.toString(),
                 status: "unavailible",
+                date: currentDate,
             });
         } else if (buchungsverfuegbarkeit.blockedWeekDays.find((blockedWeekDay) => blockedWeekDay === ((currentDate.getDay() + 6) % 7)) !== undefined) {
             // Day is a blocked day
             dateGridTextArray.push({
                 selectable: false,
+                isSelected: false,
                 value: i.toString(),
                 status: "unavailible",
+                date: currentDate,
             });
         } else if (buchungsverfuegbarkeit.fullyBookedDays.find((bookedDay) => bookedDay.getTime() === currentDate.getTime()) !== undefined) {
             // Day is a booked day
             dateGridTextArray.push({
                 selectable: false,
+                isSelected: false,
                 value: i.toString(),
                 status: "booked",
+                date: currentDate,
             });
         } else if (buchungsverfuegbarkeit.partialyBookedDays.find((partialyBookedDay) => partialyBookedDay.getTime() === currentDate.getTime()) !== undefined) {
             // Day is a partialy booked day
             dateGridTextArray.push({
-                selectable: false,
+                selectable: true,
+                isSelected: currentDate.getTime() === selectedDate?.getTime(),
                 value: i.toString(),
                 status: "partially-booked",
+                date: currentDate,
             });
         } else {
             dateGridTextArray.push({
                 selectable: true,
+                isSelected: currentDate.getTime() === selectedDate?.getTime(),
                 value: i.toString(),
                 status: "availible",
+                date: currentDate,
             });
         }
     }
@@ -227,11 +255,30 @@ function renderDateSelector(selectedDate: Date | undefined, year: number, month:
                     currentCalNumber.style.backgroundColor = '#db934bff'
                     break;
             }
+            if (dateObj.isSelected) {
+                currentCalNumber.classList.add("selected");
+            } else if (dateObj.selectable) {
+                currentCalNumber.classList.add("selectable");
+                currentCalNumber.addEventListener('click', () => {
+                    selectDate(dateObj.date);
+                });
+            }
             currentRow.appendChild(currentCalNumber);
         }
 
         dateGridDiv.appendChild(currentRow);
     }
+}
+
+function selectDate(date: Date) {
+    document.getElementById("date")!.innerText = date.toString();
+    currentlySelectedDate = date;
+
+    renderDateSelector(
+        currentlySelectedDate,
+        currentDateSelectorYear,
+        currentDateSelectorMonth
+    );
 }
 
 function daysInMonth(year: number, month: number) {

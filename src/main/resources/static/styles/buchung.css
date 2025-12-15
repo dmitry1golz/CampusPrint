@@ -126,6 +126,7 @@ textarea {
 }
 
 .dateSelectorRow div {
+    box-sizing: border-box;
     width: 2rem;
     height: 2rem;
     margin: 5px;
@@ -136,9 +137,15 @@ textarea {
     background-color: #D4EBFF;
 }
 
-.dateSelectorRow div:hover {
-    background-color: #85c4fb;
+.dateSelectorRow .selectable:hover {
+    transform: scale(1.05);
+    filter: brightness(0.9);
 }
+
+.dateSelectorRow .selected {
+    border: 2px dashed black;
+}
+
 
 .dateSelectorHeaderValue {
     text-align: center;
