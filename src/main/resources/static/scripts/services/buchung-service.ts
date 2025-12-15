@@ -1,70 +1,140 @@
+// WICHTIG: Import der Models und des Geraet-Service
+import { PrintBooking, NewPrintBooking, Buchungsverfuegbarkeit } from '../models/buchung.js';
 import { getGeraetById } from './geraet-service.js';
 
-// Temporary Local Data while frontend only
-var MOCK_BOOKING: PrintBooking[] = [
+// MOCK DATEN
+export let MOCK_BOOKING: PrintBooking[] = [
+    // --- PENDING (Ausstehend) ---
     {
-        id: 'book-1763276488435',
+        id: 'b-new-1',
         printerName: 'Ultimaker S5',
-        startDate: new Date(2025, 10, 21, 13, 0),
-        endDate: new Date(2025, 10, 21, 19, 0),
-        notes: 'Prototypen',
-        status: 'rejected',
-        message: "Der Zeitslot ist leider nicht verfügbar. Ich könnte dir anbieren, den Druck am 25.11.2025 " +
-            "durchzuführen. Sonst melde dich unter admin@campusprint.de, damit wir einen Termin finden."
-    },
-    {
-        id: 'book-1763276489000',
-        printerName: 'Prusa MK3',
-        startDate: new Date(2025, 10, 22, 9, 0),
-        endDate: new Date(2025, 10, 22, 12, 0),
-        notes: 'Testdruck',
-        videoUrl: 'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fwww.schaan.li%2Fapplication' +
-            '%2Ffiles%2Fthumbnails%2Flarge%2F9116%2F5174%2F4032%2F3D-Druck.jpg',
-        status: 'running'
-    },
-    {
-        id: 'book-1763276490123',
-        printerName: 'Ender 3',
-        startDate: new Date(2025, 10, 23, 8, 0),
-        endDate: new Date(2025, 10, 24, 14, 0),
-        notes: 'Miniatur-Serie',
+        startDate: new Date(2025, 10, 25, 10, 0),
+        endDate: new Date(2025, 10, 25, 14, 0),
+        notes: 'Bachelorarbeit Gehäuse V3. Bitte weißes PLA nutzen.',
         status: 'pending'
     },
     {
-        id: 'book-1763276491456',
-        printerName: 'Formlabs Form 3',
-        startDate: new Date(2025, 10, 24, 10, 0),
-        endDate: new Date(2025, 10, 24, 16, 0),
-        notes: 'Gehäuse Prototyp',
+        id: 'b-new-2',
+        printerName: 'Epilog Fusion Pro 32',
+        startDate: new Date(2025, 10, 26, 9, 0),
+        endDate: new Date(2025, 10, 26, 9, 30),
+        notes: 'Architektur-Modell M 1:50, Sperrholz 4mm.',
+        status: 'pending'
+    },
+    {
+        id: 'b-new-3',
+        printerName: 'HP DesignJet T650',
+        startDate: new Date(2025, 10, 26, 11, 0),
+        endDate: new Date(2025, 10, 26, 11, 15),
+        notes: '3x A0 Pläne für Präsentation.',
+        status: 'pending'
+    },
+    {
+        id: 'b-new-4',
+        printerName: 'Bambu Lab X1 Carbon',
+        startDate: new Date(2025, 10, 27, 8, 0),
+        endDate: new Date(2025, 10, 27, 18, 0),
+        notes: 'Langer Druck, 4-farbig. Datei liegt auf dem Stick bei.',
+        status: 'pending'
+    },
+
+    // --- ACTIVE / CONFIRMED (Aktiv) ---
+    {
+        id: 'b-active-1',
+        printerName: 'Prusa MK4',
+        startDate: new Date(2025, 10, 24, 8, 0),
+        endDate: new Date(2025, 10, 24, 12, 0),
+        notes: 'Ersatzteile für Roboter-AG',
+        status: 'running',
+        // Hier ein Test-Video (Dummy URL, wird nicht wirklich laden, aber das Icon zeigen)
+        videoUrl: 'https://images.unsplash.com/photo-1629739824696-e13c6d67b2be?q=80&w=1000&auto=format&fit=crop' 
+    },
+    {
+        id: 'b-active-2',
+        printerName: 'Formlabs Form 3+',
+        startDate: new Date(2025, 10, 24, 13, 0),
+        endDate: new Date(2025, 10, 24, 17, 0),
+        notes: 'Zahnrad-Prototypen, Tough Resin.',
         status: 'confirmed'
     },
     {
-        id: 'book-1763276493012',
-        printerName: 'Anycubic Photon',
-        startDate: new Date(2025, 10, 20, 7, 0),
-        endDate: new Date(2025, 10, 20, 13, 0),
-        notes: 'Kleinteile Batch',
+        id: 'b-active-3',
+        printerName: 'Stepcraft D-Series 840',
+        startDate: new Date(2025, 10, 24, 9, 0),
+        endDate: new Date(2025, 10, 24, 15, 0),
+        notes: 'Aluminium Frontplatte fräsen.',
+        status: 'running'
+    },
+
+    // --- HISTORY (Historie) ---
+    {
+        id: 'b-hist-1',
+        printerName: 'HP DesignJet T650',
+        startDate: new Date(2025, 10, 20, 10, 0),
+        endDate: new Date(2025, 10, 20, 10, 30),
+        notes: 'Poster A1',
         status: 'completed'
     },
+    {
+        id: 'b-hist-2',
+        printerName: 'Ultimaker S5',
+        startDate: new Date(2025, 10, 19, 14, 0),
+        endDate: new Date(2025, 10, 19, 18, 0),
+        notes: 'Privatprojekt',
+        status: 'rejected',
+        message: 'Drucken von Waffen-Repliken ist laut Nutzungsordnung untersagt.'
+    },
+    {
+        id: 'b-hist-3',
+        printerName: 'Bambu Lab X1 Carbon',
+        startDate: new Date(2025, 10, 18, 9, 0),
+        endDate: new Date(2025, 10, 18, 11, 0),
+        notes: 'Testdruck',
+        status: 'completed'
+    },
+    {
+        id: 'b-hist-4',
+        printerName: 'Epilog Fusion Pro 32',
+        startDate: new Date(2025, 10, 15, 10, 0),
+        endDate: new Date(2025, 10, 15, 12, 0),
+        notes: 'Geschenk',
+        status: 'rejected',
+        message: 'Gerät war kurzfristig in Wartung. Bitte neuen Termin buchen.'
+    }
 ];
 
-export function getBookingsForEmail(email: string): PrintBooking[] {
-    // Currently all Bookings are for all users -> No DB backend that handles user relations
+// --- API FUNKTIONEN ---
+
+export function getAllBookings(): PrintBooking[] {
     return MOCK_BOOKING;
 }
 
-var counter = 0;
+export function getBookingsForEmail(email: string): PrintBooking[] {
+    return MOCK_BOOKING;
+}
+
+export function updateBookingStatus(id: string, newStatus: PrintBooking['status'], message?: string) {
+    const b = MOCK_BOOKING.find(x => x.id === id);
+    if (b) {
+        b.status = newStatus;
+        if(message) b.message = message;
+    }
+}
+
+// Die Funktion, die in buchung.ts gefehlt hat:
 export function createNewBooking(newBooking: NewPrintBooking) {
+    const printer = getGeraetById(newBooking.printerId);
+    
     const booking: PrintBooking = {
-        id: counter.toString(),
-        printerName: getGeraetById(newBooking.printerId)!.name,
+        id: `book-${Date.now()}`,
+        printerName: printer ? printer.name : 'Unbekannt',
         startDate: newBooking.startDate,
         endDate: newBooking.endDate,
         notes: newBooking.notes,
         status: 'pending'
-    }
+    };
     MOCK_BOOKING.push(booking);
-    counter++;
+    console.log("Buchung angelegt:", booking);
 }
 
 export function getBuchungsverfuegbarkeitByGeraetId(id: string): Buchungsverfuegbarkeit {

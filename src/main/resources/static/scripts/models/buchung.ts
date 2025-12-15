@@ -1,22 +1,25 @@
-interface PrintBooking {
+// Exportiert für alle anderen Dateien
+export interface PrintBooking {
     id: string;
     printerName: string;
     startDate: Date;
     endDate: Date;
     notes?: string;
-    message?: string;
+    message?: string;   // Admin: Ablehnungsgrund
     videoUrl?: string;
+    
+    // Alle Status-Optionen kombiniert
     status: 'pending' | 'confirmed' | 'completed' | 'rejected' | 'running';
 }
 
-interface NewPrintBooking {
+export interface NewPrintBooking {
     printerId: string;
     startDate: Date;
     endDate: Date;
     notes?: string;
 }
 
-interface Buchungsverfuegbarkeit {
+export interface Buchungsverfuegbarkeit {
     blockedWeekDays: number[];
     fullyBookedDays: Date[];
     partialyBookedDays: Date[];

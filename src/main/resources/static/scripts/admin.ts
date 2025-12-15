@@ -1,64 +1,17 @@
-// --- Interfaces ---
-interface Booking {
-    id: string;
-    studentName: string;
-    equipmentId: string;
-    equipmentName: string;
-    date: string;
-    startTime: string;
-    endTime: string;
-    status: 'pending' | 'confirmed' | 'active' | 'completed' | 'cancelled';
-    note?: string;
-    rejectReason?: string;
-}
+import { PrintBooking } from './models/buchung.js';
+import { Geraet } from './models/geraet.js';
+import { getAllBookings, updateBookingStatus } from './services/buchung-service.js';
+import { getAllGeraete, addGeraet, deleteGeraet, updateGeraetStatus } from './services/geraet-service.js';
+import { requireAuth, logout } from './services/auth-service.js';
 
-interface Equipment {
-    id: string;
-    name: string;
-    type: string;
-    status: 'available' | 'maintenance';
-    description: string;
-}
+requireAuth();
 
 document.addEventListener('DOMContentLoaded', () => {
 
-    // --- State (Dummy Data) ---
-    let bookings: Booking[] = [
-        { 
-            id: '1', 
-            studentName: 'Max Mustermann', 
-            equipmentId: 'p1',
-            equipmentName: 'Prusa i3 MK3', 
-            date: '20.03.2025', 
-            startTime: '10:00',
-            endTime: '12:00',
-            status: 'pending', 
-            note: 'Druck für Bachelorarbeit, PLA Weiß' 
-        },
-        { 
-            id: '2', 
-            studentName: 'Lisa Schmidt', 
-            equipmentId: 'l1', 
-            equipmentName: 'Epilog Laser',
-            date: '21.03.2025', 
-            startTime: '14:00', 
-            endTime: '15:00',
-            status: 'confirmed' 
-        }
-    ];
-
-    let equipmentList: Equipment[] = [
-        { id: 'p1', name: 'Prusa i3 MK3', type: '3D-Drucker', status: 'available', description: 'Standard FDM Drucker' },
-        { id: 'l1', name: 'Epilog Laser', type: 'Laserschneider', status: 'available', description: '60 Watt CO2 Laser' }
-    ];
-
+    // --- State ---
     let currentRejectId: string | null = null;
 
-    // --- DOM Elements ---
-    const tabBtns = document.querySelectorAll('.tab-btn');
-    const tabPanes = document.querySelectorAll('.tab-pane');
-
-    // Container
+    // --- DOM Elements Caching ---
     const containers = {
         pending: document.getElementById('pending-list') as HTMLDivElement,
         active: document.getElementById('active-list') as HTMLDivElement,
@@ -66,55 +19,59 @@ document.addEventListener('DOMContentLoaded', () => {
         equipment: document.getElementById('equipment-list') as HTMLDivElement
     };
 
-    // Modal
-    const rejectModal = document.getElementById('reject-modal') as HTMLDivElement;
-    const rejectReasonInput = document.getElementById('reject-reason') as HTMLTextAreaElement;
-    
-    // Forms
-    const addEqForm = document.getElementById('add-equipment-form') as HTMLDivElement;
+    const forms = {
+        add: document.getElementById('add-equipment-form') as HTMLDivElement,
+        typeSelect: document.getElementById('eq-type') as HTMLSelectElement,
+        specific3d: document.getElementById('specific-3d-fields') as HTMLDivElement,
+        volumeLabel: document.getElementById('label-volume') as HTMLLabelElement
+    };
 
+    const modal = {
+        element: document.getElementById('reject-modal') as HTMLDivElement,
+        reasonInput: document.getElementById('reject-reason') as HTMLTextAreaElement
+    };
 
-    // --- Init ---
-    renderAll();
+    // --- Initialization ---
+    init();
 
-    // --- Tab Switching Logic ---
-    tabBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            // UI Reset
-            tabBtns.forEach(b => b.classList.remove('active'));
-            tabPanes.forEach(p => p.classList.remove('active'));
+    function init() {
+        setupTabs();
+        setupEventListeners();
+        // Einmal initial rendern
+        renderAll();
+        // Formular Status initialisieren (versteckt/zeigt Felder)
+        handleTypeChange();
+    }
 
-            // Set Active
-            btn.classList.add('active');
-            const target = (btn as HTMLElement).dataset.target;
-            const targetPane = document.getElementById(`tab-${target}`);
-            if (targetPane) targetPane.classList.add('active');
-        });
-    });
+    // --- Rendering Logic ---
 
-
-    // --- Rendering Functions ---
     function renderAll() {
-        renderList('pending', containers.pending);
-        renderList('active', containers.active);
-        renderList('completed', containers.completed);
-        renderEquipment();
-        updateCounts();
+        // Daten frisch aus den Services holen
+        const bookings = getAllBookings();
+        const equipment = getAllGeraete();
+
+        renderBookingList('pending', bookings, containers.pending);
+        renderBookingList('active', bookings, containers.active);
+        renderBookingList('completed', bookings, containers.completed);
+        renderEquipmentList(equipment);
         
-        // Icons neu laden (Lucide)
+        updateCounts(bookings, equipment);
+        
+        // Icons neu initialisieren
         // @ts-ignore
         if (window.lucide) window.lucide.createIcons();
     }
 
-    function renderList(viewType: string, container: HTMLDivElement) {
+    function renderBookingList(viewType: string, allBookings: PrintBooking[], container: HTMLDivElement) {
         container.innerHTML = '';
-        let filtered: Booking[] = [];
+        let filtered: PrintBooking[] = [];
 
-        if (viewType === 'pending') filtered = bookings.filter(b => b.status === 'pending');
-        else if (viewType === 'active') filtered = bookings.filter(b => b.status === 'confirmed' || b.status === 'active');
-        else if (viewType === 'completed') filtered = bookings.filter(b => b.status === 'completed' || b.status === 'cancelled');
+        // Filterlogik
+        if (viewType === 'pending') filtered = allBookings.filter(b => b.status === 'pending');
+        else if (viewType === 'active') filtered = allBookings.filter(b => ['confirmed', 'running'].includes(b.status));
+        else if (viewType === 'completed') filtered = allBookings.filter(b => ['completed', 'rejected'].includes(b.status));
 
-        // Toggle Empty Message
+        // Empty State Check
         const emptyMsg = document.getElementById(`${viewType}-empty`);
         if (filtered.length === 0) {
             if (emptyMsg) emptyMsg.classList.remove('hidden');
@@ -125,172 +82,196 @@ document.addEventListener('DOMContentLoaded', () => {
                 const card = document.createElement('div');
                 card.className = 'card';
                 
-                // Determine Actions based on status
+                // Dynamische Buttons je nach Status
                 let actionsHtml = '';
                 if (b.status === 'pending') {
                     actionsHtml = `
-                        <button class="btn-primary btn-sm action-btn" data-action="confirm" data-id="${b.id}">
-                            <i data-lucide="check"></i> Bestätigen
-                        </button>
-                        <button class="btn-danger btn-sm action-btn" data-action="reject" data-id="${b.id}">
-                            <i data-lucide="x"></i> Ablehnen
-                        </button>
+                        <button class="btn-primary action-btn" data-action="confirm" data-id="${b.id}"><i data-lucide="check"></i></button>
+                        <button class="btn-danger action-btn" data-action="reject" data-id="${b.id}"><i data-lucide="x"></i></button>
                     `;
                 } else if (b.status === 'confirmed') {
-                    actionsHtml = `
-                        <button class="btn-primary btn-sm action-btn" data-action="start" data-id="${b.id}">
-                            <i data-lucide="play"></i> Starten
-                        </button>`;
-                } else if (b.status === 'active') {
-                    actionsHtml = `
-                        <button class="btn-primary btn-sm action-btn" data-action="complete" data-id="${b.id}">
-                            <i data-lucide="check-circle"></i> Abschließen
-                        </button>`;
+                    actionsHtml = `<button class="btn-primary action-btn" data-action="run" data-id="${b.id}">Starten</button>`;
+                } else if (b.status === 'running') {
+                    actionsHtml = `<button class="btn-primary action-btn" data-action="complete" data-id="${b.id}">Abschließen</button>`;
                 }
 
                 card.innerHTML = `
                     <div class="card-header">
-                        <span class="card-title">${b.equipmentName}</span>
-                        <span class="badge ${b.status}">${translateStatus(b.status)}</span>
+                        <span class="card-title">${b.printerName}</span>
+                        <span class="badge" data-status="${b.status}">${translateStatus(b.status)}</span>
                     </div>
-                    <div class="card-details">
-                        <p><strong>Student:</strong> ${b.studentName}</p>
-                        <p><strong>Zeit:</strong> ${b.date}, ${b.startTime} - ${b.endTime}</p>
-                        ${b.note ? `<p><strong>Notiz:</strong> ${b.note}</p>` : ''}
-                        ${b.rejectReason ? `<p style="color:var(--danger)"><strong>Grund:</strong> ${b.rejectReason}</p>` : ''}
+                    <div class="card-body">
+                        <p><strong>Student:</strong> TODO (User Service)</p>
+                        <p><strong>Zeit:</strong> ${b.startDate} - ${b.endDate}</p>
+                        ${b.notes ? `<p><strong>Notiz:</strong> ${b.notes}</p>` : ''}
+                        ${b.message ? `<p style="color:var(--danger)"><strong>Grund:</strong> ${b.message}</p>` : ''}
                     </div>
-                    ${actionsHtml ? `<div class="card-actions">${actionsHtml}</div>` : ''}
+                    <div class="card-actions">${actionsHtml}</div>
                 `;
                 container.appendChild(card);
             });
         }
     }
 
-    function renderEquipment() {
+    function renderEquipmentList(equipment: Geraet[]) {
         containers.equipment.innerHTML = '';
-        equipmentList.forEach(eq => {
+        equipment.forEach(eq => {
             const card = document.createElement('div');
             card.className = 'card';
+            
+            // Toggle Button (Wartung/Verfügbar)
+            const statusBtn = eq.status === 'Verfügbar' 
+                ? `<button class="btn-secondary action-btn" data-action="maintenance" data-id="${eq.id}">Wartung</button>`
+                : `<button class="btn-primary action-btn" data-action="available" data-id="${eq.id}">Verfügbar</button>`;
+
+            // Dynamische Details anzeigen
+            let details = `<p><strong>Typ:</strong> ${eq.type}</p>`;
+            
+            // Label Anpassung (Format vs. Volumen)
+            const volLabel = eq.type === 'Papierdrucker' ? 'Formate' : 'Volumen';
+            if (eq.volume) details += `<p><strong>${volLabel}:</strong> ${eq.volume}</p>`;
+            
+            // Spezifische 3D Infos
+            if (eq.nozzle) details += `<p><strong>Nozzle:</strong> ${eq.nozzle}</p>`;
+
             card.innerHTML = `
                 <div class="card-header">
                     <span class="card-title">${eq.name}</span>
-                    <span class="badge ${eq.status}">${eq.status === 'available' ? 'Verfügbar' : 'Wartung'}</span>
+                    <span class="badge" data-status="${eq.status}">${eq.status}</span>
                 </div>
-                <div class="card-details">
-                    <p><strong>Typ:</strong> ${eq.type}</p>
-                    <p>${eq.description}</p>
+                <div class="card-body">
+                    ${eq.image ? `<img src="${eq.image}" style="width:100%; height:120px; object-fit:cover; border-radius:4px; margin-bottom:0.5rem;">` : ''}
+                    <div style="margin-bottom:0.5rem; font-style:italic;">${eq.description}</div>
+                    ${details}
+                </div>
+                <div class="card-actions">
+                    ${statusBtn}
+                    <button class="btn-danger action-btn" data-action="delete-device" data-id="${eq.id}"><i data-lucide="trash-2"></i></button>
                 </div>
             `;
             containers.equipment.appendChild(card);
         });
     }
 
-    function updateCounts() {
-        document.getElementById('count-pending')!.textContent = `(${bookings.filter(b => b.status === 'pending').length})`;
-        document.getElementById('count-active')!.textContent = `(${bookings.filter(b => ['confirmed', 'active'].includes(b.status)).length})`;
-        document.getElementById('count-completed')!.textContent = `(${bookings.filter(b => ['completed', 'cancelled'].includes(b.status)).length})`;
-        document.getElementById('count-equipment')!.textContent = `(${equipmentList.length})`;
-    }
+    // --- Interaction & Form Logic ---
 
-    function translateStatus(status: string) {
-        const map: {[key: string]: string} = {
-            'pending': 'Ausstehend',
-            'confirmed': 'Bestätigt',
-            'active': 'Läuft',
-            'completed': 'Fertig',
-            'cancelled': 'Abgelehnt'
-        };
-        return map[status] || status;
-    }
-
-
-    // --- Event Listeners (Action Handling) ---
-    
-    // Helper for Delegation
-    const handleAction = (e: Event) => {
-        const target = (e.target as HTMLElement).closest('.action-btn') as HTMLElement;
-        if (!target) return;
+    function handleTypeChange() {
+        const type = forms.typeSelect.value;
+        // Zeige erweiterte Felder nur bei 3D Druckern
+        const is3D = (type === 'FDM_Drucker' || type === 'SLA_Drucker');
         
-        const action = target.dataset.action;
-        const id = target.dataset.id;
-        if (!id) return;
-
-        if (action === 'confirm') updateStatus(id, 'confirmed');
-        else if (action === 'start') updateStatus(id, 'active');
-        else if (action === 'complete') updateStatus(id, 'completed');
-        else if (action === 'reject') {
-            currentRejectId = id;
-            rejectModal.classList.remove('hidden');
-        }
-    };
-
-    // Attach listeners to containers
-    containers.pending.addEventListener('click', handleAction);
-    containers.active.addEventListener('click', handleAction);
-
-    function updateStatus(id: string, newStatus: Booking['status']) {
-        const booking = bookings.find(b => b.id === id);
-        if (booking) {
-            booking.status = newStatus;
-            renderAll();
+        if (is3D) {
+            forms.specific3d.classList.remove('hidden');
+            forms.volumeLabel.textContent = 'Bauvolumen';
+        } else {
+            forms.specific3d.classList.add('hidden');
+            if (type === 'Papierdrucker') forms.volumeLabel.textContent = 'Formate (A4, A3)';
+            else forms.volumeLabel.textContent = 'Arbeitsbereich';
         }
     }
 
+    function handleAddEquipment() {
+        // Werte auslesen
+        const name = (document.getElementById('eq-name') as HTMLInputElement).value;
+        const type = forms.typeSelect.value as Geraet['type'];
+        const desc = (document.getElementById('eq-desc') as HTMLTextAreaElement).value;
+        const volume = (document.getElementById('eq-volume') as HTMLInputElement).value;
+        const image = (document.getElementById('eq-image') as HTMLInputElement).value;
+        
+        // Validierung
+        if (!name || !desc) {
+            alert('Bitte Name und Beschreibung angeben.');
+            return;
+        }
 
-    // --- Modal Logic ---
-    document.getElementById('btn-confirm-reject')?.addEventListener('click', () => {
-        if (currentRejectId && rejectReasonInput.value.trim()) {
-            const booking = bookings.find(b => b.id === currentRejectId);
-            if (booking) {
-                booking.status = 'cancelled';
-                booking.rejectReason = rejectReasonInput.value;
+        const newDevice: Geraet = {
+            id: Date.now().toString(),
+            name, type, description: desc,
+            status: 'Verfügbar',
+            image: image || '',
+            volume: volume || '',
+            // Optionale Felder nur befüllen wenn sichtbar
+            nozzle: !forms.specific3d.classList.contains('hidden') ? (document.getElementById('eq-nozzle') as HTMLInputElement).value : undefined,
+            layer: !forms.specific3d.classList.contains('hidden') ? (document.getElementById('eq-layer') as HTMLInputElement).value : undefined
+        };
+
+        addGeraet(newDevice);
+        renderAll();
+        forms.add.classList.add('hidden');
+        resetInputs();
+    }
+
+    // --- Global Event Listener (Delegation) ---
+    function setupEventListeners() {
+        document.addEventListener('click', (e) => {
+            const target = (e.target as HTMLElement).closest('.action-btn') as HTMLElement;
+            if (!target) return;
+            const { action, id } = target.dataset;
+
+            // Booking Actions
+            if (action === 'confirm') updateBookingStatus(id!, 'confirmed');
+            if (action === 'run') updateBookingStatus(id!, 'running');
+            if (action === 'complete') updateBookingStatus(id!, 'completed');
+            if (action === 'reject') {
+                currentRejectId = id!;
+                modal.element.classList.remove('hidden');
+            }
+
+            // Equipment Actions
+            if (action === 'maintenance') updateGeraetStatus(id!, 'Wartung');
+            if (action === 'available') updateGeraetStatus(id!, 'Verfügbar');
+            if (action === 'delete-device') {
+                if(confirm('Gerät wirklich löschen?')) deleteGeraet(id!);
+            }
+
+            renderAll();
+        });
+
+        // Formular UI Events
+        document.getElementById('btn-show-add-equipment')?.addEventListener('click', () => forms.add.classList.remove('hidden'));
+        document.getElementById('btn-cancel-equipment')?.addEventListener('click', () => forms.add.classList.add('hidden'));
+        document.getElementById('btn-save-equipment')?.addEventListener('click', handleAddEquipment);
+        forms.typeSelect.addEventListener('change', handleTypeChange);
+
+        // Modal Events
+        document.getElementById('btn-cancel-reject')?.addEventListener('click', () => modal.element.classList.add('hidden'));
+        document.getElementById('btn-confirm-reject')?.addEventListener('click', () => {
+            if (currentRejectId && modal.reasonInput.value) {
+                updateBookingStatus(currentRejectId, 'rejected', modal.reasonInput.value);
+                modal.element.classList.add('hidden');
+                modal.reasonInput.value = '';
+                currentRejectId = null;
                 renderAll();
             }
-            closeModal();
-        } else {
-            alert('Bitte gib einen Grund an.');
-        }
-    });
-
-    document.getElementById('btn-cancel-reject')?.addEventListener('click', closeModal);
-
-    function closeModal() {
-        rejectModal.classList.add('hidden');
-        rejectReasonInput.value = '';
-        currentRejectId = null;
+        });
     }
 
+    // --- Utils ---
+    function translateStatus(s: string) {
+        const map: any = { 'pending': 'Ausstehend', 'confirmed': 'Bestätigt', 'running': 'Läuft', 'completed': 'Fertig', 'rejected': 'Abgelehnt' };
+        return map[s] || s;
+    }
 
-    // --- Equipment Form Logic ---
-    document.getElementById('btn-show-add-equipment')?.addEventListener('click', () => {
-        addEqForm.classList.remove('hidden');
-    });
+    function updateCounts(b: PrintBooking[], e: Geraet[]) {
+        document.getElementById('count-pending')!.textContent = `(${b.filter(x => x.status === 'pending').length})`;
+        document.getElementById('count-active')!.textContent = `(${b.filter(x => ['confirmed', 'running'].includes(x.status)).length})`;
+        document.getElementById('count-completed')!.textContent = `(${b.filter(x => ['completed', 'rejected'].includes(x.status)).length})`;
+        document.getElementById('count-equipment')!.textContent = `(${e.length})`;
+    }
 
-    document.getElementById('btn-cancel-equipment')?.addEventListener('click', () => {
-        addEqForm.classList.add('hidden');
-    });
+    function setupTabs() {
+        const tabs = document.querySelectorAll('.tab-btn');
+        tabs.forEach(t => t.addEventListener('click', () => {
+            tabs.forEach(x => x.classList.remove('active'));
+            document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+            t.classList.add('active');
+            document.getElementById(`tab-${(t as HTMLElement).dataset.target}`)?.classList.add('active');
+        }));
+    }
 
-    document.getElementById('btn-save-equipment')?.addEventListener('click', () => {
-        const nameInput = document.getElementById('eq-name') as HTMLInputElement;
-        const typeInput = document.getElementById('eq-type') as HTMLSelectElement;
-        const descInput = document.getElementById('eq-desc') as HTMLTextAreaElement;
-
-        if (nameInput.value && descInput.value) {
-            equipmentList.push({
-                id: Date.now().toString(),
-                name: nameInput.value,
-                type: typeInput.value,
-                description: descInput.value,
-                status: 'available'
-            });
-            renderAll();
-            addEqForm.classList.add('hidden');
-            // Reset
-            nameInput.value = '';
-            descInput.value = '';
-        } else {
-            alert('Bitte fülle alle Felder aus.');
-        }
-    });
-
+    function resetInputs() {
+        (document.getElementById('eq-name') as HTMLInputElement).value = '';
+        (document.getElementById('eq-desc') as HTMLTextAreaElement).value = '';
+        // Weitere Resets hier...
+    }
 });

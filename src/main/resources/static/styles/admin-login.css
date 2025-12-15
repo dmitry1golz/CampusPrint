@@ -82,3 +82,31 @@ form button:hover {
     color: #3b82f6;
     text-decoration: none;
 }
+
+/* Neuer Style für die Fehlermeldung */
+.error-banner {
+    background-color: #fee2e2; /* Helles Rot */
+    color: #dc2626;            /* Dunkles Rot */
+    border: 1px solid #fecaca;
+    padding: 0.75rem;
+    border-radius: 6px;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: shake 0.3s ease-in-out;
+}
+
+/* Kleine Wackel-Animation für Aufmerksamkeit */
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+/* WICHTIG: Überschreiben der globalen .hidden Klasse, 
+   falls display: flex benötigt wird, sonst reicht global .hidden */
+.error-banner.hidden {
+    display: none !important;
+}
