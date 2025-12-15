@@ -37,7 +37,7 @@ function renderGeraete(data: Geraet[]): void {
 
         const button = card.querySelector('.btn') as HTMLButtonElement;
         button.addEventListener('click', () => {
-            window.location.href = `buchung.html?geraet=${encodeURIComponent(g.name)}`;
+            window.location.href = `buchung.html?geraet_id=${encodeURIComponent(g.id)}`;
         });
 
         container.appendChild(card);
