@@ -1,3 +1,74 @@
 [
+  {
+    "id": "1",
+    "name": "Prusa i3",
+    "category": "3D-Drucker",
+    "status": "verfügbar",
+    "image": "assets/Drucker1.jpg",
+    "description": "desc1",
+    "volume": "250x210x210",
+    "layer": "0.05–0.35mm",
+    "nozzle": "0.4mm"
+  },
+  {
+    "id": "2",
+    "name": "Ultimaker S5",
+    "category": "3D-Drucker",
+    "status": "verfügbar",
+    "image": "assets/Drucker1.jpg",
+    "volume": "330x240x300",
+    "layerHeight": "0.06–0.25mm",
+    "nozzle": "0.4mm"
+  },
+  {
+    "id": "3",
+    "name": "Epilog Fusion Pro",
+    "category": "Laserschneider",
+    "status": "verfügbar",
+    "image": "assets/Drucker1.jpg",
+    "volume": "610x610x300",
+    "layer": "1mm",
+    "nozzle": "-"
+  },
+  {
+    "id": "4",
+    "name": "Roland GX-640",
+    "category": "Plotter",
+    "status": "verfügbar",
+    "image": "assets/Drucker1.jpg",
+    "volume": "640mm Breite",
+    "layer": "-",
+    "nozzle": "-"
+  },
+  {
+    "id": "5",
+    "name": "Formlabs Form 3",
+    "category": "3D-Drucker",
+    "status": "verfügbar",
+    "image": "assets/Drucker1.jpg",
+    "volume": "145x145x185",
+    "layer": "0.025–0.3mm",
+    "nozzle": "Laser"
+  },
+  {
+    "id": "6",
+    "name": "Glowforge Pro",
+    "category": "Laserschneider",
+    "status": "verfügbar",
+    "image": "assets/Drucker1.jpg",
+    "volume": "300x510x50",
 
+    "layer": "-",
+    "nozzle": "-"
+  },
+  {
+    "id": "7",
+    "name": "Prusa i3 – Wartung",
+    "category": "3D-Drucker",
+    "status": "wartung",
+    "image": "assets/Drucker1.jpg",
+    "volume": "250x210x210",
+    "layer": "0.05–0.35mm",
+    "nozzle": "0.4mm"
+  }
 ]

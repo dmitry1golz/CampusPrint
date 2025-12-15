@@ -20,7 +20,7 @@ function renderGeraete(data: Geraet[]): void {
       <img src="${g.image}" alt="${g.name}" />
       <div class="card-body">
         <span class="status ${g.status}">
-          ${g.status}
+          ${g.status === 'Verfügbar' ? 'Verfügbar' : 'Wartung'}
         </span>
         <h3>${g.name}</h3>
         <p>${g.description}</p>
@@ -56,7 +56,6 @@ function setupFilterButtons(): void {
             if (category === 'Alle') {
                 renderGeraete(alleGeraete);
             } else {
-                // TODO does not work because UI and DB names differ?
                 const filtered = alleGeraete.filter((g) => g.type === category);
                 renderGeraete(filtered);
             }
