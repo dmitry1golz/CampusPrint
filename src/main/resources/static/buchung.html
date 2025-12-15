@@ -1,63 +1,82 @@
 <!DOCTYPE html>
 <html lang="de">
-<head>
-    <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Buchung erstellen</title>
+    <head>
+        <meta charset="UTF-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <title>Buchung erstellen</title>
 
-    <link rel="stylesheet" href="styles/buchung.css"/>
-    <link rel="stylesheet" href="styles/foot-head.css"/>
+        <link rel="stylesheet" href="styles/buchung.css"/>
+        <link rel="stylesheet" href="styles/foot-head.css"/>
 
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 
-</head>
-<body>
-<div class="page-wrapper">
-    <div data-include="header.html"></div>
+        <script src="js/include.js"></script>
+        <script type="module" src="js/buchung.js"></script>
+    </head>
+    <body>
+        <div class="page-wrapper">
+            <div data-include="header.html"></div>
 
-
-    <main class="main-content">
-        <h1>Buchung erstellen</h1>
-        <p>Wähle einen Zeitslot!</p>
-
-        <form id="bookingForm" class="booking-form">
-            <div class="printer-info" id="printerInfo"></div>
-
-            <label for="name">Dein Name</label>
-            <input type="text" id="name" placeholder="Max Mustermann" required/>
-
-            <label for="email">Deine E-Mail</label>
-            <input type="email" id="email" placeholder="max@student.de" required/>
-
-            <label for="date">Datum</label>
-            <input type="date" id="date" required/>
-
-            <div class="time-row">
-                <div>
-                    <label for="start">Startzeit</label>
-                    <input type="time" id="start" required/>
+            <main class="main-content">
+                <!-- Initial State (not initially hidden) -->
+                <div id="pageState-loading">
+                    <div class="loader"></div>
                 </div>
-                <div>
-                    <label for="end">Endzeit</label>
-                    <input type="time" id="end" required/>
+
+                <div id="pageState-error" hidden>
+                    <h2>FEHLER - Bitte Administrator Kontaktieren</h2>
                 </div>
-            </div>
+                
+                <div id="pageState-ready" hidden>
+                    <h1>Buchung erstellen</h1>
+                    <p>Wähle einen Zeitslot!</p>
+    
+                    <form class="booking-form" id="bookingForm">
+                        <div class="printer-info">
+                            <h2 id="printerInfo-Name"></h2>
+                            <p id="printerInfo-Description"></p>
+                        </div>
+    
+                        <div class="formGroup">
+                            <label for="name">Dein Name</label>
+                            <input type="text" id="name" placeholder="Max Mustermann" required/>
+                        </div>
+    
+                        <div class="formGroup">
+                            <label for="email">Deine E-Mail</label>
+                            <input type="email" id="email" placeholder="max@student.de" required/>
+                        </div>
+    
+                        <div class="formGroup">
+                            <label for="date">Datum</label>
+                            <input type="date" id="date" required/>
+                        </div>
+    
+                        <div class="formGroupRow">
+                            <div class="formGroup">
+                                <label for="start">Startzeit</label>
+                                <input type="time" id="start" required/>
+                            </div>
+                            <div class="formGroup">
+                                <label for="end">Endzeit</label>
+                                <input type="time" id="end" required/>
+                            </div>
+                        </div>
+                        
+                        <div class="formGroup">
+                            <label for="notes">Notizen (optional)</label>
+                            <textarea id="notes" placeholder="Beschreibe kurz dein Projekt..."></textarea>
+                        </div>
+    
+                        <div class="buttons">
+                            <button type="submit" class="submit-btn">Buchung absenden</button>
+                            <button type="button" class="cancel-btn" onclick="window.history.back()">Abbrechen</button>
+                        </div>
+                    </form>
+                </div>
+            </main>
 
-            <label for="notes">Notizen (optional)</label>
-            <textarea id="notes" placeholder="Beschreibe kurz dein Projekt..."></textarea>
-
-            <div class="buttons">
-                <button type="submit" class="submit-btn">Buchung absenden</button>
-                <button type="button" class="cancel-btn" onclick="window.history.back()">Abbrechen</button>
-            </div>
-        </form>
-    </main>
-
-    <div data-include="footer.html"></div>
-</div>
-
-<script src="js/include.js"></script>
-
-<script type="module" src="js/buchung.js"></script>
-</body>
+            <div data-include="footer.html"></div>
+        </div>
+    </body>
 </html>
