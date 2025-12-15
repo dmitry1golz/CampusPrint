@@ -2,9 +2,8 @@
 export interface PrintBooking {
     id: string;
     printerName: string;
-    startDate: string;
-    endDate: string;
-    
+    startDate: Date;
+    endDate: Date;
     notes?: string;
     message?: string;   // Admin: Ablehnungsgrund
     videoUrl?: string;
@@ -15,7 +14,13 @@ export interface PrintBooking {
 
 export interface NewPrintBooking {
     printerId: string;
-    startDate: string;
-    endDate: string;
+    startDate: Date;
+    endDate: Date;
     notes?: string;
+}
+
+export interface Buchungsverfuegbarkeit {
+    blockedWeekDays: number[];
+    fullyBookedDays: Date[];
+    partialyBookedDays: Date[];
 }

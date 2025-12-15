@@ -101,8 +101,53 @@ textarea {
 }
 
 @keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
+    to {
+        transform: rotate(360deg);
+    }
 }
 
+.dateSelectorHeader {
+    display: flex;
+    justify-content: center;
+    flex-grow: 1;
+    width: 100%;
+    gap: 10px;
+    background-color: #D4EBFF;
+    border-radius: 10px 10px 0 0;
+}
+
+.dateSelectorRow {
+    display: flex;
+    box-sizing: border-box;
+    padding: 0 10px;
+    justify-content: space-between;
+    flex-grow: 1;
+    width: 100%;
+}
+
+.dateSelectorRow div {
+    box-sizing: border-box;
+    width: 2rem;
+    height: 2rem;
+    margin: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 10px;
+    background-color: #D4EBFF;
+}
+
+.dateSelectorRow .selectable:hover {
+    transform: scale(1.05);
+    filter: brightness(0.9);
+}
+
+.dateSelectorRow .selected {
+    border: 2px dashed black;
+}
+
+
+.dateSelectorHeaderValue {
+    text-align: center;
+    width: 10rem;
+}

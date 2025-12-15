@@ -1,5 +1,5 @@
 // WICHTIG: Import der Models und des Geraet-Service
-import { PrintBooking, NewPrintBooking } from '../models/buchung.js';
+import { PrintBooking, NewPrintBooking, Buchungsverfuegbarkeit } from '../models/buchung.js';
 import { getGeraetById } from './geraet-service.js';
 
 // MOCK DATEN
@@ -8,32 +8,32 @@ export let MOCK_BOOKING: PrintBooking[] = [
     {
         id: 'b-new-1',
         printerName: 'Ultimaker S5',
-        startDate: '25.11.2025 10:00',
-        endDate: '25.11.2025 14:00',
+        startDate: new Date(2025, 10, 25, 10, 0),
+        endDate: new Date(2025, 10, 25, 14, 0),
         notes: 'Bachelorarbeit Gehäuse V3. Bitte weißes PLA nutzen.',
         status: 'pending'
     },
     {
         id: 'b-new-2',
         printerName: 'Epilog Fusion Pro 32',
-        startDate: '26.11.2025 09:00',
-        endDate: '26.11.2025 09:30',
+        startDate: new Date(2025, 10, 26, 9, 0),
+        endDate: new Date(2025, 10, 26, 9, 30),
         notes: 'Architektur-Modell M 1:50, Sperrholz 4mm.',
         status: 'pending'
     },
     {
         id: 'b-new-3',
         printerName: 'HP DesignJet T650',
-        startDate: '26.11.2025 11:00',
-        endDate: '26.11.2025 11:15',
+        startDate: new Date(2025, 10, 26, 11, 0),
+        endDate: new Date(2025, 10, 26, 11, 15),
         notes: '3x A0 Pläne für Präsentation.',
         status: 'pending'
     },
     {
         id: 'b-new-4',
         printerName: 'Bambu Lab X1 Carbon',
-        startDate: '27.11.2025 08:00',
-        endDate: '27.11.2025 18:00',
+        startDate: new Date(2025, 10, 27, 8, 0),
+        endDate: new Date(2025, 10, 27, 18, 0),
         notes: 'Langer Druck, 4-farbig. Datei liegt auf dem Stick bei.',
         status: 'pending'
     },
@@ -42,8 +42,8 @@ export let MOCK_BOOKING: PrintBooking[] = [
     {
         id: 'b-active-1',
         printerName: 'Prusa MK4',
-        startDate: '24.11.2025 08:00',
-        endDate: '24.11.2025 12:00',
+        startDate: new Date(2025, 10, 24, 8, 0),
+        endDate: new Date(2025, 10, 24, 12, 0),
         notes: 'Ersatzteile für Roboter-AG',
         status: 'running',
         // Hier ein Test-Video (Dummy URL, wird nicht wirklich laden, aber das Icon zeigen)
@@ -52,16 +52,16 @@ export let MOCK_BOOKING: PrintBooking[] = [
     {
         id: 'b-active-2',
         printerName: 'Formlabs Form 3+',
-        startDate: '24.11.2025 13:00',
-        endDate: '24.11.2025 17:00',
+        startDate: new Date(2025, 10, 24, 13, 0),
+        endDate: new Date(2025, 10, 24, 17, 0),
         notes: 'Zahnrad-Prototypen, Tough Resin.',
         status: 'confirmed'
     },
     {
         id: 'b-active-3',
         printerName: 'Stepcraft D-Series 840',
-        startDate: '24.11.2025 09:00',
-        endDate: '24.11.2025 15:00',
+        startDate: new Date(2025, 10, 24, 9, 0),
+        endDate: new Date(2025, 10, 24, 15, 0),
         notes: 'Aluminium Frontplatte fräsen.',
         status: 'running'
     },
@@ -70,16 +70,16 @@ export let MOCK_BOOKING: PrintBooking[] = [
     {
         id: 'b-hist-1',
         printerName: 'HP DesignJet T650',
-        startDate: '20.11.2025 10:00',
-        endDate: '20.11.2025 10:30',
+        startDate: new Date(2025, 10, 20, 10, 0),
+        endDate: new Date(2025, 10, 20, 10, 30),
         notes: 'Poster A1',
         status: 'completed'
     },
     {
         id: 'b-hist-2',
         printerName: 'Ultimaker S5',
-        startDate: '19.11.2025 14:00',
-        endDate: '19.11.2025 18:00',
+        startDate: new Date(2025, 10, 19, 14, 0),
+        endDate: new Date(2025, 10, 19, 18, 0),
         notes: 'Privatprojekt',
         status: 'rejected',
         message: 'Drucken von Waffen-Repliken ist laut Nutzungsordnung untersagt.'
@@ -87,16 +87,16 @@ export let MOCK_BOOKING: PrintBooking[] = [
     {
         id: 'b-hist-3',
         printerName: 'Bambu Lab X1 Carbon',
-        startDate: '18.11.2025 09:00',
-        endDate: '18.11.2025 11:00',
+        startDate: new Date(2025, 10, 18, 9, 0),
+        endDate: new Date(2025, 10, 18, 11, 0),
         notes: 'Testdruck',
         status: 'completed'
     },
     {
         id: 'b-hist-4',
         printerName: 'Epilog Fusion Pro 32',
-        startDate: '15.11.2025 10:00',
-        endDate: '15.11.2025 12:00',
+        startDate: new Date(2025, 10, 15, 10, 0),
+        endDate: new Date(2025, 10, 15, 12, 0),
         notes: 'Geschenk',
         status: 'rejected',
         message: 'Gerät war kurzfristig in Wartung. Bitte neuen Termin buchen.'
@@ -135,4 +135,23 @@ export function createNewBooking(newBooking: NewPrintBooking) {
     };
     MOCK_BOOKING.push(booking);
     console.log("Buchung angelegt:", booking);
+}
+
+export function getBuchungsverfuegbarkeitByGeraetId(id: string): Buchungsverfuegbarkeit {
+    // While no backend, ID is never checked
+    // Static MOCK Data
+    return {
+        blockedWeekDays: [
+            5, 6 // Sa und So geblockt (0 Indexed)
+        ],
+        fullyBookedDays: [
+            new Date(2025, 11, 16),
+            new Date(2025, 11, 17),
+        ],
+        partialyBookedDays: [
+            new Date(2025, 11, 18),
+            new Date(2025, 11, 22),
+            new Date(2026, 0, 13),
+        ]
+    };
 }

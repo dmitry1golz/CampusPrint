@@ -49,7 +49,25 @@
     
                         <div class="formGroup">
                             <label for="date">Datum</label>
-                            <input type="date" id="date" required/>
+                            <input type="hidden" id="date" required>
+                            <div class="dateSelector">
+                                <div class="dateSelectorHeader">
+                                    <img id="dateSelectorPreviousMonth" src="assets/arrow_left.svg" alt="Previous Month" />
+                                    <p class="dateSelectorHeaderValue" id="dateSelectorHeaderValue"></p>
+                                    <img id="dateSelectorNextMonth" src="assets/arrow_right.svg" alt="Next Month" />
+                                </div>
+                                <div id="dateSelectorGrid">
+                                    <div class="dateSelectorRow weekDays">
+                                        <div>Mo</div>
+                                        <div>Di</div>
+                                        <div>Mi</div>
+                                        <div>Do</div>
+                                        <div>Fr</div>
+                                        <div>Sa</div>
+                                        <div>So</div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
     
                         <div class="formGroupRow">

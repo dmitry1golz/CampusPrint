@@ -93,12 +93,8 @@ function createCard(b: PrintBooking): HTMLElement {
     const body = document.createElement('div');
     body.className = 'card-body';
 
-
-    const startDate = parseGermanDate(b.startDate);
-    const endDate = parseGermanDate(b.endDate);
-
-    const dateString = formatDate(startDate, endDate);
-    const timeString = formatTime(startDate, endDate);
+    const dateString = formatDate(b.startDate, b.endDate);
+    const timeString = formatTime(b.startDate, b.endDate);
 
     body.appendChild(metaCol('Datum', dateString));
     body.appendChild(metaCol('Uhrzeit', timeString));
@@ -155,20 +151,6 @@ function formatTime(startDate: Date, endDate: Date): string {
     const end = endDate.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
 
     return `${start} \- ${end}`;
-}
-
-function parseGermanDate(dateString: string): Date {
-    const [datePart, timePart] = dateString.split(' ');
-    const [day, month, year] = datePart.split('.');
-    const [hours, minutes] = timePart.split(':');
-
-    return new Date(
-        parseInt(year),
-        parseInt(month) - 1,
-        parseInt(day),
-        parseInt(hours),
-        parseInt(minutes)
-    );
 }
 
 function metaCol(label: string, value: string): HTMLElement {
