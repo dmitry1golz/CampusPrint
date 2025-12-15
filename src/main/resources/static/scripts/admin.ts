@@ -2,6 +2,9 @@ import { PrintBooking } from './models/buchung.js';
 import { Geraet } from './models/geraet.js';
 import { getAllBookings, updateBookingStatus } from './services/buchung-service.js';
 import { getAllGeraete, addGeraet, deleteGeraet, updateGeraetStatus } from './services/geraet-service.js';
+import { requireAuth, logout } from './services/auth-service.js';
+
+requireAuth();
 
 document.addEventListener('DOMContentLoaded', () => {
 

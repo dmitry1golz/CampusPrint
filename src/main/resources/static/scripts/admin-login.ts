@@ -1,31 +1,40 @@
+import { login } from './services/auth-service.js';
+
 document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('adminLoginForm') as HTMLFormElement;
     const emailInput = document.getElementById('email') as HTMLInputElement;
     const passwordInput = document.getElementById('password') as HTMLInputElement;
+    // Das neue Error-Element holen
+    const errorBanner = document.getElementById('login-error') as HTMLDivElement;
 
-    form.addEventListener('submit', (e) => {
-        e.preventDefault();
+    if (form) {
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            // Alten Fehler ausblenden bei neuem Versuch
+            if(errorBanner) errorBanner.classList.add('hidden');
+            
+            const email = emailInput.value;
+            const password = passwordInput.value;
 
-        const email = emailInput.value.trim();
-        const password = passwordInput.value.trim();
+            const success = login(email, password);
 
-        if (!validateAdminEmail(email)) {
-            alert('Bitte gib eine gültige Admin-E-Mail-Adresse ein.');
-            return;
-        }
-
-        if (password.length < 6) {
-            alert('Passwort muss mindestens 6 Zeichen lang sein.');
-            return;
-        }
-
-        // TODO: Replace this with real API login call
-        alert(`Login als ${email}...`);
-        // fetch('/api/admin/login', { method: 'POST', body: JSON.stringify(...) })
-    });
+            if (success) {
+                window.location.href = 'admin.html';
+            } else {
+                // UI Feedback statt Alert
+                if(errorBanner) {
+                    errorBanner.classList.remove('hidden');
+                } else {
+                    // Fallback falls HTML nicht aktuell ist
+                    alert('Falsche Zugangsdaten!');
+                }
+                
+                // Passwort leeren
+                passwordInput.value = '';
+                // Fokus zurück ins Passwort Feld
+                passwordInput.focus();
+            }
+        });
+    }
 });
-
-function validateAdminEmail(email: string): boolean {
-    const pattern = /^[a-zA-Z0-9._%+-]+@campusprint\.de$/;
-    return pattern.test(email);
-}
