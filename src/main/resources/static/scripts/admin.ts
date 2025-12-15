@@ -1,4 +1,4 @@
-import { PrintBooking } from './models/buchungs.js';
+import { PrintBooking } from './models/buchung.js';
 import { Geraet } from './models/geraet.js';
 import { getAllBookings, updateBookingStatus } from './services/buchung-service.js';
 import { getAllGeraete, addGeraet, deleteGeraet, updateGeraetStatus } from './services/geraet-service.js';
