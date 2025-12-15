@@ -5,8 +5,8 @@ var MOCK_BOOKING: PrintBooking[] = [
     {
         id: 'book-1763276488435',
         printerName: 'Ultimaker S5',
-        startDate: '21.11.2025 13:00',
-        endDate: '21.11.2025 19:00',
+        startDate: new Date(2025, 10, 21, 13, 0),
+        endDate: new Date(2025, 10, 21, 19, 0),
         notes: 'Prototypen',
         status: 'rejected',
         message: "Der Zeitslot ist leider nicht verfügbar. Ich könnte dir anbieren, den Druck am 25.11.2025 " +
@@ -15,8 +15,8 @@ var MOCK_BOOKING: PrintBooking[] = [
     {
         id: 'book-1763276489000',
         printerName: 'Prusa MK3',
-        startDate: '22.11.2025 09:00',
-        endDate: '22.11.2025 12:00',
+        startDate: new Date(2025, 10, 22, 9, 0),
+        endDate: new Date(2025, 10, 22, 12, 0),
         notes: 'Testdruck',
         videoUrl: 'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fwww.schaan.li%2Fapplication' +
             '%2Ffiles%2Fthumbnails%2Flarge%2F9116%2F5174%2F4032%2F3D-Druck.jpg',
@@ -25,24 +25,24 @@ var MOCK_BOOKING: PrintBooking[] = [
     {
         id: 'book-1763276490123',
         printerName: 'Ender 3',
-        startDate: '23.11.2025 08:00',
-        endDate: '24.11.2025 14:00',
+        startDate: new Date(2025, 10, 23, 8, 0),
+        endDate: new Date(2025, 10, 24, 14, 0),
         notes: 'Miniatur-Serie',
         status: 'pending'
     },
     {
         id: 'book-1763276491456',
         printerName: 'Formlabs Form 3',
-        startDate: '24.11.2025 10:00',
-        endDate: '24.11.2025 16:00',
+        startDate: new Date(2025, 10, 24, 10, 0),
+        endDate: new Date(2025, 10, 24, 16, 0),
         notes: 'Gehäuse Prototyp',
         status: 'confirmed'
     },
     {
         id: 'book-1763276493012',
         printerName: 'Anycubic Photon',
-        startDate: '20.11.2025 07:00',
-        endDate: '20.11.2025 13:00',
+        startDate: new Date(2025, 10, 20, 7, 0),
+        endDate: new Date(2025, 10, 20, 13, 0),
         notes: 'Kleinteile Batch',
         status: 'completed'
     },
