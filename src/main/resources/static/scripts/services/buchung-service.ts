@@ -1,68 +1,60 @@
-import { getGeraetById } from './geraet-service.js';
+import { PrintBooking } from '../models/buchungs.js';
 
-// Temporary Local Data while frontend only
-var MOCK_BOOKING: PrintBooking[] = [
+// --- MOCK DATEN ---
+export let MOCK_BOOKING: PrintBooking[] = [
     {
-        id: 'book-1763276488435',
+        id: 'b-101',
         printerName: 'Ultimaker S5',
         startDate: '21.11.2025 13:00',
         endDate: '21.11.2025 19:00',
-        notes: 'Prototypen',
-        status: 'rejected',
-        message: "Der Zeitslot ist leider nicht verfügbar. Ich könnte dir anbieren, den Druck am 25.11.2025 " +
-            "durchzuführen. Sonst melde dich unter admin@campusprint.de, damit wir einen Termin finden."
+        notes: 'Gehäuse für Arduino Projekt',
+        status: 'pending' // Wartet auf Bestätigung
     },
     {
-        id: 'book-1763276489000',
-        printerName: 'Prusa MK3',
+        id: 'b-102',
+        printerName: 'Epilog Fusion Pro',
         startDate: '22.11.2025 09:00',
-        endDate: '22.11.2025 12:00',
-        notes: 'Testdruck',
-        videoUrl: 'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fwww.schaan.li%2Fapplication' +
-            '%2Ffiles%2Fthumbnails%2Flarge%2F9116%2F5174%2F4032%2F3D-Druck.jpg',
-        status: 'running'
+        endDate: '22.11.2025 10:00',
+        notes: 'Acryl Platten schneiden (Material vorhanden)',
+        status: 'confirmed' // Bereit zum Starten
     },
     {
-        id: 'book-1763276490123',
-        printerName: 'Ender 3',
-        startDate: '23.11.2025 08:00',
-        endDate: '24.11.2025 14:00',
-        notes: 'Miniatur-Serie',
-        status: 'pending'
+        id: 'b-103',
+        printerName: 'Canon imageRUNNER',
+        startDate: '22.11.2025 11:00',
+        endDate: '22.11.2025 11:15',
+        notes: '50x Flyer A4',
+        status: 'running' // Wird gerade gedruckt
     },
     {
-        id: 'book-1763276491456',
-        printerName: 'Formlabs Form 3',
-        startDate: '24.11.2025 10:00',
-        endDate: '24.11.2025 16:00',
-        notes: 'Gehäuse Prototyp',
-        status: 'confirmed'
-    },
-    {
-        id: 'book-1763276493012',
-        printerName: 'Anycubic Photon',
-        startDate: '20.11.2025 07:00',
-        endDate: '20.11.2025 13:00',
-        notes: 'Kleinteile Batch',
-        status: 'completed'
-    },
+        id: 'b-104',
+        printerName: 'Ultimaker S5',
+        startDate: '20.11.2025 08:00',
+        endDate: '20.11.2025 12:00',
+        status: 'rejected',
+        message: 'Zeitfenster leider wegen Wartung nicht verfügbar.'
+    }
 ];
 
-export function getBookingsForEmail(email: string): PrintBooking[] {
-    // Currently all Bookings are for all users -> No DB backend that handles user relations
+// --- API FUNKTIONEN ---
+
+export function getAllBookings(): PrintBooking[] {
     return MOCK_BOOKING;
 }
 
-var counter = 0;
-export function createNewBooking(newBooking: NewPrintBooking) {
-    const booking: PrintBooking = {
-        id: counter.toString(),
-        printerName: getGeraetById(newBooking.printerId)!.name,
-        startDate: newBooking.startDate,
-        endDate: newBooking.endDate,
-        notes: newBooking.notes,
-        status: 'pending'
+export function getBookingsForEmail(email: string): PrintBooking[] {
+    // Später: Filtern nach User Email
+    return MOCK_BOOKING;
+}
+
+export function updateBookingStatus(id: string, newStatus: PrintBooking['status'], rejectionReason?: string) {
+    const booking = MOCK_BOOKING.find(b => b.id === id);
+    if (booking) {
+        booking.status = newStatus;
+        
+        // Falls abgelehnt wurde, speichern wir den Grund
+        if (newStatus === 'rejected' && rejectionReason) {
+            booking.message = rejectionReason;
+        }
     }
-    MOCK_BOOKING.push(booking);
-    counter++;
 }
