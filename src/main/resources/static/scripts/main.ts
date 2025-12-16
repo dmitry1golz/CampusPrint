@@ -1,16 +1,16 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const bookingButtons = document.querySelectorAll('#myOrdersButton');
-    const viewDevicesButton = document.querySelector('#orderButton');
+    const myOrdersButton = document.querySelector('.myOrdersButton');
+    const viewDevicesButtons = document.querySelectorAll('.orderButton');
 
-    bookingButtons.forEach(button => {
+    viewDevicesButtons.forEach(button => {
         button.addEventListener('click', () => {
-            window.location.href = '/meine-drucke.html';
+            window.location.href = '/deviceCatalog.html';
         });
     });
 
-    if (viewDevicesButton) {
-        viewDevicesButton.addEventListener('click', () => {
-            window.location.href = '/deviceCatalog.html';
+    if (myOrdersButton) {
+        myOrdersButton.addEventListener('click', () => {
+            window.location.href = '/meine-drucke.html';
         });
     }
 });
