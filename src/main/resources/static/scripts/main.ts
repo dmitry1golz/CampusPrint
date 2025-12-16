@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (viewDevicesButton) {
         viewDevicesButton.addEventListener('click', () => {
-            window.location.href = '/geraete.html';
+            window.location.href = '/deviceCatalog.html';
         });
     }
 });

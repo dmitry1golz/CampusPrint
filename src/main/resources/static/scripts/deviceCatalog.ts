@@ -1,5 +1,5 @@
-import { Geraet } from "./models/geraet.js";
-import { getAllGeraete } from "./services/geraet-service.js";
+import {Geraet} from "./models/geraet.js";
+import {getAllGeraete} from "./services/geraet-service.js";
 
 
 let alleGeraete: Geraet[] = getAllGeraete();
@@ -55,10 +55,31 @@ function setupFilterButtons(): void {
             btn.classList.add('active');
 
             const category = btn.getAttribute('data-category');
+            var filtered: Geraet[] = getAllGeraete();
+            switch (category) {
+                case '3D-Drucker':
+                    filtered = filtered.filter(
+                        (g) => g.type === "FDM_Drucker" || g.type === "SLA_Drucker");
+                    break;
+                case 'CNC-Fräsen':
+                    filtered = filtered.filter(
+                        (g) => g.type === "CNC_Fräse");
+                    break;
+                    case 'Laserschneider':
+                        filtered = filtered.filter(
+                            (g) => g.type === "Lasercutter");
+                        break;
+
+                case 'Papierdrucker':
+                    filtered = filtered.filter(
+                        (g) => g.type === "Papierdrucker");
+                    break;
+                default :
+                    break;
+            }
             if (category === 'Alle') {
                 renderGeraete(alleGeraete);
             } else {
-                const filtered = alleGeraete.filter((g) => g.type === category);
                 renderGeraete(filtered);
             }
         });
