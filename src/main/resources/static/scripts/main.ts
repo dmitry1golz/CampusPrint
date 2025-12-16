@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     viewDevicesButtons.forEach(button => {
         button.addEventListener('click', () => {
-            window.location.href = '/geraete.html';
+            window.location.href = '/deviceCatalog.html';
         });
     });
 
