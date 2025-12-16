@@ -11,8 +11,15 @@ html, body {
 .page-wrapper {
     display: flex;
     flex-direction: column;
-    min-height: 50vh;
+    min-height: 100vh;
 }
+.content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+
 .katalog-header {
     text-align: center;
     padding: 2rem;
@@ -69,6 +76,10 @@ html, body {
 
 /* ====== card ====== */
 .card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 100%;
     background-color: #ffffff;
     border-radius: 12px;
     border-color: #111111;
@@ -146,10 +157,11 @@ html, body {
 /* ====== button ====== */
 .card .btn {
     background-color: #3b82f6;
+    width: 100%;
+    display: block;
     color: white;
-    border: none;
-    border-top: 1px solid #e5e7eb;
-    padding: 0.75rem 1rem;
+    border: 1px solid #e5e7eb;
+    padding: 1rem 1rem;
     font-size: 1rem;
     cursor: pointer;
     transition: background-color 0.2s ease;
@@ -158,6 +170,7 @@ html, body {
 .card .btn:hover {
     background-color: #2563eb;
 }
+
 
 
 .no-data {
