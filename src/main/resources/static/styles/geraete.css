@@ -1,20 +1,30 @@
 html, body {
     font-family: 'Inter', sans-serif;
-    height: 100%;
     margin: 0;
+    height: 100%;
+    background: #ffffff;
     display: flex;
     flex-direction: column;
-    background: #ffffff;
+    justify-content: center;
 }
 
 .page-wrapper {
     display: flex;
-    text-align: center;
     flex-direction: column;
     min-height: 100vh;
 }
+.content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
 
 
+.katalog-header {
+    text-align: center;
+    padding: 2rem;
+}
+/* ====== filters ====== */
 .filter-section {
     text-align: center;
     margin-top: 1rem;
@@ -23,18 +33,18 @@ html, body {
 .filter-buttons {
     display: inline-flex;
     gap: 2rem;
-    background: #d4d5d8;
+    background: #dfe4f2;
     padding: 0.5rem 1rem;
     border-radius: 8px;
 }
 
 .filter-btn {
     background: transparent;
-    border: none;
+    border: 1px solid white;
     font-weight: 600;
     cursor: pointer;
     font-size: 1rem;
-    color: #475569;
+    color: #000000;
     padding: 0.4rem 0.75rem;
     border-radius: 6px;
     transition: background 0.2s ease;
@@ -45,88 +55,128 @@ html, body {
 }
 
 .filter-btn.active {
-    background-color: #ffffff;
-    color: #1e293b;
+    background-color: #3b82f6;
+    color: #ffffff;
 }
 
 
-
-main.geraete-container {
-    flex: 1;
+/* ====== card container ====== */
+.geraete-container {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 1.5rem;
+    gap: 2rem;
     padding: 2rem;
-    max-width: 1200px;
+
+    justify-content: center;
+    grid-auto-columns: 300px;
+    max-width: 1000px;
     margin: 0 auto;
 }
 
+
+/* ====== card ====== */
 .card {
-    background: #fff;
-    border-radius: 10px;
-    overflow: hidden;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    min-height: 100%;
+    background-color: #ffffff;
+    border-radius: 12px;
+    border-color: #111111;
+    border-width: thin;
+    box-shadow: 10px 10px 10px rgba(18, 18, 18, 0.05);
+    overflow: hidden;
+    transition: transform 0.2s ease;
 }
 
-.no-data {
-    grid-column: 1 / -1;
-    text-align: center;
-    font-size: 1.2rem;
-    color: #555;
-    padding: 4rem 0;
+.card:hover {
+    transform: translateY(-4px);
 }
 
 .card img {
     width: 100%;
-    height: 180px;
+    height: 200px;
     object-fit: cover;
+    border-bottom: 1px solid #e5e7eb;
 }
 
+
+/* ====== card content ====== */
 .card-body {
     padding: 1rem;
+    flex-grow: 1;
+    text-align: left;
 }
 
-.card h3 {
-    margin: 0 0 0.5rem;
+.card-body h3 {
+    margin: 0.5rem 0 0.25rem;
+    font-size: 1.2rem;
+    color: #111827;
 }
 
-.card p {
+.card-body p {
     font-size: 0.9rem;
-    color: #444;
+    color: #6b7280;
+    margin-bottom: 0.75rem;
 }
 
+.card-body ul {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 1rem 0;
+    font-size: 0.85rem;
+    color: #374151;
+}
+
+.card-body ul li {
+    margin-bottom: 0.25rem;
+}
+
+
+/* ====== status ====== */
 .status {
     display: inline-block;
     padding: 0.25rem 0.6rem;
-    border-radius: 12px;
-    font-size: 0.8rem;
-    font-weight: 600;
+    font-size: 0.75rem;
+    border-radius: 6px;
+    font-weight: 500;
     margin-bottom: 0.5rem;
 }
 
-.status.verfuegbar {
-    background: #d1fae5;
-    color: #065f46;
+.status.verfügbar {
+    background-color: #dcfce7;
+    color: #166534;
 }
 
 .status.wartung {
-    background: #fee2e2;
-    color: #b91c1c;
+    background-color: #fee2e2;
+    color: #991b1b;
 }
 
-.btn {
-    background: #3b82f6;
-    color: white;
-    border: none;
-    padding: 0.75rem;
-    font-weight: 600;
-    cursor: pointer;
+
+/* ====== button ====== */
+.card .btn {
+    background-color: #3b82f6;
     width: 100%;
+    display: block;
+    color: white;
+    border: 1px solid #e5e7eb;
+    padding: 1rem 1rem;
     font-size: 1rem;
-    border-radius: 0 0 10px 10px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.card .btn:hover {
+    background-color: #2563eb;
 }
 
 
+
+.no-data {
+    text-align: center;
+    font-size: 1.1rem;
+    color: #6b7280;
+    padding: 3rem;
+    grid-column: 1 / -1;
+}

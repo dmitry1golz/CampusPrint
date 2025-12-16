@@ -1,6 +1,8 @@
-import {Geraet} from "./models/geraet"
+import { Geraet } from "./models/geraet.js";
+import { getAllGeraete } from "./services/geraet-service.js";
 
-let alleGeraete: Geraet[] = [];
+
+let alleGeraete: Geraet[] = getAllGeraete();
 
 function renderGeraete(data: Geraet[]): void {
     const container = document.getElementById('geraete-container');
@@ -20,7 +22,7 @@ function renderGeraete(data: Geraet[]): void {
       <img src="${g.image}" alt="${g.name}" />
       <div class="card-body">
         <span class="status ${g.status}">
-          ${g.status}
+          ${g.status === 'Verfügbar' ? 'Verfügbar' : 'Wartung'}
         </span>
         <h3>${g.name}</h3>
         <p>${g.description}</p>
@@ -35,7 +37,7 @@ function renderGeraete(data: Geraet[]): void {
 
         const button = card.querySelector('.btn') as HTMLButtonElement;
         button.addEventListener('click', () => {
-            window.location.href = `buchung.html?geraet=${encodeURIComponent(g.name)}`;
+            window.location.href = `buchung.html?geraet_id=${encodeURIComponent(g.id)}`;
         });
 
         container.appendChild(card);
@@ -56,7 +58,6 @@ function setupFilterButtons(): void {
             if (category === 'Alle') {
                 renderGeraete(alleGeraete);
             } else {
-                // TODO does not work because UI and DB names differ?
                 const filtered = alleGeraete.filter((g) => g.type === category);
                 renderGeraete(filtered);
             }
@@ -65,16 +66,6 @@ function setupFilterButtons(): void {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    fetch('data/geraete.json')
-        .then((res) => res.json())
-        .then((data: Geraet[]) => {
-            alleGeraete = data;
-            renderGeraete(alleGeraete);
-            setupFilterButtons();
-        })
-        .catch((err) => {
-            const container = document.getElementById('geraete-container');
-            if (container) container.innerHTML = '<div class="no-data">Fehler beim Laden</div>';
-            console.error('Fehler beim Laden:', err);
-        });
+    renderGeraete(alleGeraete);
+    setupFilterButtons();
 });
