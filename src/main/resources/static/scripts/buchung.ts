@@ -1,7 +1,7 @@
 import { createNewBooking, getBuchungsverfuegbarkeitByGeraetId } from "./services/buchung-service.js";
 import { Buchungsverfuegbarkeit, NewPrintBooking } from "./models/buchung.js";
 import { getGeraetById } from "./services/geraet-service.js";
-import { setCookie } from "./utils.js";
+import { setCookie } from "./services/auth-service.js";
 import { Geraet } from "./models/geraet.js";
 
 type BuchenPageState = 'loading' | 'error' | 'ready';
