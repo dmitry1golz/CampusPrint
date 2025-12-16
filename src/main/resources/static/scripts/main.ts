@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     const bookingButtons = document.querySelectorAll('#myOrdersButton');
-    const viewDevicesButton = document.querySelector('#geraeteButton');
+    const viewDevicesButton = document.querySelector('#orderButton');
 
     bookingButtons.forEach(button => {
         button.addEventListener('click', () => {
