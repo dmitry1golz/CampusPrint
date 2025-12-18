@@ -6,11 +6,9 @@
     <title>Admin Dashboard – CampusPrint</title>
     
     <link rel="stylesheet" href="styles/foot-head.css" />
-    <link rel="stylesheet" href="styles/admin.css" />
-    
-    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="stylesheet" href="styles/base.css" /> <link rel="stylesheet" href="styles/admin.css" /> <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&display=swap" rel="stylesheet">
     
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
@@ -20,45 +18,43 @@
     <div data-include="header.html"></div>
 
     <main class="main-content">
-        <div class="admin-header">
+        <div class="admin-header mb-4">
             <h1>Admin Dashboard</h1>
-            <p class="subtitle">Verwaltung von Buchungen und Inventar</p>
+            <p class="text-muted">Verwaltung von Buchungen und Inventar</p>
         </div>
 
-        <div class="tabs-nav">
-            <button class="tab-btn active" data-target="pending">Ausstehend <span id="count-pending">(0)</span></button>
-            <button class="tab-btn" data-target="active">Aktiv <span id="count-active">(0)</span></button>
-            <button class="tab-btn" data-target="completed">Historie <span id="count-completed">(0)</span></button>
-            <button class="tab-btn" data-target="equipment">Geräte <span id="count-equipment">(0)</span></button>
-        </div>
+        <nav class="tabs-nav mb-4">
+            <button class="tab-btn active" data-target="pending">Ausstehend <span id="count-pending" class="text-sm">(0)</span></button>
+            <button class="tab-btn" data-target="active">Aktiv <span id="count-active" class="text-sm">(0)</span></button>
+            <button class="tab-btn" data-target="completed">Historie <span id="count-completed" class="text-sm">(0)</span></button>
+            <button class="tab-btn" data-target="equipment">Geräte <span id="count-equipment" class="text-sm">(0)</span></button>
+        </nav>
 
         <div class="tabs-content">
-            
             <div id="tab-pending" class="tab-pane active">
                 <div id="pending-list" class="booking-grid"></div>
-                <div id="pending-empty" class="empty-msg hidden">Keine ausstehenden Anfragen.</div>
+                <div id="pending-empty" class="alert alert-danger hidden mt-2">Keine ausstehenden Anfragen.</div>
             </div>
 
             <div id="tab-active" class="tab-pane">
                 <div id="active-list" class="booking-grid"></div>
-                <div id="active-empty" class="empty-msg hidden">Zurzeit laufen keine Drucke.</div>
+                <div id="active-empty" class="alert alert-danger hidden mt-2">Zurzeit laufen keine Drucke.</div>
             </div>
 
             <div id="tab-completed" class="tab-pane">
                 <div id="completed-list" class="booking-grid"></div>
-                <div id="completed-empty" class="empty-msg hidden">Keine vergangenen Aufträge.</div>
+                <div id="completed-empty" class="alert alert-danger hidden mt-2">Keine vergangenen Aufträge.</div>
             </div>
 
             <div id="tab-equipment" class="tab-pane">
-                <div class="actions-header">
-                    <button id="btn-show-add-equipment" class="btn-primary">
+                <div class="text-right mb-2">
+                    <button id="btn-show-add-equipment" class="btn btn-primary">
                         <i data-lucide="plus"></i> Gerät hinzufügen
                     </button>
                 </div>
                 
-                <div id="add-equipment-form" class="form-card hidden">
-                    <h3>Neues Gerät konfigurieren</h3>
-                    
+                <div id="add-equipment-form" class="card mb-4 hidden">
+                    <h3 class="mb-2">Neues Gerät konfigurieren</h3>
                     <div class="form-row">
                         <div class="form-group">
                             <label for="eq-name">Modell Name *</label>
@@ -70,44 +66,41 @@
                                 <option value="FDM_Drucker">FDM Drucker (3D)</option>
                                 <option value="SLA_Drucker">SLA Drucker (3D)</option>
                                 <option value="Lasercutter">Laserschneider</option>
-                                <option value="CNC_Fräse">CNC Fräse</option>
                                 <option value="Papierdrucker">Papierdrucker</option>
                             </select>
                         </div>
                     </div>
 
-                    <div id="specific-3d-fields">
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="eq-nozzle">Düse (Nozzle)</label>
-                                <input type="text" id="eq-nozzle" placeholder="z.B. 0.4mm" />
-                            </div>
-                            <div class="form-group">
-                                <label for="eq-layer">Schichthöhe (Layer)</label>
-                                <input type="text" id="eq-layer" placeholder="z.B. 0.1mm - 0.3mm" />
-                            </div>
+                    <div id="specific-3d-fields" class="form-row">
+                        <div class="form-group">
+                            <label for="eq-nozzle">Düse (Nozzle)</label>
+                            <input type="text" id="eq-nozzle" placeholder="z.4mm" />
+                        </div>
+                        <div class="form-group">
+                            <label for="eq-layer">Schichthöhe</label>
+                            <input type="text" id="eq-layer" placeholder="0.1mm - 0.3mm" />
                         </div>
                     </div>
 
                     <div class="form-row">
                         <div class="form-group">
                             <label for="eq-volume" id="label-volume">Bauvolumen</label>
-                            <input type="text" id="eq-volume" placeholder="z.B. 250 x 210 x 210 mm" />
+                            <input type="text" id="eq-volume" />
                         </div>
                         <div class="form-group">
                             <label for="eq-image">Bild URL</label>
-                            <input type="text" id="eq-image" placeholder="https://..." />
+                            <input type="text" id="eq-image" />
                         </div>
                     </div>
 
-                    <div class="form-group">
+                    <div class="form-group mb-2">
                         <label for="eq-desc">Beschreibung *</label>
-                        <textarea id="eq-desc" rows="3" placeholder="Technische Details, Besonderheiten..."></textarea>
+                        <textarea id="eq-desc" rows="3"></textarea>
                     </div>
 
-                    <div class="form-actions">
-                        <button id="btn-save-equipment" class="btn-primary">Speichern</button>
-                        <button id="btn-cancel-equipment" class="btn-secondary">Abbrechen</button>
+                    <div class="text-right">
+                        <button id="btn-cancel-equipment" class="btn btn-secondary">Abbrechen</button>
+                        <button id="btn-save-equipment" class="btn btn-primary">Speichern</button>
                     </div>
                 </div>
 
@@ -120,19 +113,18 @@
 </div>
 
 <div id="reject-modal" class="modal-overlay hidden">
-    <div class="modal-box">
-        <h3>Buchung ablehnen</h3>
-        <p class="text-muted">Bitte gib einen Grund an, der dem Studenten gesendet wird:</p>
-        <textarea id="reject-reason" rows="4" placeholder="z.B. Datei nicht druckbar..."></textarea>
-        <div class="modal-actions">
-            <button id="btn-cancel-reject" class="btn-secondary">Abbrechen</button>
-            <button id="btn-confirm-reject" class="btn-danger">Ablehnen bestätigen</button>
+    <div class="modal-box card">
+        <h3 class="mb-1">Buchung ablehnen</h3>
+        <p class="text-muted mb-2">Grund für den Studenten:</p>
+        <textarea id="reject-reason" rows="4" class="w-full mb-2" placeholder="z.B. Datei nicht druckbar..."></textarea>
+        <div class="text-right">
+            <button id="btn-cancel-reject" class="btn btn-secondary">Abbrechen</button>
+            <button id="btn-confirm-reject" class="btn btn-danger">Ablehnen bestätigen</button>
         </div>
     </div>
 </div>
 
 <script src="js/include.js"></script>
 <script type="module" src="js/admin.js"></script> 
-
 </body>
 </html>
