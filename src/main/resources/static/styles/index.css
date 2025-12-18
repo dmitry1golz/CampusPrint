@@ -1,0 +1,55 @@
+/* Nur spezifische Styles für die Startseite.
+   Alles andere (Buttons, Cards, Fonts) kommen aus base.css 
+*/
+
+/* Farbverlauf der Startseite */
+.hero-custom-bg {
+    background: linear-gradient(to right, #b4f2de, #adadea);
+    padding: 5rem 1rem;
+    text-align: center;
+}
+
+.hero-title {
+    font-size: 3rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+    color: #111;
+}
+
+.hero-subtitle {
+    font-size: 1.25rem;
+    margin-bottom: 2rem;
+    color: #333;
+}
+
+/* hier Flexbox statt Grid, damit bei wenigen Items mittig ist */
+.features-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    justify-content: center;
+    margin-top: 2rem;
+}
+
+.feature-card {
+    /* .card Eigenschaften aus base.css, hier nur Größe + Layout */
+    width: 260px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.feature-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    display: block;
+}
+
+/* Sektion unten */
+.cta-section {
+    background-color: #e0f2fe; /* Hellblau */
+    text-align: center;
+    padding: 4rem 1rem;
+    margin-top: 3rem;
+}

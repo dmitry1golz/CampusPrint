@@ -3,66 +3,77 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>CampusPrint</title>
-    <link rel="stylesheet" href="styles/main.css" />
-    <link rel="stylesheet" href="styles/foot-head.css" />
+    <title>CampusPrint - Startseite</title>
+    
+    <link rel="stylesheet" href="styles/base.css" />
+    <link rel="stylesheet" href="styles/index.css" />
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <!-- <link rel="preconnect" href="https://fonts.googleapis.com"> -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
-<header class="hero">
-    <div class="container">
-        <h1 class="title">CampusPrint</h1>
-        <p class="subtitle">Reserviere 3D-Drucker, Laserschneider und mehr - einfach, schnell und effizient</p>
-        <div class="hero-buttons">
-            <button class="btn primary orderButton">Jetzt Buchen</button>
-            <button class="btn secondary myOrdersButton">Meine Drucke</button>
-        </div>
-        <p class="no-registration">Keine Registrierung erforderlich</p>
-    </div>
-</header>
+<div class="page-wrapper">
+    <div data-include="header.html"></div>
 
-<section class="benefits">
-    <div class="container">
-        <h2>Vorteile für Studenten und Lehrpersonal</h2>
-        <div class="benefit-cards">
-            <div class="card">
-                <div class="icon">📦</div>
+    <header class="hero-custom-bg">
+        <div class="container-lg"> <h1 class="hero-title">CampusPrint</h1>
+            <p class="hero-subtitle">
+                Reserviere 3D-Drucker, Laserschneider und mehr – einfach, schnell und effizient.
+            </p>
+            
+            <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                <button class="btn btn-primary orderButton">Jetzt Buchen</button>
+                <button class="btn btn-secondary myOrdersButton">Meine Drucke</button>
+            </div>
+            
+            <p class="text-muted mt-2">Keine Registrierung erforderlich</p>
+        </div>
+    </header>
+
+    <main class="main-content container-lg">
+        <h2 class="text-center mb-2">Vorteile für Studenten und Lehrpersonal</h2>
+        
+        <div class="features-wrapper">
+            <div class="card card-hover feature-card">
+                <span class="feature-icon">📦</span>
                 <h3>Gerätevielfalt</h3>
-                <p>3D-Drucker, Laserschneider, Plotter und mehr an einem Ort</p>
+                <p class="text-muted">3D-Drucker, Laserschneider, Plotter und mehr an einem Ort</p>
             </div>
-            <div class="card">
-                <div class="icon">🕒</div>
+
+            <div class="card card-hover feature-card">
+                <span class="feature-icon">🕒</span>
                 <h3>Zeitslot-Buchen</h3>
-                <p>Reserviere deinen Wunschtermin ohne Warteschlangen</p>
+                <p class="text-muted">Reserviere deinen Wunschtermin ohne Warteschlangen</p>
             </div>
-            <div class="card">
-                <div class="icon">🛠️</div>
+
+            <div class="card card-hover feature-card">
+                <span class="feature-icon">🛠️</span>
                 <h3>Admin-Verwaltung</h3>
-                <p>Einfache Verwaltung und Bestätigung durch Laborpersonal</p>
+                <p class="text-muted">Einfache Verwaltung und Bestätigung durch Laborpersonal</p>
             </div>
-            <div class="card">
-                <div class="icon">⚡</div>
+
+            <div class="card card-hover feature-card">
+                <span class="feature-icon">⚡</span>
                 <h3>Schnell & Einfach</h3>
-                <p>Intuitive Bedienung für reibungslose Abläufe</p>
+                <p class="text-muted">Intuitive Bedienung für reibungslose Abläufe</p>
             </div>
         </div>
-    </div>
-</section>
+    </main>
 
-<section class="cta">
-    <div class="container">
-        <h2>Bereit loszulegen?</h2>
-        <p>Buche sofort ohne Registrierung</p>
-        <button class="btn primary orderButton">Jetzt Buchen</button>
-    </div>
-</section>
+    <section class="cta-section">
+        <div class="container-lg">
+            <h2>Bereit loszulegen?</h2>
+            <p class="mb-2">Buche sofort ohne Registrierung</p>
+            <button class="btn btn-primary orderButton">Jetzt Buchen</button>
+        </div>
+    </section>
+
+    <div data-include="footer.html"></div>
+</div>
 
 <script src="js/include.js"></script>
 <script type="module" src="js/main.js"></script>
-</body>
-<div data-include="footer.html"></div>
 
+</body>
 </html>
