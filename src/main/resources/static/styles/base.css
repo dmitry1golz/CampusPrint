@@ -188,3 +188,30 @@ input, select, textarea {
     25% { transform: translateX(-5px); }
     75% { transform: translateX(5px); }
 }
+
+/* =========================================
+   6. UTILITIES (Hilfsklassen)
+   Das hier unten an die base.css anfügen!
+   ========================================= */
+
+/* Text Ausrichtung */
+.text-center { text-align: center; }
+.text-right  { text-align: right; }
+.text-left   { text-align: left; }
+
+/* Text Farben & Größen */
+.text-muted { color: var(--text-muted); font-size: 0.9rem; }
+.text-sm    { font-size: 0.875rem; }
+
+/* Abstände (Margins) */
+.mt-1 { margin-top: 0.5rem; }
+.mt-2 { margin-top: 1rem; }
+.mb-1 { margin-bottom: 0.5rem; }
+.mb-2 { margin-bottom: 1rem; }
+.mb-4 { margin-bottom: 2rem; }
+
+/* Breiten */
+.w-full { width: 100%; }
+
+/* Verstecken */
+.hidden { display: none !important; }
