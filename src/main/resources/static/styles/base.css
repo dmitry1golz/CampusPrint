@@ -179,7 +179,7 @@ input, select, textarea {
 /* Alerts */
 .hidden { display: none !important; }
 .alert { padding: 1rem; border-radius: var(--radius); margin-bottom: 1rem; border: 1px solid transparent; }
-.alert-danger { background: #fee2e2; color: #991b1b; border-color: #fecaca; }
+.alert-danger { background: #fee2e2; color: #991b1b; border-color: #fecaca; text-align: center;}
 
 /* Animation */
 .shake { animation: shake 0.3s; }
