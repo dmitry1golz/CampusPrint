@@ -1,13 +1,6 @@
-/* ADMIN-ONLY LAYOUT */
+/* ADMIN-ONLY LAYOUT (Ergänzung zu base.css) */
 
-/* 1. Dashboard Grid */
-.booking-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 1.5rem;
-}
-
-/* 2. Tabs-Navigation */
+/* 1. Tabs-Navigation */
 .tabs-nav {
     display: flex;
     border-bottom: 2px solid var(--border-color);
@@ -32,25 +25,51 @@
 .tab-pane { display: none; }
 .tab-pane.active { display: block; animation: fadeIn 0.2s ease; }
 
-/* 3. Status Badges */
-.badge {
-    padding: 0.25rem 0.6rem; border-radius: 50px;
-    font-size: 0.75rem; font-weight: 700; text-transform: uppercase;
+/* 2. Card Header & Body Spacing */
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1.25rem; /* Platz zum Bild/Inhalt */
 }
-.badge[data-status="pending"]   { background: #fef3c7; color: #92400e; }
-.badge[data-status="confirmed"], 
-.badge[data-status="Verfügbar"] { background: #dcfce7; color: #166534; }
-.badge[data-status="running"]   { background: #dbeafe; color: #1e40af; }
-.badge[data-status="rejected"], 
-.badge[data-status="Wartung"],
-.badge[data-status="Defekt"]    { background: #fee2e2; color: #991b1b; }
-.badge[data-status="completed"] { background: #f3f4f6; color: #374151; }
 
-/* 4. Form-Layout Utility */
+.card-title {
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin: 0;
+}
+
+/* 3. Action Buttons Alignment */
+.card-actions {
+    display: flex;
+    justify-content: flex-start; /* Buttons linksbündig */
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 38px; /* Einheitliche Höhe für Text und Icon-Buttons */
+    padding: 0 12px;
+    font-size: 0.9rem;
+    line-height: 1;
+}
+
+/* Die Mülltonne bleibt quadratisch */
+.action-btn[data-action="delete-device"] {
+    width: 38px;
+    padding: 0;
+}
+
+/* 4. Form & Modal Layout */
 .form-row { display: flex; gap: 1rem; margin-bottom: 1rem; }
 @media (max-width: 600px) { .form-row { flex-direction: column; gap: 0; } }
 
-/* 5. Modal */
 .modal-overlay {
     position: fixed; inset: 0; background: rgba(0,0,0,0.6);
     display: flex; justify-content: center; align-items: center; z-index: 1000;
@@ -59,38 +78,3 @@
 .modal-box { width: 90%; max-width: 450px; }
 
 @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-
-/* Buttons */
-.card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 1.25rem; /* Hier der Platz zum Bild/Body */
-}
-
-/* 2. Buttons wieder nach links rücken */
-.card-actions {
-    display: flex;
-    justify-content: flex-start; /* Schiebt die Buttons nach links */
-    align-items: center;
-    gap: 0.75rem;
-    margin-top: 1.5rem; /* Abstand vom Text zu den Buttons */
-    padding-top: 1rem;
-    border-top: 1px solid var(--border-color); /* Optionale Trennlinie */
-}
-
-/* 3. Konsistente Button-Höhe (löst das Tiefsitz-Problem) */
-.action-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    height: 38px; /* Einheitliche Höhe für alle */
-    padding: 0 12px;
-    font-size: 0.9rem;
-}
-
-/* Die Mülltonne soll quadratisch bleiben, damit es sauber aussieht */
-.action-btn[data-action="delete-device"] {
-    width: 38px;
-    padding: 0;
-}

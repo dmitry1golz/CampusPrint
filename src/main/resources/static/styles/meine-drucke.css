@@ -1,228 +1,53 @@
-html, body {
-    height: 100%;
-    margin: 0;
-    font-family: 'Inter', sans-serif;
-    background-color: #f9f9f9;
-    color: #111;
-}
+/* SPEZIFISCH FÜR MEINE DRUCKE */
 
-.page-wrapper {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-}
-
-/* ================= MAIN ================= */
-.main-content {
-    flex: 1;
-    max-width: 960px;
-    margin: 0 auto;
-    padding: 2rem 1rem;
-}
-
-.back-link {
-    display: inline-block;
-    font-size: 0.9rem;
-    color: #3b82f6;
-    margin-bottom: 1.5rem;
-    text-decoration: none;
-}
-
-.back-link:hover {
-    text-decoration: underline;
-}
-
-.main-content h1 {
-    font-size: 2rem;
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-}
-
-.subtitle {
-    font-size: 1rem;
-    color: #6b7280;
-    margin-bottom: 2rem;
-}
-
-/* ========== Search Box ========== */
+/* Die Suchbox - Spezielles Styling für diese Seite */
 .search-box {
-    background-color: #ffffff;
-    border-radius: 8px;
+    background-color: var(--bg-surface);
+    border-radius: var(--radius);
     padding: 2rem;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-    margin-bottom: 2rem;
 }
 
-.search-box h2 {
-    margin-top: 0;
-    margin-bottom: 0.5rem;
-    font-size: 1.25rem;
-}
-
-.search-box p {
-    color: #4b5563;
-    font-size: 0.95rem;
-    margin-bottom: 1rem;
-}
-
-#drucke-form {
+.search-form {
     display: flex;
     flex-wrap: wrap;
     gap: 0.75rem;
 }
 
-#drucke-form input[type="email"] {
+.search-form input {
     flex: 1;
     min-width: 220px;
-    padding: 0.65rem 1rem;
-    font-size: 1rem;
-    border: 1px solid #d1d5db;
-    border-radius: 6px;
-    outline: none;
 }
 
-#drucke-form button {
-    background-color: #3b82f6;
-    color: white;
-    padding: 0.65rem 1.2rem;
-    font-size: 1rem;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-}
-
-#drucke-form button:hover {
-    background-color: #2563eb;
-}
-
-/* Druckergebnis-Card */
-.druckergebnis-card {
-    border-radius: 8px;
-    padding: 1.25rem;
-    background: #ffffff;
-    box-shadow: 0 1px 0 rgba(0,0,0,0.03);
-    margin-bottom: 1rem;
-}
-
-/* Header mit Titel und Status */
-.card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 1rem;
-    margin-bottom: 1rem;
-}
-
-.card-title h3 {
-    margin: 0;
-    font-size: 1.125rem;
-    font-weight: 600;
-    color: #0f172a;
-}
-
-.booking-id {
-    font-size: 0.85rem;
-    color: #6b7280;
-    margin-top: 0.25rem;
-}
-
-/* Status-Pill */
-.status-pill {
-    padding: 0.25rem 0.6rem;
-    border-radius: 999px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: #fff;
-    align-self: center;
-}
-
-.status-pill.rejected {
-    background: #ef4444; /* rot */
-}
-
-.status-pill.pending {
-    background: #f59e0b; /* Amber */
-    color: #0f172a;      /* dunkler Text für guten Kontrast */
-    box-shadow: 0 1px 0 rgba(0,0,0,0.04);
-}
-
-.status-pill.confirmed {
-    background: #3b82f6; /* Blue */
-}
-
-.status-pill.completed {
-    background: #16a34a; /* Grün (erledigt) */
-}
-
-.status-pill.running {
-    background: #8b5cf6; /* Violett (läuft) */
-}
-
-/* Body mit drei Spalten (Datum / Uhrzeit / Notizen) */
-.card-body {
+/* Card-Body Layout (3 Spalten innerhalb einer Karte) */
+.booking-details {
     display: flex;
     justify-content: flex-start;
-    gap: 2.5rem;
+    gap: 2rem;
     flex-wrap: wrap;
+    margin-top: 1rem;
 }
 
-.card-col {
-    min-width: 140px;
+.detail-col {
+    min-width: 120px;
 }
 
-.meta-label {
-    font-size: 0.8rem;
-    color: #6b7280;
-    margin-bottom: 0.35rem;
-}
-
-.meta-value {
-    font-size: 0.95rem;
-    color: #111827;
-    font-weight: 500;
-}
-
-
-/* ========== Live-Feed-Sektion ========== */
+/* Live-Feed Bereich */
 .live-feed-section {
     margin-top: 1.5rem;
     padding-top: 1.25rem;
-    border-top: 1px solid #e5e7eb;
-}
-
-.live-feed-header {
-    font-size: 0.95rem;
-    color: #111827;
-    margin-bottom: 0.75rem;
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
+    border-top: 1px solid var(--border-color);
 }
 
 .live-feed-video {
-    background-color: #f3f4f6;
+    background-color: #000;
     border-radius: 6px;
     overflow: hidden;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+    aspect-ratio: 16 / 9;
 }
 
 .live-feed-video img {
     width: 100%;
-    height: auto;
-    display: block;
-}
-
-.live-feed-caption {
-    font-size: 0.8rem;
-    color: #6b7280;
-    margin-top: 0.5rem;
-    text-align: center;
-}
-
-@media (max-width: 640px) {
-    .live-feed-section {
-        margin-top: 1rem;
-        padding-top: 1rem;
-    }
+    height: 100%;
+    object-fit: cover;
 }

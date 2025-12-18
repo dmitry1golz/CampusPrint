@@ -4,16 +4,13 @@ import { getAllBookings, updateBookingStatus } from './services/buchung-service.
 import { getAllGeraete, addGeraet, deleteGeraet, updateGeraetStatus } from './services/geraet-service.js';
 import { requireAuth } from './services/auth-service.js';
 
-// Auth-Check sofort beim Laden
 requireAuth();
 
 document.addEventListener('DOMContentLoaded', () => {
 
-    // --- State ---
     let currentRejectId: string | null = null;
-    let editingDeviceId: string | null = null; // Speichert die ID, wenn wir ein Gerät bearbeiten
+    let editingDeviceId: string | null = null;
 
-    // --- DOM Elements Caching ---
     const containers = {
         pending: document.getElementById('pending-list') as HTMLDivElement,
         active: document.getElementById('active-list') as HTMLDivElement,
@@ -34,7 +31,6 @@ document.addEventListener('DOMContentLoaded', () => {
         reasonInput: document.getElementById('reject-reason') as HTMLTextAreaElement
     };
 
-    // --- Initialization ---
     init();
 
     function init() {
@@ -43,8 +39,6 @@ document.addEventListener('DOMContentLoaded', () => {
         renderAll();
         handleTypeChange();
     }
-
-    // --- Rendering Logic ---
 
     function renderAll() {
         const bookings = getAllBookings();
@@ -57,7 +51,6 @@ document.addEventListener('DOMContentLoaded', () => {
         
         updateCounts(bookings, equipment);
         
-        // Lucide Icons initialisieren
         // @ts-ignore
         if (window.lucide) window.lucide.createIcons();
     }
@@ -81,7 +74,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 const card = document.createElement('div');
                 card.className = 'card';
                 
-                // --- Button Logik (Deine gewünschten Styles) ---
                 let actionsHtml = '';
                 if (b.status === 'pending') {
                     actionsHtml = `
@@ -96,8 +88,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 card.innerHTML = `
                     <div class="card-header">
-                        <span class="card-title">${b.printerName}</span>
-                        <span class="badge" data-status="${b.status}">${translateStatus(b.status)}</span>
+                        <h3 class="card-title">${b.printerName}</h3>
+                        <span class="badge ${b.status}">${translateStatus(b.status)}</span>
                     </div>
                     <div class="card-body">
                         <p class="text-sm"><strong>Zeit:</strong> ${b.startDate} - ${b.endDate}</p>
@@ -119,18 +111,17 @@ document.addEventListener('DOMContentLoaded', () => {
             const card = document.createElement('div');
             card.className = 'card';
             
-            // Status Toggle Button
             const statusBtn = eq.status === 'Verfügbar' 
                 ? `<button class="btn btn-secondary btn-sm action-btn" data-action="maintenance" data-id="${eq.id}">Wartung</button>`
                 : `<button class="btn btn-primary btn-sm action-btn" data-action="available" data-id="${eq.id}">Aktivieren</button>`;
 
             card.innerHTML = `
                 <div class="card-header">
-                    <span class="card-title">${eq.name}</span>
-                    <span class="badge" data-status="${eq.status}">${eq.status}</span>
+                    <h3 class="card-title">${eq.name}</h3>
+                    <span class="badge ${eq.status === 'Verfügbar' ? 'confirmed' : 'pending'}">${eq.status}</span>
                 </div>
                 <div class="card-body">
-                    ${eq.image ? `<img src="${eq.image}" class="mb-1" style="width:100%; height:120px; object-fit:cover; border-radius:4px;">` : ''}
+                    ${eq.image ? `<img src="${eq.image}" class="mb-2" style="width:100%; height:120px; object-fit:cover; border-radius:4px;">` : ''}
                     <p class="text-muted text-sm mb-1">${eq.description}</p>
                     <p class="text-sm"><strong>Typ:</strong> ${eq.type}</p>
                 </div>
@@ -144,12 +135,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- Interaction & Form Logic ---
-
     function handleTypeChange() {
         const type = forms.typeSelect.value;
         const is3D = (type === 'FDM_Drucker' || type === 'SLA_Drucker');
-        
         if (is3D) {
             forms.specific3d.classList.remove('hidden');
             forms.volumeLabel.textContent = 'Bauvolumen';
@@ -162,11 +150,8 @@ document.addEventListener('DOMContentLoaded', () => {
     function openEditForm(id: string) {
         const device = getAllGeraete().find(g => g.id === id);
         if (!device) return;
-
         editingDeviceId = id;
         forms.formTitle.textContent = 'Gerät bearbeiten';
-        
-        // Felder füllen
         (document.getElementById('eq-name') as HTMLInputElement).value = device.name;
         forms.typeSelect.value = device.type;
         (document.getElementById('eq-desc') as HTMLTextAreaElement).value = device.description;
@@ -174,7 +159,6 @@ document.addEventListener('DOMContentLoaded', () => {
         (document.getElementById('eq-image') as HTMLInputElement).value = device.image || '';
         (document.getElementById('eq-nozzle') as HTMLInputElement).value = device.nozzle || '';
         (document.getElementById('eq-layer') as HTMLInputElement).value = device.layer || '';
-
         handleTypeChange();
         forms.add.classList.remove('hidden');
         forms.add.scrollIntoView({ behavior: 'smooth' });
@@ -201,7 +185,6 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         if (editingDeviceId) {
-            // Update Logik: Wir löschen das alte und fügen das neue ein (oder nutzen einen Update-Service)
             deleteGeraet(editingDeviceId);
             addGeraet(deviceData);
             editingDeviceId = null;
@@ -214,14 +197,12 @@ document.addEventListener('DOMContentLoaded', () => {
         resetInputs();
     }
 
-    // --- Global Event Listener (Delegation) ---
     function setupEventListeners() {
         document.addEventListener('click', (e) => {
             const target = (e.target as HTMLElement).closest('.action-btn') as HTMLElement;
             if (!target) return;
             const { action, id } = target.dataset;
 
-            // Booking Actions
             if (action === 'confirm') updateBookingStatus(id!, 'confirmed');
             if (action === 'run') updateBookingStatus(id!, 'running');
             if (action === 'complete') updateBookingStatus(id!, 'completed');
@@ -229,15 +210,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 currentRejectId = id!;
                 modal.element.classList.remove('hidden');
             }
-
-            // Equipment Actions
             if (action === 'maintenance') updateGeraetStatus(id!, 'Wartung');
             if (action === 'available') updateGeraetStatus(id!, 'Verfügbar');
             if (action === 'edit-device') openEditForm(id!);
             if (action === 'delete-device') {
                 if(confirm('Gerät wirklich löschen?')) deleteGeraet(id!);
             }
-
             renderAll();
         });
 
@@ -264,7 +242,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- Utils ---
     function translateStatus(s: string) {
         const map: any = { 'pending': 'Ausstehend', 'confirmed': 'Bestätigt', 'running': 'Läuft', 'completed': 'Fertig', 'rejected': 'Abgelehnt' };
         return map[s] || s;

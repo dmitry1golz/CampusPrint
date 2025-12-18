@@ -6,7 +6,10 @@
     <title>Admin Dashboard – CampusPrint</title>
     
     <link rel="stylesheet" href="styles/foot-head.css" />
-    <link rel="stylesheet" href="styles/base.css" /> <link rel="stylesheet" href="styles/admin.css" /> <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="stylesheet" href="styles/base.css" /> 
+    <link rel="stylesheet" href="styles/admin.css" /> 
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&display=swap" rel="stylesheet">
     
@@ -32,18 +35,18 @@
 
         <div class="tabs-content">
             <div id="tab-pending" class="tab-pane active">
-                <div id="pending-list" class="booking-grid"></div>
-                <div id="pending-empty" class="alert alert-danger hidden mt-2">Keine ausstehenden Anfragen.</div>
+                <div id="pending-list" class="cards-grid"></div>
+                <div id="pending-empty" class="alert alert-danger hidden mt-2 text-center">Keine ausstehenden Anfragen.</div>
             </div>
 
             <div id="tab-active" class="tab-pane">
-                <div id="active-list" class="booking-grid"></div>
-                <div id="active-empty" class="alert alert-danger hidden mt-2">Zurzeit laufen keine Drucke.</div>
+                <div id="active-list" class="cards-grid"></div>
+                <div id="active-empty" class="alert alert-danger hidden mt-2 text-center">Zurzeit laufen keine Drucke.</div>
             </div>
 
             <div id="tab-completed" class="tab-pane">
-                <div id="completed-list" class="booking-grid"></div>
-                <div id="completed-empty" class="alert alert-danger hidden mt-2">Keine vergangenen Aufträge.</div>
+                <div id="completed-list" class="cards-grid"></div>
+                <div id="completed-empty" class="alert alert-danger hidden mt-2 text-center">Keine vergangenen Aufträge.</div>
             </div>
 
             <div id="tab-equipment" class="tab-pane">
@@ -74,7 +77,7 @@
                     <div id="specific-3d-fields" class="form-row">
                         <div class="form-group">
                             <label for="eq-nozzle">Düse (Nozzle)</label>
-                            <input type="text" id="eq-nozzle" placeholder="z.4mm" />
+                            <input type="text" id="eq-nozzle" placeholder="z.B. 0.4mm" />
                         </div>
                         <div class="form-group">
                             <label for="eq-layer">Schichthöhe</label>
@@ -104,7 +107,7 @@
                     </div>
                 </div>
 
-                <div id="equipment-list" class="booking-grid"></div>
+                <div id="equipment-list" class="cards-grid"></div>
             </div>
         </div>
     </main>
