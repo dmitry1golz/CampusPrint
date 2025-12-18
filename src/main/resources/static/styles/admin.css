@@ -1,65 +1,19 @@
-/* --- CSS VARIABLES (DRY) --- */
-:root {
-    --primary: #0056b3;
-    --primary-hover: #004494;
-    --danger: #dc3545;
-    --bg-body: #f8f9fa;
-    --bg-card: #ffffff;
-    --border: #dee2e6;
-    --text-main: #212529;
-    --text-muted: #6c757d;
-    --radius: 8px;
-    --font-stack: 'Roboto', sans-serif;
-}
-
-/* --- BASIS LAYOUT --- */
-* { box-sizing: border-box; }
-
-body {
-    margin: 0;
-    font-family: var(--font-stack);
-    background-color: var(--bg-body);
-    color: var(--text-main);
-}
-
-/* Sticky Footer Logic */
-.page-wrapper {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-}
-
-.main-content {
-    flex: 1;
-    width: 100%;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 2rem 1rem;
-}
-
-.admin-header { margin-bottom: 2rem; }
-.subtitle { color: var(--text-muted); font-weight: 300; margin-top: 0.5rem; }
-
-/* --- TABS --- */
+/* / only admin layout  */
 .tabs-nav {
     display: flex;
-    gap: 0.5rem;
-    border-bottom: 2px solid var(--border);
-    margin-bottom: 2rem;
+    border-bottom: 2px solid var(--border-color);
     overflow-x: auto;
+    scrollbar-width: none;
 }
+.tabs-nav::-webkit-scrollbar { display: none; }
 
 .tab-btn {
-    background: none; border: none;
-    padding: 1rem 1.5rem;
-    font-family: var(--font-stack);
-    font-size: 1rem;
-    color: var(--text-muted);
+    background: none; border: none; padding: 1rem 1.5rem;
+    color: var(--text-muted); cursor: pointer;
     border-bottom: 3px solid transparent;
-    cursor: pointer;
+    font-weight: 500; transition: all 0.2s;
     white-space: nowrap;
 }
-
 .tab-btn.active {
     color: var(--primary);
     border-bottom-color: var(--primary);
@@ -67,81 +21,54 @@ body {
 }
 
 .tab-pane { display: none; }
-.tab-pane.active { display: block; animation: fadeIn 0.3s ease; }
-
-@keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; } }
-
-/* --- CARDS & GRID --- */
-.booking-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 1.5rem;
-}
-
-.card {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 1.5rem;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    display: flex;
-    flex-direction: column;
-}
+.tab-pane.active { display: block; animation: fadeIn 0.2s ease; }
 
 .card-header {
-    display: flex; justify-content: space-between; align-items: flex-start;
-    margin-bottom: 1rem; border-bottom: 1px solid var(--bg-body); padding-bottom: 0.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1.25rem;
 }
 
-.card-title { font-weight: 700; font-size: 1.1rem; }
-.card-body { flex: 1; font-size: 0.95rem; line-height: 1.5; margin-bottom: 1rem; }
-.card-actions { display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; }
-
-/* --- BADGES --- */
-.badge {
-    padding: 0.25rem 0.6rem;
-    border-radius: 50rem;
-    font-size: 0.75rem;
+.card-title {
     font-weight: 700;
-    text-transform: uppercase;
-}
-/* Farben basierend auf Status */
-.badge[data-status="pending"], .badge[data-status="Wartung"] { background: #fff3cd; color: #856404; }
-.badge[data-status="confirmed"], .badge[data-status="Verfügbar"] { background: #d4edda; color: #155724; }
-.badge[data-status="running"], .badge[data-status="active"] { background: #cce5ff; color: #004085; }
-.badge[data-status="rejected"], .badge[data-status="cancelled"], .badge[data-status="Defekt"] { background: #f8d7da; color: #721c24; }
-.badge[data-status="completed"] { background: #e2e3e5; color: #383d41; }
-
-/* --- FORMS --- */
-.form-card {
-    background: var(--bg-card); padding: 2rem;
-    border-radius: var(--radius); border: 1px solid var(--border);
-    margin-bottom: 2rem;
-}
-.form-row { display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap; }
-.form-group { flex: 1; min-width: 200px; display: flex; flex-direction: column; gap: 0.5rem; }
-.actions-header { display: flex; justify-content: flex-end; margin-bottom: 1rem; }
-
-input, select, textarea {
-    padding: 0.75rem; border: 1px solid var(--border); border-radius: 4px;
-    font-family: var(--font-stack); font-size: 1rem;
+    font-size: 1.1rem;
+    margin: 0;
 }
 
-/* --- BUTTONS & UTILS --- */
-.btn-primary { background: var(--primary); color: white; border: none; }
-.btn-danger { background: var(--danger); color: white; border: none; }
-.btn-secondary { background: white; border: 1px solid var(--border); color: var(--text-main); }
+.card-actions {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+}
 
-button { padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem; transition: opacity 0.2s; }
-button:hover { opacity: 0.9; }
+.action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 38px;
+    padding: 0 12px;
+    font-size: 0.9rem;
+    line-height: 1;
+}
 
-.hidden { display: none !important; }
-.empty-msg { text-align: center; color: var(--text-muted); padding: 3rem; border: 1px dashed var(--border); border-radius: var(--radius); }
+.action-btn[data-action="delete-device"] {
+    width: 38px;
+    padding: 0;
+}
 
-/* --- MODAL --- */
+.form-row { display: flex; gap: 1rem; margin-bottom: 1rem; }
+@media (max-width: 600px) { .form-row { flex-direction: column; gap: 0; } }
+
 .modal-overlay {
-    position: fixed; inset: 0; background: rgba(0,0,0,0.5);
-    display: flex; justify-content: center; align-items: center; z-index: 999;
+    position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+    display: flex; justify-content: center; align-items: center; z-index: 1000;
+    backdrop-filter: blur(2px);
 }
-.modal-box { background: white; padding: 2rem; border-radius: var(--radius); width: 90%; max-width: 500px; }
-.modal-actions { display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1.5rem; }
+.modal-box { width: 90%; max-width: 450px; }
+
+@keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }

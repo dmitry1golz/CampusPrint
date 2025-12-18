@@ -1,0 +1,48 @@
+
+.hero-custom-bg {
+    background: linear-gradient(to right, #b4f2de, #adadea);
+    padding: 5rem 1rem;
+    text-align: center;
+}
+
+.hero-title {
+    font-size: 3rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+    color: #111;
+}
+
+.hero-subtitle {
+    font-size: 1.25rem;
+    margin-bottom: 2rem;
+    color: #333;
+}
+
+.features-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    justify-content: center;
+    margin-top: 2rem;
+}
+
+.feature-card {
+    width: 260px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.feature-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    display: block;
+}
+
+.cta-section {
+    background-color: #e0f2fe; /*looks white, is blue */
+    text-align: center;
+    padding: 4rem 1rem;
+    margin-top: 3rem;
+}

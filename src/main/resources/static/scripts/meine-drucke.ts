@@ -9,51 +9,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (!form || !emailInput || !container) return;
 
-    // E-Mail aus Cookie laden und ins Input-Feld setzen
     const savedEmail = getCookie('userEmail');
     if (savedEmail) {
         emailInput.value = savedEmail;
-        // Automatisch die Druckbuchungen laden
-        const bookings: PrintBooking[] = getBookingsForEmail(savedEmail);
-        renderDrucke(container, bookings);
+        renderDrucke(container, getBookingsForEmail(savedEmail));
     }
 
-    form.addEventListener('submit', async (e) => {
+    form.addEventListener('submit', (e) => {
         e.preventDefault();
         const email = emailInput.value.trim();
         if (!email) return;
 
-        // E-Mail im Cookie speichern (30 Tage gültig)
         setCookie('userEmail', email, 30);
-
-        try {
-            // const bookings = await fetchPrints(email);
-            const bookings: PrintBooking[] = getBookingsForEmail(email);
-            renderDrucke(container, bookings);
-        } catch (err) {
-            console.error(err);
-            alert("Fehler beim Laden der Druckbuchungen.");
-        }
+        renderDrucke(container, getBookingsForEmail(email));
     });
 });
 
-// async function fetchPrints(email: string): Promise<PrintBooking[]> {
-//     try {
-//         const res = await fetch('/api/prints?email=' + encodeURIComponent(email));
-//         if (!res.ok) throw new Error('API antwortet nicht');
-//         const data = await res.json();
-//         return data as PrintBooking[];
-//     } catch {
-//         return MOCK_BOOKING;
-//     }
-// }
-
 function renderDrucke(container: HTMLElement, bookings: PrintBooking[]) {
     container.innerHTML = '';
+    
     if (bookings.length === 0) {
-        container.innerHTML = '<p>Keine Buchungen gefunden.</p>';
+        container.innerHTML = '<div class="alert alert-danger w-full text-center">Keine Buchungen gefunden.</div>';
         return;
     }
+
+    container.className = 'cards-grid';
+
     for (const b of bookings) {
         container.appendChild(createCard(b));
     }
@@ -61,113 +42,70 @@ function renderDrucke(container: HTMLElement, bookings: PrintBooking[]) {
 
 function createCard(b: PrintBooking): HTMLElement {
     const article = document.createElement('article');
-    article.className = 'druckergebnis-card';
-
-    const header = document.createElement('header');
-    header.className = 'card-header';
-
-    const titleWrap = document.createElement('div');
-    titleWrap.className = 'card-title';
-    const h3 = document.createElement('h3');
-    h3.textContent = b.printerName;
-    const bookingId = document.createElement('div');
-    bookingId.className = 'booking-id';
-    bookingId.textContent = `Buchungs-ID: ${b.id}`;
-
-    titleWrap.appendChild(h3);
-    titleWrap.appendChild(bookingId);
-
-    const status = document.createElement('span');
-    status.className = 'status-pill ' + b.status;
-    status.textContent = capitalize(
-        b.status === 'pending' ? 'ausstehend' :
-        b.status === 'confirmed' ? 'bestätigt' :
-        b.status === 'completed' ? 'abgeschlossen' :
-        b.status === 'rejected' ? 'abgelehnt' :
-        b.status === 'running' ? 'in Bearbeitung' : b.status
-    );
-
-    header.appendChild(titleWrap);
-    header.appendChild(status);
-
-    const body = document.createElement('div');
-    body.className = 'card-body';
+    article.className = 'card'; // base.css Klasse
 
     const dateString = formatDate(b.startDate, b.endDate);
     const timeString = formatTime(b.startDate, b.endDate);
 
-    body.appendChild(metaCol('Datum', dateString));
-    body.appendChild(metaCol('Uhrzeit', timeString));
+    article.innerHTML = `
+        <header class="card-header mb-2" style="display:flex; justify-content:space-between; align-items:flex-start;">
+            <div>
+                <h3 class="font-bold text-main" style="margin:0;">${b.printerName}</h3>
+                <div class="text-xs text-muted">ID: ${b.id}</div>
+            </div>
+            <span class="badge ${b.status}">
+                ${translateStatus(b.status)}
+            </span>
+        </header>
 
-    body.appendChild(metaCol('Notizen', b.notes || '-'));
-    if (b.message) {
-        body.appendChild(metaCol('Nachricht', b.message));
-    }
+        <div class="card-body" style="display:flex; gap:1.5rem; flex-wrap:wrap;">
+            ${metaColHtml('Datum', dateString)}
+            ${metaColHtml('Uhrzeit', timeString)}
+            ${metaColHtml('Notizen', b.notes || '-')}
+            ${b.message ? `<div class="w-full" style="color:var(--danger); font-size:0.85rem; margin-top:0.5rem;"><strong>Grund:</strong> ${b.message}</div>` : ''}
+        </div>
 
-    article.appendChild(header);
-    article.appendChild(body);
-
-    // NEU: Live-Übertragung-Sektion (nur wenn videoUrl vorhanden)
-    if (b.videoUrl) {
-        const liveSection = document.createElement('div');
-        liveSection.className = 'live-feed-section';
-
-        const liveHeader = document.createElement('div');
-        liveHeader.className = 'live-feed-header';
-        liveHeader.innerHTML = '📹 <strong>Live-Übertragung</strong>';
-
-        const videoWrapper = document.createElement('div');
-        videoWrapper.className = 'live-feed-video';
-
-        const img = document.createElement('img');
-        img.src = b.videoUrl;
-        img.alt = 'Live camera feed';
-        img.loading = 'lazy';
-
-        const caption = document.createElement('div');
-        caption.className = 'live-feed-caption';
-        caption.textContent = 'Live-Kamera des Druckers • Aktualisiert automatisch';
-
-        videoWrapper.appendChild(img);
-        liveSection.appendChild(liveHeader);
-        liveSection.appendChild(videoWrapper);
-        liveSection.appendChild(caption);
-
-        article.appendChild(liveSection);
-    }
+        ${b.videoUrl ? `
+            <div class="live-feed-section mt-2 pt-1" style="border-top:1px solid var(--border-color);">
+                <div class="text-sm font-bold mb-1">📹 Live-Übertragung</div>
+                <div class="live-feed-video" style="background:#000; border-radius:4px; overflow:hidden;">
+                    <img src="${b.videoUrl}" alt="Live Feed" style="width:100%; display:block;" loading="lazy">
+                </div>
+            </div>
+        ` : ''}
+    `;
 
     return article;
 }
 
-function formatDate(startDate: Date, endDate: Date): string {
-    const start = startDate.toLocaleDateString('de-DE');
-    const end = endDate.toLocaleDateString('de-DE');
-
-    return start === end ? start : `${start} \- ${end}`;
+// helpfunctions
+function translateStatus(s: string): string {
+    const map: any = { 
+        'pending': 'Ausstehend', 
+        'confirmed': 'Bestätigt', 
+        'running': 'In Arbeit', 
+        'completed': 'Fertig', 
+        'rejected': 'Abgelehnt' 
+    };
+    return map[s] || s;
 }
 
-function formatTime(startDate: Date, endDate: Date): string {
-    const start = startDate.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
-    const end = endDate.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
-
-    return `${start} \- ${end}`;
+function metaColHtml(label: string, value: string): string {
+    return `
+        <div class="detail-col">
+            <div class="text-xs text-muted mb-1">${label}</div>
+            <div class="text-sm font-medium">${value}</div>
+        </div>
+    `;
 }
 
-function metaCol(label: string, value: string): HTMLElement {
-    const col = document.createElement('div');
-    col.className = 'card-col';
-    const l = document.createElement('div');
-    l.className = 'meta-label';
-    l.textContent = label;
-    const v = document.createElement('div');
-    v.className = 'meta-value';
-    v.textContent = value;
-    col.appendChild(l);
-    col.appendChild(v);
-    return col;
+function formatDate(start: Date, end: Date): string {
+    const s = new Date(start).toLocaleDateString('de-DE');
+    const e = new Date(end).toLocaleDateString('de-DE');
+    return s === e ? s : `${s} - ${e}`;
 }
 
-function capitalize(s: string): string {
-    if (!s) return s;
-    return s.charAt(0).toUpperCase() + s.slice(1);
+function formatTime(start: Date, end: Date): string {
+    const opts: any = { hour: '2-digit', minute: '2-digit' };
+    return `${new Date(start).toLocaleTimeString('de-DE', opts)} - ${new Date(end).toLocaleTimeString('de-DE', opts)}`;
 }

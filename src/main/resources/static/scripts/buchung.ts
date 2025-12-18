@@ -12,296 +12,142 @@ interface DateSelectorOption {
     status: 'invalid-date' | 'availible' | 'unavailible' | 'booked' | 'partially-booked';
     date: Date;
 }
+
 const invalidDate: DateSelectorOption = {
-    value: "",
-    selectable: false,
-    isSelected: false,
-    status: 'invalid-date',
-    date: new Date(0, 0 ,0),
-}
+    value: "", selectable: false, isSelected: false, status: 'invalid-date', date: new Date(0)
+};
 
-var currentlySelectedDate: Date | undefined;
-var currentDateSelectorYear: number;
-var currentDateSelectorMonth: number;
+let currentlySelectedDate: Date | undefined;
+let currentDateSelectorYear: number = new Date().getFullYear();
+let currentDateSelectorMonth: number = new Date().getMonth();
 
-var geraet: Geraet;
-var buchungsverfuegbarkeit: Buchungsverfuegbarkeit;
-
-// ---------- Constant Elements -----------
-const loadingStateElement = document.getElementById('pageState-loading');
-const errorStateElement = document.getElementById('pageState-error');
-const readyStateElement = document.getElementById('pageState-ready');
-
-const form = document.getElementById('bookingForm') as HTMLFormElement;
-
-const dateSelectorPreviousMonth = document.getElementById('dateSelectorPreviousMonth')!;
-const dateSelectorNextMonth = document.getElementById('dateSelectorNextMonth')!;
-// ----------------------------------------
+let geraet: Geraet;
+let buchungsverfuegbarkeit: Buchungsverfuegbarkeit;
 
 document.addEventListener('DOMContentLoaded', () => {
     const urlParams = new URLSearchParams(window.location.search);
-
-    // Loading Device Data
     const geraetId = urlParams.get('geraet_id');
-    if (!geraetId) {
+
+    if (!geraetId || !getGeraetById(geraetId)) {
         updateState('error');
         return;
     }
-    const tmpGeraet = getGeraetById(geraetId!);
-    if (!tmpGeraet) {
-        updateState('error');
-        return;
-    }
-    geraet = tmpGeraet;
+
+    geraet = getGeraetById(geraetId)!;
     buchungsverfuegbarkeit = getBuchungsverfuegbarkeitByGeraetId(geraetId);
 
-    // Set Printer Data
-    document.getElementById('printerInfo-Name')!.innerText=geraet.name;
-    document.getElementById('printerInfo-Description')!.innerText=geraet.description;
+    // Printer Info setzen
+    document.getElementById('printerInfo-Name')!.innerText = geraet.name;
+    document.getElementById('printerInfo-Description')!.innerText = geraet.description;
 
-    // Formular bearbeiten
-    form.addEventListener('submit', (e) => {
-        e.preventDefault();
+    const form = document.getElementById('bookingForm') as HTMLFormElement;
+    form.addEventListener('submit', handleFormSubmit);
 
-        // TODO name not used
-        const name = (document.getElementById('name') as HTMLInputElement).value;
-        const email = (document.getElementById('email') as HTMLInputElement).value;
-        const start = (document.getElementById('start') as HTMLInputElement).value;
-        const end = (document.getElementById('end') as HTMLInputElement).value;
-        const notes = (document.getElementById('notes') as HTMLTextAreaElement).value;
-        
-        // Validate Data
-        if (start >= end) {
-            alert("Die Endzeit muss nach der Startzeit liegen.");
-            return;
-        }
-        if (currentlySelectedDate === undefined) {
-            alert("Es muss ein Datum ausgewählt sein.");
-            return;
-        }
+    document.getElementById('dateSelectorPreviousMonth')?.addEventListener('click', () => changeMonth(-1));
+    document.getElementById('dateSelectorNextMonth')?.addEventListener('click', () => changeMonth(1));
 
-        const booking: NewPrintBooking = {
-            printerId: geraet.id,
-            startDate: new Date(
-                currentlySelectedDate.getFullYear(),
-                currentlySelectedDate.getMonth(),
-                currentlySelectedDate.getDate(),
-                parseInt(start.split(":")[0]),
-                parseInt(start.split(":")[1]),
-            ),
-            endDate: new Date(
-                currentlySelectedDate.getFullYear(),
-                currentlySelectedDate.getMonth(),
-                currentlySelectedDate.getDate(),
-                parseInt(end.split(":")[0]),
-                parseInt(end.split(":")[1]),
-            ),
-            notes: notes, // treat empty string as null?
-        }
-
-        createNewBooking(booking);
-
-        form.reset();
-
-        setCookie('userEmail', email, 30)
-
-        window.location.href = "meine-drucke.html"; 
-    });
-
-    dateSelectorPreviousMonth.addEventListener('click', () => {
-        if (currentDateSelectorMonth === 0) {
-            currentDateSelectorYear--;
-            currentDateSelectorMonth = 11;
-        } else {
-            currentDateSelectorMonth--;
-        }
-        renderDateSelector(
-            currentlySelectedDate,
-            currentDateSelectorYear,
-            currentDateSelectorMonth
-        );
-    });
-
-    dateSelectorNextMonth.addEventListener('click', () => {
-        if (currentDateSelectorMonth === 11) {
-            currentDateSelectorYear++;
-            currentDateSelectorMonth = 0;
-        } else {
-            currentDateSelectorMonth++;
-        }
-        renderDateSelector(
-            currentlySelectedDate,
-            currentDateSelectorYear,
-            currentDateSelectorMonth
-        );
-    });
-
-    currentDateSelectorYear = new Date().getFullYear();
-    currentDateSelectorMonth = new Date().getMonth();
-
-    renderDateSelector(
-        currentlySelectedDate,
-        currentDateSelectorYear,
-        currentDateSelectorMonth
-    );
-
-    // Page ready
-    updateState('ready')
+    renderDateSelector(currentlySelectedDate, currentDateSelectorYear, currentDateSelectorMonth);
+    updateState('ready');
 });
 
+function handleFormSubmit(e: Event) {
+    e.preventDefault();
+    const email = (document.getElementById('email') as HTMLInputElement).value;
+    const start = (document.getElementById('start') as HTMLInputElement).value;
+    const end = (document.getElementById('end') as HTMLInputElement).value;
+    const notes = (document.getElementById('notes') as HTMLTextAreaElement).value;
+
+    if (!currentlySelectedDate || start >= end) {
+        alert("Bitte prüfe Datum und Uhrzeit.");
+        return;
+    }
+
+    const booking: NewPrintBooking = {
+        printerId: geraet.id,
+        startDate: createDateTime(currentlySelectedDate, start),
+        endDate: createDateTime(currentlySelectedDate, end),
+        notes: notes
+    };
+
+    createNewBooking(booking);
+    setCookie('userEmail', email, 30);
+    window.location.href = "meine-drucke.html";
+}
+
 function renderDateSelector(selectedDate: Date | undefined, year: number, month: number) {
-    const dateGridDiv = document.getElementById('dateSelectorGrid')!;
-    const dateHeaderValue = document.getElementById('dateSelectorHeaderValue')!;
+    const grid = document.getElementById('dateSelectorGrid')!;
+    const header = document.getElementById('dateSelectorHeaderValue')!;
+    
+    header.innerText = new Date(year, month).toLocaleString('de-DE', { month: 'long', year: 'numeric' });
 
-    // Set Header Value
-    const monthYearDateObj = new Date(year, month);
-    const headerValue = monthYearDateObj.toLocaleString('default', { month: 'long', year: 'numeric' });
-    dateHeaderValue.innerText = headerValue;
+    // empty grid
+    while (grid.children.length > 1) grid.removeChild(grid.lastElementChild!);
 
-    // Clear grid (only leave first Weekdayname row)
-    while (dateGridDiv.children.length > 1) {
-        dateGridDiv.removeChild(dateGridDiv.lastElementChild!);
-    }
-
-    // Array of all the numbers and spaces
-    var dateGridTextArray: DateSelectorOption[] = [];
-
-    // Get Where the first day starts
-    // getDay(): 0 = Sontag, 1 = Montag, ... 6 = Samstag
-    // After conversion: 0 = Montag, 1 = Dienstag, ... 6 = Sontag
     const firstWeekDay = (new Date(year, month, 1).getDay() + 6) % 7;
-    // Check how many spaes need to be put in first
-    for (var i = 0; i < firstWeekDay; i++) {
-        dateGridTextArray.push(invalidDate);
-    }
+    const days: DateSelectorOption[] = [];
 
-    for(var i = 1; i <= daysInMonth(year, month); i++) {
-        const now = new Date();
-        const currentDayDate = new Date(now.getFullYear(), now.getMonth(), now.getDate())
-        const currentDate = new Date(year, month, i)
-        if (currentDate < currentDayDate) {
-            // Date is in the Past
-            dateGridTextArray.push({
-                selectable: false,
-                isSelected: false,
-                value: i.toString(),
-                status: "unavailible",
-                date: currentDate,
-            });
-        } else if (buchungsverfuegbarkeit.blockedWeekDays.find((blockedWeekDay) => blockedWeekDay === ((currentDate.getDay() + 6) % 7)) !== undefined) {
-            // Day is a blocked day
-            dateGridTextArray.push({
-                selectable: false,
-                isSelected: false,
-                value: i.toString(),
-                status: "unavailible",
-                date: currentDate,
-            });
-        } else if (buchungsverfuegbarkeit.fullyBookedDays.find((bookedDay) => bookedDay.getTime() === currentDate.getTime()) !== undefined) {
-            // Day is a booked day
-            dateGridTextArray.push({
-                selectable: false,
-                isSelected: false,
-                value: i.toString(),
-                status: "booked",
-                date: currentDate,
-            });
-        } else if (buchungsverfuegbarkeit.partialyBookedDays.find((partialyBookedDay) => partialyBookedDay.getTime() === currentDate.getTime()) !== undefined) {
-            // Day is a partialy booked day
-            dateGridTextArray.push({
-                selectable: true,
-                isSelected: currentDate.getTime() === selectedDate?.getTime(),
-                value: i.toString(),
-                status: "partially-booked",
-                date: currentDate,
-            });
-        } else {
-            dateGridTextArray.push({
-                selectable: true,
-                isSelected: currentDate.getTime() === selectedDate?.getTime(),
-                value: i.toString(),
-                status: "availible",
-                date: currentDate,
-            });
-        }
-    }
+    for (let i = 0; i < firstWeekDay; i++) days.push(invalidDate);
 
-    // Add Trailing Spaces
-    var remaining = (7 - (dateGridTextArray.length % 7)) % 7;
-    for (var i = 0; i < remaining; i++) {
-        dateGridTextArray.push(invalidDate);
-    }
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
-    // Render Array
-    for (var x = 0; x < dateGridTextArray.length / 7; x++) {
-        var currentRow = document.createElement('div');
-        currentRow.classList.add('dateSelectorRow');
+    for (let i = 1; i <= new Date(year, month + 1, 0).getDate(); i++) {
+        const date = new Date(year, month, i);
+        let status: DateSelectorOption['status'] = 'availible';
+        let selectable = true;
 
-        for (var y = 0; y < 7; y++) {
-            const currentCalNumber = document.createElement('div');
-            const dateObj = dateGridTextArray[(x * 7) + y];
-            currentCalNumber.innerText = dateObj.value;
-            switch (dateObj.status) {
-                case "invalid-date":
-                    currentCalNumber.style.visibility = 'hidden'
-                    break;
-                case "availible":
-                    break;
-                case "unavailible":
-                    currentCalNumber.style.backgroundColor = '#7c7c7c'
-                    break;
-                case "booked":
-                    currentCalNumber.style.backgroundColor = '#d93434ff'
-                    break;
-                case "partially-booked":
-                    currentCalNumber.style.backgroundColor = '#db934bff'
-                    break;
-            }
-            if (dateObj.isSelected) {
-                currentCalNumber.classList.add("selected");
-            } else if (dateObj.selectable) {
-                currentCalNumber.classList.add("selectable");
-                currentCalNumber.addEventListener('click', () => {
-                    selectDate(dateObj.date);
-                });
-            }
-            currentRow.appendChild(currentCalNumber);
+        if (date < today || buchungsverfuegbarkeit.blockedWeekDays.includes((date.getDay() + 6) % 7)) {
+            status = 'unavailible'; selectable = false;
+        } else if (buchungsverfuegbarkeit.fullyBookedDays.some(d => d.getTime() === date.getTime())) {
+            status = 'booked'; selectable = false;
+        } else if (buchungsverfuegbarkeit.partialyBookedDays.some(d => d.getTime() === date.getTime())) {
+            status = 'partially-booked';
         }
 
-        dateGridDiv.appendChild(currentRow);
+        days.push({ value: i.toString(), selectable, isSelected: date.getTime() === selectedDate?.getTime(), status, date });
+    }
+
+    // fill grid
+    const rowCount = Math.ceil(days.length / 7);
+    for (let r = 0; r < rowCount; r++) {
+        const row = document.createElement('div');
+        row.className = 'dateSelectorRow';
+        for (let d = 0; d < 7; d++) {
+            const dayObj = days[r * 7 + d] || invalidDate;
+            const cell = document.createElement('div');
+            cell.innerText = dayObj.value;
+            
+            if (dayObj.status !== 'invalid-date') {
+                cell.classList.add(`date-${dayObj.status.split('-')[0]}`);
+                if (dayObj.isSelected) cell.classList.add('selected');
+                if (dayObj.selectable) {
+                    cell.classList.add('selectable');
+                    cell.onclick = () => { currentlySelectedDate = dayObj.date; renderDateSelector(currentlySelectedDate, year, month); };
+                }
+            } else {
+                cell.style.visibility = 'hidden';
+            }
+            row.appendChild(cell);
+        }
+        grid.appendChild(row);
     }
 }
 
-function selectDate(date: Date) {
-    document.getElementById("date")!.innerText = date.toString();
-    currentlySelectedDate = date;
-
-    renderDateSelector(
-        currentlySelectedDate,
-        currentDateSelectorYear,
-        currentDateSelectorMonth
-    );
-}
-
-function daysInMonth(year: number, month: number) {
-    // Month is 0-based: Jan = 0, Dec = 11
-    // Passing day 0 gives the last day of the previous month, so month+1, day 0 = last day of "month"
-    return new Date(year, month + 1, 0).getDate();
+function changeMonth(offset: number) {
+    currentDateSelectorMonth += offset;
+    if (currentDateSelectorMonth < 0) { currentDateSelectorMonth = 11; currentDateSelectorYear--; }
+    else if (currentDateSelectorMonth > 11) { currentDateSelectorMonth = 0; currentDateSelectorYear++; }
+    renderDateSelector(currentlySelectedDate, currentDateSelectorYear, currentDateSelectorMonth);
 }
 
 function updateState(newState: BuchenPageState) {
-    loadingStateElement!.hidden = true;
-    errorStateElement!.hidden = true;
-    readyStateElement!.hidden = true;
-    switch(newState) {
-        case "loading":
-            loadingStateElement!.hidden = false;
-            break;
-        case "error":
-            errorStateElement!.hidden = false;
-            break;
-        case "ready":
-            readyStateElement!.hidden = false;
-            break;
-    }
+    ['loading', 'error', 'ready'].forEach(s => {
+        const el = document.getElementById(`pageState-${s}`);
+        if (el) el.classList.toggle('hidden', s !== newState);
+    });
+}
+
+function createDateTime(date: Date, timeStr: string): Date {
+    const [h, m] = timeStr.split(':').map(Number);
+    return new Date(date.getFullYear(), date.getMonth(), date.getDate(), h, m);
 }

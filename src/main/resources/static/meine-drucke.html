@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Meine Drucke – CampusPrint</title>
 
+    <link rel="stylesheet" href="styles/base.css" />
     <link rel="stylesheet" href="styles/meine-drucke.css"/>
-    <link rel="stylesheet" href="styles/foot-head.css"/>
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet"/>
 </head>
@@ -16,25 +16,24 @@
     <div data-include="header.html"></div>
 
     <main class="main-content">
-        <h1>Meine Drucke</h1>
-        <p class="subtitle">
-            Verfolge den Status deiner Buchungen und sieh Live-Videos von laufenden Drucken
-        </p>
+    <a href="index.html" class="btn btn-secondary btn-sm mb-2">← Zurück</a>
+    
+    <h1 class="mb-1">Meine Drucke</h1>
+    <p class="text-muted mb-4">Verfolge den Status deiner Buchungen und sieh Live-Videos.</p>
 
-        <section class="search-box">
-            <h2>Buchungen abrufen</h2>
-            <p>Gib deine E-Mail-Adresse ein, um deine Buchungen anzuzeigen</p>
+    <section class="search-box mb-4">
+        <h2 class="text-sm font-bold mb-1">Buchungen abrufen</h2>
+        <p class="text-muted mb-2">Gib deine E-Mail-Adresse ein, um deine Buchungen anzuzeigen.</p>
 
-            <form id="drucke-form">
-                <label for="email"></label>
-                <input type="email" id="email" placeholder="deine.email@student.de" required/>
-                <button type="submit">🔍 Suchen</button>
-            </form>
+        <form id="drucke-form" class="search-form">
+            <input type="email" id="email" class="input" placeholder="deine.email@student.de" required/>
+            <button type="submit" class="btn btn-primary">🔍 Suchen</button>
+        </form>
+    </section>
+
+    <section id="drucke-ergebnisse" class="cards-grid">
         </section>
-
-        <section id="drucke-ergebnisse">
-        </section>
-    </main>
+</main>
 
     <!-- Footer -->
     <div data-include="footer.html"></div>

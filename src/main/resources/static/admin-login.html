@@ -1,40 +1,46 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Admin Login – CampusPrint</title>
-    <link rel="stylesheet" href="styles/admin-login.css" />
-    <link rel="stylesheet" href="styles/foot-head.css" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
-</head>
+    <meta charset="UTF-8"/>
+    <title>CampusPrint - Admin Login</title>
+    <link rel="stylesheet" href="styles/base.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet"/>
 <body>
 <div class="page-wrapper">
-    <!-- header -->
     <div data-include="header.html"></div>
 
-    <main class="main-content">
-        <div class="login-box">
-            <p class="login-hint">Nur für Laborpersonal</p>
-            <h2>🛡️ Admin Login</h2>
+    <main class="main-content layout-centered">
+
+        <div class="card" style="width: 100%; max-width: 400px;">
+            <div id="login-error" class="alert alert-danger shake hidden">
+                E-Mail oder Passwort falsch!
+            </div>
+            <p class="text-muted text-center">Nur für Laborpersonal</p>
+            <h2 class="text-center mb-2">🛡️ Admin Login</h2>
+
             <form id="adminLoginForm">
-                <label for="email">E-Mail</label>
-                <input type="email" id="email" placeholder="admin@campusprint.de" required />
+                <div class="form-group">
+                    <label for="email">E-Mail</label>
+                    <input type="email" id="email" placeholder="admin@campusprint.de" required />
+                </div>
 
-                <label for="password">Passwort</label>
-                <input type="password" id="password" placeholder="••••••••" required />
+                <div class="form-group">
+                    <label for="password">Passwort</label>
+                    <input type="password" id="password" placeholder="••••••••" required />
+                </div>
 
-                <button type="submit">Als Admin anmelden</button>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">
+                    Als Admin anmelden
+                </button>
             </form>
 
-            <a href="index.html" class="back-link"><- Zurück zur Startseite</a>
+            <a href="index.html" class="btn btn-text text-center mt-1" style="display:block;">
+                &larr; Zurück zur Startseite
+            </a>
         </div>
     </main>
-
-    <!-- footer -->
     <div data-include="footer.html"></div>
 </div>
-
 <script src="js/include.js"></script>
 <script type="module" src="js/admin-login.js"></script>
 </body>
