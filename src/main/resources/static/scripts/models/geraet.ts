@@ -7,7 +7,8 @@ export interface Geraet {
     type: 'FDM_Drucker' | 'SLA_Drucker' | 'Lasercutter' | 'CNC_Fräse' | 'Papierdrucker';
     status: 'Verfügbar' | 'Wartung' | 'Defekt';
 
-    // Optionale Felder
+    // Optional fields, needs work
+    // volume shall be changed to: size x * size z * size y 
     volume?: string; 
     layer?: string;
     nozzle?: string;

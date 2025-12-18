@@ -1,14 +1,14 @@
-// Exportiert für alle anderen Dateien
+// Export Bookinginterface
 export interface PrintBooking {
     id: string;
     printerName: string;
     startDate: Date;
     endDate: Date;
     notes?: string;
-    message?: string;   // Admin: Ablehnungsgrund
+    message?: string;   // Admin: reason for rejection
     videoUrl?: string;
     
-    // Alle Status-Optionen kombiniert
+    // All status info combined
     status: 'pending' | 'confirmed' | 'completed' | 'rejected' | 'running';
 }
 

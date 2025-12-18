@@ -1,6 +1,4 @@
-/* SPEZIFISCH FÜR MEINE DRUCKE */
 
-/* Die Suchbox - Spezielles Styling für diese Seite */
 .search-box {
     background-color: var(--bg-surface);
     border-radius: var(--radius);
@@ -19,7 +17,6 @@
     min-width: 220px;
 }
 
-/* Card-Body Layout (3 Spalten innerhalb einer Karte) */
 .booking-details {
     display: flex;
     justify-content: flex-start;
@@ -32,7 +29,6 @@
     min-width: 120px;
 }
 
-/* Live-Feed Bereich */
 .live-feed-section {
     margin-top: 1.5rem;
     padding-top: 1.25rem;

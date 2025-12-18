@@ -52,7 +52,7 @@ header .containerHead {
 
 /* Blue Buttons */
 .nav-links a.blue-button {
-    background-color: #3b82f6; /* синий */
+    background-color: #3b82f6; /* синий  meaning???????? */
     color: white;
 }
 
@@ -71,7 +71,7 @@ header .containerHead {
 }
 
 .footer {
-    background-color: #111;
+    background-color: #ebebeb;
     color: white;
     padding: 1.5rem 2rem;
     display: flex;

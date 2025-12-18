@@ -80,7 +80,7 @@ function renderDateSelector(selectedDate: Date | undefined, year: number, month:
     
     header.innerText = new Date(year, month).toLocaleString('de-DE', { month: 'long', year: 'numeric' });
 
-    // Grid leeren außer Wochentags-Header
+    // empty grid
     while (grid.children.length > 1) grid.removeChild(grid.lastElementChild!);
 
     const firstWeekDay = (new Date(year, month, 1).getDay() + 6) % 7;
@@ -107,7 +107,7 @@ function renderDateSelector(selectedDate: Date | undefined, year: number, month:
         days.push({ value: i.toString(), selectable, isSelected: date.getTime() === selectedDate?.getTime(), status, date });
     }
 
-    // Grid auffüllen
+    // fill grid
     const rowCount = Math.ceil(days.length / 7);
     for (let r = 0; r < rowCount; r++) {
         const row = document.createElement('div');

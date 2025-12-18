@@ -18,7 +18,7 @@ function renderGeraete(data: Geraet[]): void {
         const card = document.createElement('div');
         card.className = 'card';
         
-        // Mapping der Status auf unsere Badge-Farben in base.css
+        // Mapping the states to badge colors 
         const statusClass = g.status === 'Verfügbar' ? 'confirmed' : 'pending';
 
         card.innerHTML = `

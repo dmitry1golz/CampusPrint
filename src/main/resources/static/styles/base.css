@@ -1,8 +1,6 @@
-/* =========================================
-   1. VARIABLES & RESET
-   ========================================= */
+/* ========================================= */
 :root {
-    /* Farben */
+    /* Colours */
     --primary: #3b82f6;
     --primary-hover: #2563eb;
     --secondary: #f3f4f6;
@@ -12,9 +10,9 @@
     --text-main: #111827;
     --text-muted: #6b7280;
     
-    /* Footer Colors */
-    --footer-bg: #111111;
-    --footer-text: #ffffff;
+    /* Footer colors */
+    --footer-bg: #ffffff;
+    --footer-text: #111827;
 
     /* Layout */
     --max-width: 1200px;
@@ -30,41 +28,35 @@ body {
     color: var(--text-main);
     display: flex;
     flex-direction: column;
-    min-height: 100vh; /* Wichtig für Sticky Footer */
+    min-height: 100vh; /* important for sticky feet */
 }
 
-/* =========================================
-   2. LAYOUT UTILITIES
-   ========================================= */
+/* ========================================= */
 .page-wrapper {
     display: flex;
     flex-direction: column;
-    flex: 1; /* Füllt den Body aus */
+    flex: 1;
 }
 
 .main-content {
-    flex: 1; /* Drückt den Footer nach unten */
+    flex: 1;
     width: 100%;
     max-width: var(--max-width);
     margin: 0 auto;
     padding: 2rem 1rem;
 }
 
-/* Zentrierungs-Helfer (für Login) */
 .layout-centered {
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 80vh; /* Damit es vertikal mittig wirkt */
+    min-height: 80vh;
 }
 
-/* Container Breiten */
 .container-sm { max-width: 600px; margin: 0 auto; }
 .container-lg { max-width: 1200px; margin: 0 auto; }
 
-/* =========================================
-   3. HEADER (Exakt passend zu header.html)
-   ========================================= */
+/* ========================================= */
 header.top-bar {
     background-color: var(--bg-surface);
     border-bottom: 1px solid var(--border-color);
@@ -72,7 +64,6 @@ header.top-bar {
     width: 100%;
 }
 
-/* WICHTIG: Flexbox für .containerHead */
 header .containerHead {
     max-width: var(--max-width);
     margin: 0 auto;
@@ -94,7 +85,6 @@ header .containerHead {
 
 .logo-link img { width: 32px; height: 32px; }
 
-/* Navigation & Buttons */
 .nav-links {
     display: flex;
     gap: 1rem;
@@ -109,7 +99,6 @@ header .containerHead {
     transition: background 0.2s;
 }
 
-/* Spezifische Button Klassen aus header.html */
 .blue-button {
     background-color: var(--primary);
     color: white;
@@ -123,9 +112,7 @@ header .containerHead {
 }
 .white-button:hover { background-color: var(--secondary); }
 
-/* =========================================
-   4. FOOTER (Exakt passend zu footer.html)
-   ========================================= */
+/* ========================================= */
 .footer {
     background-color: var(--footer-bg);
     color: var(--footer-text);
@@ -133,19 +120,17 @@ header .containerHead {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-top: auto; /* Sicherheitsnetz für Sticky Footer */
+    margin-top: auto;
+    border-top: 2px solid #e5e7eb;
 }
 
 .social-icons img {
     width: 24px;
     height: 24px;
     margin-left: 1rem;
-    /* KEIN Filter mehr, damit Icons original bleiben */
 }
 
-/* =========================================
-   5. COMPONENTS (Cards, Forms, Alerts)
-   ========================================= */
+/* ========================================= */
 .card {
     background: var(--bg-surface);
     border: 1px solid var(--border-color);
@@ -176,12 +161,10 @@ input, select, textarea {
 .btn-secondary { background: white; border: 1px solid var(--border-color); color: var(--text-main); }
 .btn-danger { background: #dc2626; color: white; }
 
-/* Alerts */
 .hidden { display: none !important; }
 .alert { padding: 1rem; border-radius: var(--radius); margin-bottom: 1rem; border: 1px solid transparent; }
 .alert-danger { background: #fee2e2; color: #991b1b; border-color: #fecaca; text-align: center;}
 
-/* Animation */
 .shake { animation: shake 0.3s; }
 @keyframes shake {
     0%, 100% { transform: translateX(0); }
@@ -189,42 +172,32 @@ input, select, textarea {
     75% { transform: translateX(5px); }
 }
 
-/* =========================================
-   6. UTILITIES (Hilfsklassen)
-   Das hier unten an die base.css anfügen!
-   ========================================= */
+/* ========================================= */
 
-/* Text Ausrichtung */
 .text-center { text-align: center; }
 .text-right  { text-align: right; }
 .text-left   { text-align: left; }
 
-/* Text Farben & Größen */
 .text-muted { color: var(--text-muted); font-size: 0.9rem; }
 .text-sm    { font-size: 0.875rem; }
 
-/* Abstände (Margins) */
 .mt-1 { margin-top: 0.5rem; }
 .mt-2 { margin-top: 1rem; }
 .mb-1 { margin-bottom: 0.5rem; }
 .mb-2 { margin-bottom: 1rem; }
 .mb-4 { margin-bottom: 2rem; }
 
-/* Breiten */
 .w-full { width: 100%; }
 
-/* Verstecken */
 .hidden { display: none !important; }
 
-/* Universelles Grid für Karten (Admin & Meine Drucke) */
-/* Das Grid-System */
+/* universal grid system */
 .cards-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
     gap: 1.5rem;
 }
 
-/* Die Basis-Karte */
 .card {
     background: var(--bg-surface);
     border: 1px solid var(--border-color);
@@ -234,7 +207,6 @@ input, select, textarea {
     flex-direction: column;
 }
 
-/* Der Badge (ehemals status-pill) */
 .badge {
     padding: 0.25rem 0.75rem;
     border-radius: 999px;
@@ -243,7 +215,7 @@ input, select, textarea {
     white-space: nowrap;
 }
 
-/* Status-Farben (zentral gesteuert) */
+/* state colours */
 .badge.pending   { background: #fef3c7; color: #92400e; }
 .badge.confirmed { background: #dbeafe; color: #1e40af; }
 .badge.running   { background: #ede9fe; color: #5b21b6; }

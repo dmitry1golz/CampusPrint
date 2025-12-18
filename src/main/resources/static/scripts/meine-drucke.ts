@@ -33,7 +33,6 @@ function renderDrucke(container: HTMLElement, bookings: PrintBooking[]) {
         return;
     }
 
-    // Container bekommt die Grid-Klasse
     container.className = 'cards-grid';
 
     for (const b of bookings) {
@@ -79,7 +78,7 @@ function createCard(b: PrintBooking): HTMLElement {
     return article;
 }
 
-// Hilfsfunktionen
+// helpfunctions
 function translateStatus(s: string): string {
     const map: any = { 
         'pending': 'Ausstehend', 

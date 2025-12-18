@@ -1,6 +1,4 @@
-/* ADMIN-ONLY LAYOUT (Ergänzung zu base.css) */
-
-/* 1. Tabs-Navigation */
+/* / only admin layout  */
 .tabs-nav {
     display: flex;
     border-bottom: 2px solid var(--border-color);
@@ -25,12 +23,11 @@
 .tab-pane { display: none; }
 .tab-pane.active { display: block; animation: fadeIn 0.2s ease; }
 
-/* 2. Card Header & Body Spacing */
 .card-header {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    margin-bottom: 1.25rem; /* Platz zum Bild/Inhalt */
+    margin-bottom: 1.25rem;
 }
 
 .card-title {
@@ -39,10 +36,9 @@
     margin: 0;
 }
 
-/* 3. Action Buttons Alignment */
 .card-actions {
     display: flex;
-    justify-content: flex-start; /* Buttons linksbündig */
+    justify-content: flex-start;
     align-items: center;
     gap: 0.75rem;
     margin-top: 1.5rem;
@@ -54,19 +50,17 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    height: 38px; /* Einheitliche Höhe für Text und Icon-Buttons */
+    height: 38px;
     padding: 0 12px;
     font-size: 0.9rem;
     line-height: 1;
 }
 
-/* Die Mülltonne bleibt quadratisch */
 .action-btn[data-action="delete-device"] {
     width: 38px;
     padding: 0;
 }
 
-/* 4. Form & Modal Layout */
 .form-row { display: flex; gap: 1rem; margin-bottom: 1rem; }
 @media (max-width: 600px) { .form-row { flex-direction: column; gap: 0; } }
 

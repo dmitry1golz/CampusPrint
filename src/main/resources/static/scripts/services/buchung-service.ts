@@ -1,10 +1,7 @@
-// WICHTIG: Import der Models und des Geraet-Service
 import { PrintBooking, NewPrintBooking, Buchungsverfuegbarkeit } from '../models/buchung.js';
 import { getGeraetById } from './geraet-service.js';
 
-// MOCK DATEN
 export let MOCK_BOOKING: PrintBooking[] = [
-    // --- PENDING (Ausstehend) ---
     {
         id: 'b-new-1',
         printerName: 'Ultimaker S5',
@@ -38,7 +35,7 @@ export let MOCK_BOOKING: PrintBooking[] = [
         status: 'pending'
     },
 
-    // --- ACTIVE / CONFIRMED (Aktiv) ---
+    // Active
     {
         id: 'b-active-1',
         printerName: 'Prusa MK4',
@@ -46,7 +43,7 @@ export let MOCK_BOOKING: PrintBooking[] = [
         endDate: new Date(2025, 10, 24, 12, 0),
         notes: 'Ersatzteile für Roboter-AG',
         status: 'running',
-        // Hier ein Test-Video (Dummy URL, wird nicht wirklich laden, aber das Icon zeigen)
+        // Dummy URL
         videoUrl: 'https://images.unsplash.com/photo-1629739824696-e13c6d67b2be?q=80&w=1000&auto=format&fit=crop' 
     },
     {
@@ -66,7 +63,7 @@ export let MOCK_BOOKING: PrintBooking[] = [
         status: 'running'
     },
 
-    // --- HISTORY (Historie) ---
+    // History
     {
         id: 'b-hist-1',
         printerName: 'HP DesignJet T650',
@@ -103,7 +100,7 @@ export let MOCK_BOOKING: PrintBooking[] = [
     }
 ];
 
-// --- API FUNKTIONEN ---
+// API 
 
 export function getAllBookings(): PrintBooking[] {
     return MOCK_BOOKING;
@@ -121,7 +118,6 @@ export function updateBookingStatus(id: string, newStatus: PrintBooking['status'
     }
 }
 
-// Die Funktion, die in buchung.ts gefehlt hat:
 export function createNewBooking(newBooking: NewPrintBooking) {
     const printer = getGeraetById(newBooking.printerId);
     
@@ -142,7 +138,7 @@ export function getBuchungsverfuegbarkeitByGeraetId(id: string): Buchungsverfueg
     // Static MOCK Data
     return {
         blockedWeekDays: [
-            5, 6 // Sa und So geblockt (0 Indexed)
+            5, 6 // Sa and So blocked (0 Indexed)
         ],
         fullyBookedDays: [
             new Date(2025, 11, 16),

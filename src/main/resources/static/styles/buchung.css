@@ -1,4 +1,3 @@
-/* Buchung & Kalender */
 
 .dateSelector {
     border: 1px solid var(--border-color);
@@ -52,7 +51,6 @@
     cursor: default;
 }
 
-/* Status-Farben des Kalenders */
 .date-availible { background-color: #dcfce7; color: #166534; cursor: pointer; }
 .date-unavailible { background-color: #f1f5f9; color: #94a3b8; }
 .date-booked { background-color: #fee2e2; color: #991b1b; }
@@ -69,7 +67,6 @@
     font-weight: bold;
 }
 
-/* Layout für Zeit-Inputs */
 .form-row {
     display: flex;
     gap: 1rem;
@@ -79,7 +76,6 @@
     .form-row { flex-direction: column; gap: 0; }
 }
 
-/* Styling für die Legende */
 .calendar-legend {
     display: flex;
     flex-wrap: wrap;
@@ -105,7 +101,6 @@
     display: inline-block;
 }
 
-/* Die Farben (werden von den Tagen und der Legende geteilt) */
 .date-availible { background-color: #dcfce7; border: 1px solid #bbf7d0; }
 .date-unavailible { background-color: #f1f5f9; border: 1px solid #e2e8f0; }
 .date-booked { background-color: #fee2e2; border: 1px solid #fecaca; }

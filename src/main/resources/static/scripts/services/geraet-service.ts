@@ -1,10 +1,8 @@
-// WICHTIG: Import der Models
 import { Geraet, ThreeDPrinter } from '../models/geraet.js';
 
-// MOCK DATEN
-// Wir nutzen 'let', damit der Admin Geräte hinzufügen/löschen kann
+// mock data
 export let MOCK_GERAETE: Geraet[] = [
-    // --- 3D DRUCKER (FDM) ---
+    // FDM
     {
         id: 'p1',
         name: 'Ultimaker S5',
@@ -39,7 +37,7 @@ export let MOCK_GERAETE: Geraet[] = [
         layer: "0.08mm - 0.2mm"
     },
 
-    // --- 3D DRUCKER (SLA) ---
+    // SLA
     {
         id: 'sla1',
         name: 'Formlabs Form 3+',
@@ -51,7 +49,7 @@ export let MOCK_GERAETE: Geraet[] = [
         layer: "0.025mm - 0.1mm"
     },
 
-    // --- LASER ---
+    // lasercutter
     {
         id: 'l1',
         name: 'Epilog Fusion Pro 32',
@@ -71,7 +69,7 @@ export let MOCK_GERAETE: Geraet[] = [
         volume: '610 x 305 mm'
     },
 
-    // --- CNC ---
+    // CNC
     {
         id: 'cnc1',
         name: 'Stepcraft D-Series 840',
@@ -82,7 +80,7 @@ export let MOCK_GERAETE: Geraet[] = [
         volume: '600 x 840 mm'
     },
 
-    // --- PAPIER ---
+    // Paper
     {
         id: 'plot1',
         name: 'HP DesignJet T650',
@@ -94,8 +92,7 @@ export let MOCK_GERAETE: Geraet[] = [
     }
 ];
 
-// --- API FUNKTIONEN ---
-
+// API
 export function getAllGeraete(): Geraet[] {
     return MOCK_GERAETE;
 }
@@ -104,7 +101,7 @@ export function getGeraetById(id: string): Geraet | undefined {
     return MOCK_GERAETE.find(geraet => geraet.id === id);
 }
 
-// Admin Funktionen
+// Admin functions
 export function addGeraet(geraet: Geraet) {
     MOCK_GERAETE.push(geraet);
 }
