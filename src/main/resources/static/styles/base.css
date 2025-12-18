@@ -150,6 +150,10 @@ input, select, textarea {
     font-family: inherit;
     display: block;
 }
+textarea {
+    resize: vertical;
+    min-height: 80px;
+}
 
 .btn {
     display: inline-flex; justify-content: center; align-items: center;
