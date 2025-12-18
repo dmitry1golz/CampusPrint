@@ -117,3 +117,10 @@ export function updateGeraetStatus(id: string, newStatus: Geraet['status']) {
     const g = MOCK_GERAETE.find(x => x.id === id);
     if (g) g.status = newStatus;
 }
+
+export function updateGeraet(id: string, updatedData: Geraet) {
+    const index = MOCK_GERAETE.findIndex(g => g.id === id);
+    if (index !== -1) {
+        MOCK_GERAETE[index] = updatedData;
+    }
+}
