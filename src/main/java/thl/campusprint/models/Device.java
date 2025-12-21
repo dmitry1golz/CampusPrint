@@ -36,4 +36,7 @@ public class Device {
     @Column(name = "print_options", columnDefinition = "json")
     private Map<String, Object> printOptions;
 
+    @Column(length = 95)
+    private String image;
+
 }
