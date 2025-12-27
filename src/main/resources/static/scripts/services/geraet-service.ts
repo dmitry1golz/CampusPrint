@@ -1,17 +1,33 @@
 import { Geraet } from '../models/geraet.js';
 
 // Das hier später durch fetch('/api/devices') ersetzen
-let CACHE: Geraet[] = []; 
+// TEMP: Hardcoded mock data so we can test the UI without backend
+let CACHE: Geraet[] = [
+    {
+        id: 'p1',
+        name: 'Ultimaker S5',
+        type: 'FDM_Drucker',
+        status: 'Verfügbar',
+        description: "Professional Dual-Extrusion Printer.",
+        image: "https://ultimaker.com/wp-content/uploads/2023/05/The_Ultimaker_S5.jpg",
+        print_options: {
+             dimensions: { x: 330, y: 240, z: 300 },
+             available_materials: [],
+             supported_layer_heights: [0.1, 0.2],
+             nozzle_sizes: [0.4]
+        }
+    },
+    // ... add more if needed
+];
 
 export async function getAllGeraete(): Promise<Geraet[]> {
-    // Falls wir noch keine Daten haben, geben wir ein leeres Array zurück 
-    // oder mocken kurz, damit du was siehst:
-    if (CACHE.length === 0) {
-        // Hier könnte dein Mock-Array stehen, wenn du willst.
-        // Für jetzt leer:
-        return [];
-    }
+    // later: const res = await fetch('/api/devices'); return await res.json();
     return CACHE;
+}
+
+export async function getGeraetById(id: string): Promise<Geraet | undefined> {
+    const all = await getAllGeraete();
+    return all.find(g => g.id === id);
 }
 
 // Die Funktionen, die gefehlt haben:
@@ -33,3 +49,4 @@ export async function updateGeraetStatus(id: string, status: Geraet['status']): 
     console.log("Status updated (simulated):", id, status);
     // Später: await fetch(...)
 }
+

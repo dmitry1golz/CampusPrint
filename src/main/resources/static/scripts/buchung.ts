@@ -5,6 +5,7 @@ import { setCookie } from "./services/auth-service.js";
 import { Geraet } from "./models/geraet.js";
 
 type BuchenPageState = 'loading' | 'error' | 'ready';
+
 interface DateSelectorOption {
     value: string;
     selectable: boolean;
@@ -24,19 +25,33 @@ let currentDateSelectorMonth: number = new Date().getMonth();
 let geraet: Geraet;
 let buchungsverfuegbarkeit: Buchungsverfuegbarkeit;
 
-document.addEventListener('DOMContentLoaded', () => {
+// Note: Event listener must be async to await the device service
+document.addEventListener('DOMContentLoaded', async () => {
     const urlParams = new URLSearchParams(window.location.search);
     const geraetId = urlParams.get('geraet_id');
 
-    if (!geraetId || !getGeraetById(geraetId)) {
+    // validate param existence
+    if (!geraetId) {
         updateState('error');
         return;
     }
 
-    geraet = getGeraetById(geraetId)!;
+    // fetch device data (currently from mock/cache, later from API)
+    const foundGeraet = await getGeraetById(geraetId);
+
+    if (!foundGeraet) {
+        console.error(`Device with ID ${geraetId} not found.`);
+        updateState('error');
+        return;
+    }
+
+    geraet = foundGeraet;
+    
+    // Note: getBuchungsverfuegbarkeitByGeraetId might still be sync in your mock service, 
+    // but should eventually be refactored to async as well.
     buchungsverfuegbarkeit = getBuchungsverfuegbarkeitByGeraetId(geraetId);
 
-    // Printer Info setzen
+    // populate UI
     document.getElementById('printerInfo-Name')!.innerText = geraet.name;
     document.getElementById('printerInfo-Description')!.innerText = geraet.description;
 
@@ -58,7 +73,7 @@ function handleFormSubmit(e: Event) {
     const notes = (document.getElementById('notes') as HTMLTextAreaElement).value;
 
     if (!currentlySelectedDate || start >= end) {
-        alert("Bitte prüfe Datum und Uhrzeit.");
+        alert("Please check date and time.");
         return;
     }
 
@@ -80,34 +95,47 @@ function renderDateSelector(selectedDate: Date | undefined, year: number, month:
     
     header.innerText = new Date(year, month).toLocaleString('de-DE', { month: 'long', year: 'numeric' });
 
-    // empty grid
+    // clear grid but keep header if necessary, depending on HTML structure
+    // assuming grid only contains date cells or previous generated content
     while (grid.children.length > 1) grid.removeChild(grid.lastElementChild!);
 
-    const firstWeekDay = (new Date(year, month, 1).getDay() + 6) % 7;
+    // calculate padding days for start of month
+    const firstWeekDay = (new Date(year, month, 1).getDay() + 6) % 7; // Mon=0, Sun=6
     const days: DateSelectorOption[] = [];
 
     for (let i = 0; i < firstWeekDay; i++) days.push(invalidDate);
 
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-    for (let i = 1; i <= new Date(year, month + 1, 0).getDate(); i++) {
+    for (let i = 1; i <= daysInMonth; i++) {
         const date = new Date(year, month, i);
         let status: DateSelectorOption['status'] = 'availible';
         let selectable = true;
 
-        if (date < today || buchungsverfuegbarkeit.blockedWeekDays.includes((date.getDay() + 6) % 7)) {
-            status = 'unavailible'; selectable = false;
+        // determine availability status
+        const dayOfWeek = (date.getDay() + 6) % 7;
+        if (date < today || buchungsverfuegbarkeit.blockedWeekDays.includes(dayOfWeek)) {
+            status = 'unavailible'; 
+            selectable = false;
         } else if (buchungsverfuegbarkeit.fullyBookedDays.some(d => d.getTime() === date.getTime())) {
-            status = 'booked'; selectable = false;
+            status = 'booked'; 
+            selectable = false;
         } else if (buchungsverfuegbarkeit.partialyBookedDays.some(d => d.getTime() === date.getTime())) {
             status = 'partially-booked';
         }
 
-        days.push({ value: i.toString(), selectable, isSelected: date.getTime() === selectedDate?.getTime(), status, date });
+        days.push({ 
+            value: i.toString(), 
+            selectable, 
+            isSelected: date.getTime() === selectedDate?.getTime(), 
+            status, 
+            date 
+        });
     }
 
-    // fill grid
+    // render grid rows
     const rowCount = Math.ceil(days.length / 7);
     for (let r = 0; r < rowCount; r++) {
         const row = document.createElement('div');
@@ -122,7 +150,10 @@ function renderDateSelector(selectedDate: Date | undefined, year: number, month:
                 if (dayObj.isSelected) cell.classList.add('selected');
                 if (dayObj.selectable) {
                     cell.classList.add('selectable');
-                    cell.onclick = () => { currentlySelectedDate = dayObj.date; renderDateSelector(currentlySelectedDate, year, month); };
+                    cell.onclick = () => { 
+                        currentlySelectedDate = dayObj.date; 
+                        renderDateSelector(currentlySelectedDate, year, month); 
+                    };
                 }
             } else {
                 cell.style.visibility = 'hidden';
@@ -135,8 +166,13 @@ function renderDateSelector(selectedDate: Date | undefined, year: number, month:
 
 function changeMonth(offset: number) {
     currentDateSelectorMonth += offset;
-    if (currentDateSelectorMonth < 0) { currentDateSelectorMonth = 11; currentDateSelectorYear--; }
-    else if (currentDateSelectorMonth > 11) { currentDateSelectorMonth = 0; currentDateSelectorYear++; }
+    if (currentDateSelectorMonth < 0) { 
+        currentDateSelectorMonth = 11; 
+        currentDateSelectorYear--; 
+    } else if (currentDateSelectorMonth > 11) { 
+        currentDateSelectorMonth = 0; 
+        currentDateSelectorYear++; 
+    }
     renderDateSelector(currentlySelectedDate, currentDateSelectorYear, currentDateSelectorMonth);
 }
 
