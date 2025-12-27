@@ -43,7 +43,6 @@ export let MOCK_BOOKING: PrintBooking[] = [
         endDate: new Date(2025, 10, 24, 12, 0),
         notes: 'Ersatzteile für Roboter-AG',
         status: 'running',
-        // Dummy URL
         videoUrl: 'https://images.unsplash.com/photo-1629739824696-e13c6d67b2be?q=80&w=1000&auto=format&fit=crop' 
     },
     {
@@ -100,13 +99,14 @@ export let MOCK_BOOKING: PrintBooking[] = [
     }
 ];
 
-// API 
+// API Functions
 
 export function getAllBookings(): PrintBooking[] {
     return MOCK_BOOKING;
 }
 
 export function getBookingsForEmail(email: string): PrintBooking[] {
+    // In real app, filter by email or fetch from endpoint
     return MOCK_BOOKING;
 }
 
@@ -118,27 +118,27 @@ export function updateBookingStatus(id: string, newStatus: PrintBooking['status'
     }
 }
 
-export function createNewBooking(newBooking: NewPrintBooking) {
-    const printer = getGeraetById(newBooking.printerId);
+// Changed to async because fetching the printer name involves an async call now
+export async function createNewBooking(newBooking: NewPrintBooking) {
+    const printer = await getGeraetById(newBooking.printerId);
     
     const booking: PrintBooking = {
         id: `book-${Date.now()}`,
-        printerName: printer ? printer.name : 'Unbekannt',
+        printerName: printer ? printer.name : 'Unknown', // resolved printer object
         startDate: newBooking.startDate,
         endDate: newBooking.endDate,
         notes: newBooking.notes,
         status: 'pending'
     };
     MOCK_BOOKING.push(booking);
-    console.log("Buchung angelegt:", booking);
+    console.log("Booking created:", booking);
 }
 
 export function getBuchungsverfuegbarkeitByGeraetId(id: string): Buchungsverfuegbarkeit {
-    // While no backend, ID is never checked
-    // Static MOCK Data
+    // Mocking blocked days logic (Sat/Sun) and some specific dates
     return {
         blockedWeekDays: [
-            5, 6 // Sa and So blocked (0 Indexed)
+            5, 6 // 5=Sat, 6=Sun
         ],
         fullyBookedDays: [
             new Date(2025, 11, 16),
