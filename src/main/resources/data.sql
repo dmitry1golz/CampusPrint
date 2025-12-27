@@ -1,38 +1,99 @@
 -- ########################################################
--- Diese Datei initialisiert die Datenbank mit Beispiel-Daten für das CampusPrint-System.
--- Sie erstellt Benutzer, Geräte und einige Beispiel-Print-Jobs mit Buchungen.
--- ########################################################
-
--- ########################################################
 -- 1. USERS ANLEGEN
 -- ########################################################
 
 INSERT INTO `users` (`idusers`, `email`, `password`, `role`) VALUES
-                                                                 ('5de20ec1-158e-4f15-8012-3414d8c182a7', 'admin@campusprint.de', 'hashed_password_123', 'admin'),
-                                                                 ('a5835e04-c027-4493-b40e-ca3eeff921c7', 'student@campusprint.de', NULL, 'user'),
-                                                                 ('ecb1af1e-0f2b-4882-ab1f-5fee1ffccdf3', 'extern@campusprint.de', NULL, 'user');
+('5de20ec1-158e-4f15-8012-3414d8c182a7', 'admin@campusprint.de', 'hashed_password_123', 'admin'),
+('a5835e04-c027-4493-b40e-ca3eeff921c7', 'student@campusprint.de', NULL, 'user'),
+('ecb1af1e-0f2b-4882-ab1f-5fee1ffccdf3', 'extern@campusprint.de', NULL, 'user');
 
 -- ########################################################
 -- 2. DEVICES (GERÄTE) ANLEGEN
 -- ########################################################
--- Mapping: FDM_Drucker -> FDM_Printer, SLA_Drucker -> SLA_Printer, etc.
--- Die technischen Details (volume, nozzle) landen im JSON-Feld print_options.
+-- WICHTIG: Das JSON in 'print_options' entspricht exakt den TypeScript Interfaces (ThreeDOptions, LaserOptions, PaperOptions)
 
-INSERT INTO `devices` (`iddevice`, `name`, `model`, `status`, `type`, `print_options`) VALUES
-                                                                                           (1, 'Ultimaker S5', 'S5', 'Available', 'FDM_Printer', '{"volume": "330 x 240 x 300 mm", "nozzle": "0.4mm AA / BB", "layer": "0.1mm - 0.2mm"}'),
-                                                                                           (2, 'Prusa MK4', 'MK4', 'Unavailable', 'FDM_Printer', '{"volume": "250 x 210 x 210 mm", "nozzle": "0.4mm", "layer": "0.2mm"}'),
-                                                                                           (3, 'Bambu Lab X1 Carbon', 'X1 Carbon', 'Available', 'FDM_Printer', '{"volume": "256 x 256 x 256 mm", "nozzle": "0.4mm Hardened", "layer": "0.08mm - 0.2mm"}'),
-                                                                                           (4, 'Formlabs Form 3+', 'Form 3+', 'Available', 'SLA_Printer', '{"volume": "145 x 145 x 185 mm", "layer": "0.025mm - 0.1mm"}'),
-                                                                                           (5, 'Epilog Fusion Pro 32', 'Fusion Pro 32', 'Available', 'Laser_Cutter', '{"volume": "812 x 508 mm"}'),
-                                                                                           (6, 'Trotec Speedy 100', 'Speedy 100', 'Unavailable', 'Laser_Cutter', '{"volume": "610 x 305 mm"}'),
-                                                                                           (7, 'Stepcraft D-Series 840', 'D-Series 840', 'Unavailable', 'CNC_Mill', '{"volume": "600 x 840 mm"}'),
-                                                                                           (8, 'HP DesignJet T650', 'T650', 'Available', 'Printer', '{"volume": "A0, A1, A2"}');
+INSERT INTO `devices` (`iddevice`, `name`, `model`, `status`, `type`, `image`, `print_options`) VALUES
+(1, 'Ultimaker S5', 'S5', 'Available', 'FDM_Printer', 
+ 'https://ultimaker.com/wp-content/uploads/2023/05/The_Ultimaker_S5.jpg',
+ '{
+    "dimensions": {"x": 330, "y": 240, "z": 300}, 
+    "available_materials": [
+        {"name": "PLA", "temp_nozzle": 210, "temp_bed": 60, "color_hex": "#FFFFFF"},
+        {"name": "Tough PLA", "temp_nozzle": 215, "temp_bed": 60, "color_hex": "#000000"},
+        {"name": "PVA", "temp_nozzle": 215, "temp_bed": 60, "color_hex": "#FFFFCC"}
+    ],
+    "supported_layer_heights": [0.06, 0.1, 0.15, 0.2],
+    "nozzle_sizes": [0.25, 0.4, 0.8]
+ }'
+),
+(2, 'Prusa MK4', 'MK4', 'Unavailable', 'FDM_Printer', 
+ 'assets/prusa.png',
+ '{
+    "dimensions": {"x": 250, "y": 210, "z": 210},
+    "available_materials": [
+        {"name": "Prusament PLA", "temp_nozzle": 215, "temp_bed": 60, "color_hex": "#FF5733"},
+        {"name": "PETG", "temp_nozzle": 240, "temp_bed": 80, "color_hex": "#33FF57"}
+    ],
+    "supported_layer_heights": [0.05, 0.1, 0.2, 0.3],
+    "nozzle_sizes": [0.4, 0.6]
+ }'
+),
+(3, 'Bambu Lab X1 Carbon', 'X1 Carbon', 'Available', 'FDM_Printer', 
+ 'assets/Drucker1.jpg',
+ '{
+    "dimensions": {"x": 256, "y": 256, "z": 256},
+    "available_materials": [
+        {"name": "PLA Basic", "temp_nozzle": 220, "temp_bed": 55, "color_hex": "#AAAAAA"},
+        {"name": "PAHT-CF", "temp_nozzle": 290, "temp_bed": 100, "color_hex": "#111111"}
+    ],
+    "supported_layer_heights": [0.08, 0.12, 0.16, 0.2, 0.24],
+    "nozzle_sizes": [0.4, 0.6]
+ }'
+),
+(4, 'Formlabs Form 3+', 'Form 3+', 'Available', 'SLA_Printer', 
+ 'https://formlabs-media.formlabs.com/filer_public_thumbnails/filer_public/5c/42/5c423730-a359-4d6d-888e-6c68a0a9926c/form-3-plus-render-front.png__1054x1054_subsampling-2.png',
+ '{
+    "dimensions": {"x": 145, "y": 145, "z": 185},
+    "available_materials": [
+        {"name": "Standard Grey Resin", "temp_nozzle": 0, "temp_bed": 0, "color_hex": "#808080"},
+        {"name": "Clear Resin", "temp_nozzle": 0, "temp_bed": 0, "color_hex": "#E0E0E0"}
+    ],
+    "supported_layer_heights": [0.025, 0.05, 0.1],
+    "nozzle_sizes": []
+ }'
+),
+(5, 'Epilog Fusion Pro 32', 'Fusion Pro 32', 'Available', 'Laser_Cutter', 
+ 'assets/laser.png',
+ '{
+    "work_area": {"x": 812, "y": 508},
+    "presets": [
+        {"material": "Sperrholz 4mm", "thickness": 4, "power": 90, "speed": 15},
+        {"material": "Acryl 3mm", "thickness": 3, "power": 100, "speed": 20},
+        {"material": "Gravur Glas", "thickness": 0, "power": 40, "speed": 80}
+    ]
+ }'
+),
+(6, 'Trotec Speedy 100', 'Speedy 100', 'Unavailable', 'Laser_Cutter', 
+ 'assets/laser_old.png',
+ '{
+    "work_area": {"x": 610, "y": 305},
+    "presets": [
+        {"material": "Papier/Karton", "thickness": 1, "power": 20, "speed": 60}
+    ]
+ }'
+),
+
+(7, 'HP DesignJet T650', 'T650', 'Available', 'Printer', 
+ 'assets/plotter.png',
+ '{
+    "paper_weights": [80, 90, 120, 180],
+    "formats": ["A4", "A3", "A2", "A1", "A0", "Rollenware 24 Zoll"]
+ }'
+);
 
 -- ########################################################
 -- 3. PRINT JOBS & BOOKINGS
 -- ########################################################
--- Da Bookings einen PrintJob referenzieren, müssen wir beide parallel füllen.
--- Status Mapping: pending=0, confirmed=1, running=2, completed/rejected=3 (nach Logik der DB)
 
 -- Job 1 (Bachelorarbeit)
 INSERT INTO `print_jobs` (`idprintjob`, `device`, `file_path`, `settings`) VALUES (1, 1, 'files/job1.gcode', '{"material": "PLA", "color": "white"}');
