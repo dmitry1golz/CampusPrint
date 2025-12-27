@@ -8,10 +8,6 @@
     <link rel="stylesheet" href="styles/base.css" /> 
     <link rel="stylesheet" href="styles/admin.css" /> 
     
-    <link rel="preconnect" href="https://fonts.googleapis.com"> 
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&display=swap" rel="stylesheet">
-    
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
@@ -57,6 +53,7 @@
                 
                 <div id="add-equipment-form" class="card mb-4 hidden">
                     <h3 class="mb-2">Neues Gerät konfigurieren</h3>
+                    
                     <div class="form-row">
                         <div class="form-group">
                             <label for="eq-name">Modell Name *</label>
@@ -73,26 +70,25 @@
                         </div>
                     </div>
 
-                    <div id="specific-3d-fields" class="form-row">
+                    <label class="text-muted text-sm mb-1">Bauraum / Arbeitsfläche (in mm)</label>
+                    <div class="form-row">
                         <div class="form-group">
-                            <label for="eq-nozzle">Düse (Nozzle)</label>
-                            <input type="text" id="eq-nozzle" placeholder="z.B. 0.4mm" />
+                            <label for="eq-dim-x">Breite (X)</label>
+                            <input type="number" id="eq-dim-x" placeholder="z.B. 250" />
                         </div>
                         <div class="form-group">
-                            <label for="eq-layer">Schichthöhe</label>
-                            <input type="text" id="eq-layer" placeholder="0.1mm - 0.3mm" />
+                            <label for="eq-dim-y">Tiefe (Y)</label>
+                            <input type="number" id="eq-dim-y" placeholder="z.B. 210" />
+                        </div>
+                        <div class="form-group" id="group-dim-z">
+                            <label for="eq-dim-z">Höhe (Z)</label>
+                            <input type="number" id="eq-dim-z" placeholder="z.B. 200" />
                         </div>
                     </div>
 
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="eq-volume" id="label-volume">Bauvolumen</label>
-                            <input type="text" id="eq-volume" />
-                        </div>
-                        <div class="form-group">
-                            <label for="eq-image">Bild URL</label>
-                            <input type="text" id="eq-image" />
-                        </div>
+                    <div class="form-group mb-2">
+                        <label for="eq-image">Bild URL</label>
+                        <input type="text" id="eq-image" placeholder="https://..." />
                     </div>
 
                     <div class="form-group mb-2">
