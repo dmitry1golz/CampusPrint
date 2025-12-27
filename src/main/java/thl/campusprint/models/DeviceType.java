@@ -2,6 +2,6 @@ package thl.campusprint.models;
 
 public enum DeviceType {
 
-    FDM_Printer, SLA_Printer, Laser_Cutter, CNC_Mill, Printer
+    FDM_Printer, SLA_Printer, Laser_Cutter, Printer
 
 }

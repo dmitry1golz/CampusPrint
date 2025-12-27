@@ -25,7 +25,7 @@ public class Device {
     private String model;
 
     @Enumerated(EnumType.STRING)
-    @Column(columnDefinition = "ENUM('FDM_Printer', 'SLA_Printer', 'Laser_Cutter', 'CNC_Mill', 'Printer')")
+    @Column(columnDefinition = "ENUM('FDM_Printer', 'SLA_Printer', 'Laser_Cutter', 'Printer')")
     private DeviceType type;
 
     @Enumerated(EnumType.STRING)
