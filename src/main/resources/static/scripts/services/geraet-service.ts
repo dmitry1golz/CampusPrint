@@ -1,52 +1,44 @@
 import { Geraet } from '../models/geraet.js';
 
-// Das hier später durch fetch('/api/devices') ersetzen
-// TEMP: Hardcoded mock data so we can test the UI without backend
-let CACHE: Geraet[] = [
-    {
-        id: 'p1',
-        name: 'Ultimaker S5',
-        type: 'FDM_Drucker',
-        status: 'Verfügbar',
-        description: "Professional Dual-Extrusion Printer.",
-        image: "https://ultimaker.com/wp-content/uploads/2023/05/The_Ultimaker_S5.jpg",
-        print_options: {
-             dimensions: { x: 330, y: 240, z: 300 },
-             available_materials: [],
-             supported_layer_heights: [0.1, 0.2],
-             nozzle_sizes: [0.4]
-        }
-    },
-    // ... add more if needed
-];
+// Passe den Port an, falls du in application.properties etwas anderes als 8090 hast
+const API_URL = 'http://localhost:8090/api/devices';
 
 export async function getAllGeraete(): Promise<Geraet[]> {
-    // later: const res = await fetch('/api/devices'); return await res.json();
-    return CACHE;
+    try {
+        const response = await fetch(API_URL);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return await response.json();
+    } catch (error) {
+        console.error("Could not fetch devices:", error);
+        return [];
+    }
 }
 
 export async function getGeraetById(id: string): Promise<Geraet | undefined> {
-    const all = await getAllGeraete();
-    return all.find(g => g.id === id);
+    try {
+        // ID an URL anhängen
+        const response = await fetch(`${API_URL}/${id}`);
+        if (!response.ok) {
+            return undefined;
+        }
+        return await response.json();
+    } catch (error) {
+        console.error(`Could not fetch device ${id}:`, error);
+        return undefined;
+    }
 }
 
-// Die Funktionen, die gefehlt haben:
+// Für Admin später:
 export async function addGeraet(geraet: Geraet): Promise<void> {
-    CACHE.push(geraet);
-    console.log("Device added (simulated):", geraet);
-    // Später: await fetch('/api/devices', { method: 'POST', body: JSON.stringify(geraet) ... });
+    await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(geraet)
+    });
 }
 
-export async function deleteGeraet(id: string): Promise<void> {
-    CACHE = CACHE.filter(g => g.id !== id);
-    console.log("Device deleted (simulated):", id);
-    // Später: await fetch(`/api/devices/${id}`, { method: 'DELETE' });
-}
-
-export async function updateGeraetStatus(id: string, status: Geraet['status']): Promise<void> {
-    const g = CACHE.find(dev => dev.id === id);
-    if (g) g.status = status;
-    console.log("Status updated (simulated):", id, status);
-    // Später: await fetch(...)
-}
-
+// Dummys für die anderen Funktionen, damit Admin nicht crasht (implementieren wir später richtig)
+export async function deleteGeraet(id: string): Promise<void> { console.log("Delete TODO via API"); }
+export async function updateGeraetStatus(id: string, status: any): Promise<void> { console.log("Update Status TODO via API"); }
