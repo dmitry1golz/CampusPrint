@@ -1,16 +1,15 @@
 -- ########################################################
--- 1. USERS ANLEGEN
+-- 1. USERS
 -- ########################################################
-
 INSERT INTO `users` (`idusers`, `email`, `password`, `role`) VALUES
 ('5de20ec1-158e-4f15-8012-3414d8c182a7', 'admin@campusprint.de', 'hashed_password_123', 'admin'),
 ('a5835e04-c027-4493-b40e-ca3eeff921c7', 'student@campusprint.de', NULL, 'user'),
 ('ecb1af1e-0f2b-4882-ab1f-5fee1ffccdf3', 'extern@campusprint.de', NULL, 'user');
 
 -- ########################################################
--- 2. DEVICES (GERÄTE) ANLEGEN
+-- 2. DEVICES
 -- ########################################################
--- WICHTIG: Das JSON in 'print_options' entspricht exakt den TypeScript Interfaces (ThreeDOptions, LaserOptions, PaperOptions)
+-- CNC (ID 7) wurde entfernt. HP Plotter behält ID 8.
 
 INSERT INTO `devices` (`iddevice`, `name`, `model`, `status`, `type`, `image`, `print_options`) VALUES
 (1, 'Ultimaker S5', 'S5', 'Available', 'FDM_Printer', 
@@ -82,8 +81,8 @@ INSERT INTO `devices` (`iddevice`, `name`, `model`, `status`, `type`, `image`, `
     ]
  }'
 ),
-
-(7, 'HP DesignJet T650', 'T650', 'Available', 'Printer', 
+-- ID 7 (CNC) übersprungen
+(8, 'HP DesignJet T650', 'T650', 'Available', 'Printer', 
  'assets/plotter.png',
  '{
     "paper_weights": [80, 90, 120, 180],
@@ -95,27 +94,27 @@ INSERT INTO `devices` (`iddevice`, `name`, `model`, `status`, `type`, `image`, `
 -- 3. PRINT JOBS & BOOKINGS
 -- ########################################################
 
--- Job 1 (Bachelorarbeit)
+-- Job 1 (Bachelorarbeit) - Device 1
 INSERT INTO `print_jobs` (`idprintjob`, `device`, `file_path`, `settings`) VALUES (1, 1, 'files/job1.gcode', '{"material": "PLA", "color": "white"}');
 INSERT INTO `bookings` (`print_job`, `status`, `start_time`, `end_time`, `user_id`, `user_notes`)
 VALUES (1, 0, '2025-11-25 10:00:00', '2025-11-25 14:00:00', 'a5835e04-c027-4493-b40e-ca3eeff921c7', 'Bachelorarbeit Gehäuse V3. Bitte weißes PLA nutzen.');
 
--- Job 2 (Architektur)
+-- Job 2 (Architektur) - Device 5
 INSERT INTO `print_jobs` (`idprintjob`, `device`, `file_path`) VALUES (2, 5, 'files/arch.pdf');
 INSERT INTO `bookings` (`print_job`, `status`, `start_time`, `end_time`, `user_id`, `user_notes`)
 VALUES (2, 0, '2025-11-26 09:00:00', '2025-11-26 09:30:00', 'ecb1af1e-0f2b-4882-ab1f-5fee1ffccdf3', 'Architektur-Modell M 1:50, Sperrholz 4mm.');
 
--- Job 3 (Pläne)
+-- Job 3 (Pläne) - Device 8 (Das hier hat den Fehler geworfen!)
 INSERT INTO `print_jobs` (`idprintjob`, `device`) VALUES (3, 8);
 INSERT INTO `bookings` (`print_job`, `status`, `start_time`, `end_time`, `user_id`, `user_notes`)
 VALUES (3, 0, '2025-11-26 11:00:00', '2025-11-26 11:15:00', 'a5835e04-c027-4493-b40e-ca3eeff921c7', '3x A0 Pläne für Präsentation.');
 
--- Job 4 (Aktiv: Roboter AG)
+-- Job 4 (Aktiv: Roboter AG) - Device 2
 INSERT INTO `print_jobs` (`idprintjob`, `device`, `livestream`) VALUES (4, 2, 'https://images.unsplash.com/...');
 INSERT INTO `bookings` (`print_job`, `status`, `start_time`, `end_time`, `user_id`, `user_notes`)
 VALUES (4, 2, '2025-11-24 08:00:00', '2025-11-24 12:00:00', 'a5835e04-c027-4493-b40e-ca3eeff921c7', 'Ersatzteile für Roboter-AG');
 
--- Job 5 (Abgelehnt: Waffen-Replika)
+-- Job 5 (Abgelehnt) - Device 1
 INSERT INTO `print_jobs` (`idprintjob`, `device`) VALUES (5, 1);
 INSERT INTO `bookings` (`print_job`, `status`, `start_time`, `end_time`, `user_id`, `user_notes`, `admin_message`)
 VALUES (5, 3, '2025-11-19 14:00:00', '2025-11-19 18:00:00', 'ecb1af1e-0f2b-4882-ab1f-5fee1ffccdf3', 'Privatprojekt', 'Drucken von Waffen-Repliken ist laut Nutzungsordnung untersagt.');
