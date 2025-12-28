@@ -25,18 +25,19 @@ let currentDateSelectorMonth: number = new Date().getMonth();
 let geraet: Geraet;
 let buchungsverfuegbarkeit: Buchungsverfuegbarkeit;
 
-// Note: Event listener must be async to await the device service
 document.addEventListener('DOMContentLoaded', async () => {
     const urlParams = new URLSearchParams(window.location.search);
-    const geraetId = urlParams.get('geraet_id');
+    const geraetIdStr = urlParams.get('geraet_id');
 
-    // validate param existence
-    if (!geraetId) {
+    // Parse ID to number because DB uses integers
+    const geraetId = parseInt(geraetIdStr || '0');
+
+    if (!geraetIdStr || isNaN(geraetId)) {
         updateState('error');
         return;
     }
 
-    // fetch device data (currently from mock/cache, later from API)
+    // Fetch real device data from Backend via Service
     const foundGeraet = await getGeraetById(geraetId);
 
     if (!foundGeraet) {
@@ -47,11 +48,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     geraet = foundGeraet;
     
-    // Note: getBuchungsverfuegbarkeitByGeraetId might still be sync in your mock service, 
-    // but should eventually be refactored to async as well.
-    buchungsverfuegbarkeit = getBuchungsverfuegbarkeitByGeraetId(geraetId);
+    // Mock availability (Backend logic not ready yet)
+    buchungsverfuegbarkeit = getBuchungsverfuegbarkeitByGeraetId(geraetIdStr!);
 
-    // populate UI
+    // Populate UI
     document.getElementById('printerInfo-Name')!.innerText = geraet.name;
     document.getElementById('printerInfo-Description')!.innerText = geraet.description;
 
@@ -65,7 +65,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     updateState('ready');
 });
 
-function handleFormSubmit(e: Event) {
+// Made async to await the booking creation
+async function handleFormSubmit(e: Event) {
     e.preventDefault();
     const email = (document.getElementById('email') as HTMLInputElement).value;
     const start = (document.getElementById('start') as HTMLInputElement).value;
@@ -77,14 +78,16 @@ function handleFormSubmit(e: Event) {
         return;
     }
 
+    // printerId must be number now
     const booking: NewPrintBooking = {
-        printerId: geraet.id,
+        printerId: geraet.id, 
         startDate: createDateTime(currentlySelectedDate, start),
         endDate: createDateTime(currentlySelectedDate, end),
         notes: notes
     };
 
-    createNewBooking(booking);
+    await createNewBooking(booking);
+    
     setCookie('userEmail', email, 30);
     window.location.href = "meine-drucke.html";
 }
@@ -95,12 +98,9 @@ function renderDateSelector(selectedDate: Date | undefined, year: number, month:
     
     header.innerText = new Date(year, month).toLocaleString('de-DE', { month: 'long', year: 'numeric' });
 
-    // clear grid but keep header if necessary, depending on HTML structure
-    // assuming grid only contains date cells or previous generated content
     while (grid.children.length > 1) grid.removeChild(grid.lastElementChild!);
 
-    // calculate padding days for start of month
-    const firstWeekDay = (new Date(year, month, 1).getDay() + 6) % 7; // Mon=0, Sun=6
+    const firstWeekDay = (new Date(year, month, 1).getDay() + 6) % 7;
     const days: DateSelectorOption[] = [];
 
     for (let i = 0; i < firstWeekDay; i++) days.push(invalidDate);
@@ -114,28 +114,17 @@ function renderDateSelector(selectedDate: Date | undefined, year: number, month:
         let status: DateSelectorOption['status'] = 'availible';
         let selectable = true;
 
-        // determine availability status
-        const dayOfWeek = (date.getDay() + 6) % 7;
-        if (date < today || buchungsverfuegbarkeit.blockedWeekDays.includes(dayOfWeek)) {
-            status = 'unavailible'; 
-            selectable = false;
+        if (date < today || buchungsverfuegbarkeit.blockedWeekDays.includes((date.getDay() + 6) % 7)) {
+            status = 'unavailible'; selectable = false;
         } else if (buchungsverfuegbarkeit.fullyBookedDays.some(d => d.getTime() === date.getTime())) {
-            status = 'booked'; 
-            selectable = false;
+            status = 'booked'; selectable = false;
         } else if (buchungsverfuegbarkeit.partialyBookedDays.some(d => d.getTime() === date.getTime())) {
             status = 'partially-booked';
         }
 
-        days.push({ 
-            value: i.toString(), 
-            selectable, 
-            isSelected: date.getTime() === selectedDate?.getTime(), 
-            status, 
-            date 
-        });
+        days.push({ value: i.toString(), selectable, isSelected: date.getTime() === selectedDate?.getTime(), status, date });
     }
 
-    // render grid rows
     const rowCount = Math.ceil(days.length / 7);
     for (let r = 0; r < rowCount; r++) {
         const row = document.createElement('div');
@@ -150,10 +139,7 @@ function renderDateSelector(selectedDate: Date | undefined, year: number, month:
                 if (dayObj.isSelected) cell.classList.add('selected');
                 if (dayObj.selectable) {
                     cell.classList.add('selectable');
-                    cell.onclick = () => { 
-                        currentlySelectedDate = dayObj.date; 
-                        renderDateSelector(currentlySelectedDate, year, month); 
-                    };
+                    cell.onclick = () => { currentlySelectedDate = dayObj.date; renderDateSelector(currentlySelectedDate, year, month); };
                 }
             } else {
                 cell.style.visibility = 'hidden';
@@ -166,13 +152,8 @@ function renderDateSelector(selectedDate: Date | undefined, year: number, month:
 
 function changeMonth(offset: number) {
     currentDateSelectorMonth += offset;
-    if (currentDateSelectorMonth < 0) { 
-        currentDateSelectorMonth = 11; 
-        currentDateSelectorYear--; 
-    } else if (currentDateSelectorMonth > 11) { 
-        currentDateSelectorMonth = 0; 
-        currentDateSelectorYear++; 
-    }
+    if (currentDateSelectorMonth < 0) { currentDateSelectorMonth = 11; currentDateSelectorYear--; }
+    else if (currentDateSelectorMonth > 11) { currentDateSelectorMonth = 0; currentDateSelectorYear++; }
     renderDateSelector(currentlySelectedDate, currentDateSelectorYear, currentDateSelectorMonth);
 }
 

@@ -6,6 +6,7 @@ import lombok.Setter;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 import java.util.Map;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Entity
 @Table(name = "devices")
@@ -29,12 +30,16 @@ public class Device {
     private DeviceType type;
 
     @Enumerated(EnumType.STRING)
-    // Hier fügen wir Maintenance und Defect hinzu:
-    @Column(nullable = false, columnDefinition = "ENUM('Available', 'Maintenance', 'Defect', 'InUse') DEFAULT 'Available'")
-    private DeviceStatus status = DeviceStatus.Available;
+    @Column(
+        nullable = false, 
+        // Füge 'Unavailable' hier wieder ein!
+        columnDefinition = "ENUM('Available', 'Unavailable', 'Maintenance', 'Defect', 'InUse') DEFAULT 'Unavailable'"
+    )
+    private DeviceStatus status = DeviceStatus.Unavailable;
 
-    @JdbcTypeCode(SqlTypes.JSON) // Sagt Java: "Behandle das wie JSON"
-    @Column(name = "print_options", columnDefinition = "TEXT") // Sagt DB: "Speichere es als Text, damit du nicht abstürzt"
+    @JsonProperty("print_options") // <--- Das sorgt dafür, dass im JSON "print_options" steht
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "print_options", columnDefinition = "TEXT") 
     private Map<String, Object> printOptions;
 
     @Column(length = 255)
