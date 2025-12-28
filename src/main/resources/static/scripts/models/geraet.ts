@@ -1,49 +1,82 @@
-// Material, Admin defined, User only choosing color and material
+// 1. Status: Passt jetzt zum erweiterten Java-Enum
+export type GeraeteStatus = 'Available' | 'Maintenance' | 'Defect' | 'InUse';
+
+// 2. Typen: Passend zum Java-Enum DeviceType
+export type GeraeteTyp = 'FDM_Printer' | 'SLA_Printer' | 'Laser_Cutter' | 'CNC_Mill' | 'Printer';
+
+// --- Options-Strukturen (Admin definiert diese im Backend) ---
+
 export interface MaterialProfile {
     name: string;          // e.g PLA
-    temp_nozzle: number;   // auto set, not available for user
-    temp_bed: number;      // auto set, not available for user
-    color_hex?: string;    // user only choosing color
+    temp_nozzle: number;   // auto set
+    temp_bed: number;      // auto set
+    color_hex?: string;    
 }
 
-// Admin space
 export interface ThreeDOptions {
     dimensions: { x: number; y: number; z: number };
-    available_materials: MaterialProfile[]; // Temp data
-    supported_layer_heights: number[];      // e.g [0.1, 0.15, 0.2]
-    nozzle_sizes: number[];                 // e.g [0.4, 0.6]
+    available_materials: MaterialProfile[];
+    supported_layer_heights: number[];
+    nozzle_sizes: number[];
 }
 
-// User choices (Buchungs-Bereich)
-// this is gonna be written to settings JSON in print_jobs
-export interface ThreeDJobSettings {
-    selected_material: string;             // User only choosing material
-    layer_height: number;                  // choices as list
-    infill_percent: number;                // slider 0-100
-    supports: 'none' | 'touching_bed' | 'everywhere' | 'auto'; // supports
-    adhesion: boolean;                     // yes/no for brim, raft
-}
-
-// Main interface
-export interface Geraet {
-    id: string;
-    name: string;
-    description: string;
-    image: string;
-    type: 'FDM_Drucker' | 'SLA_Drucker' | 'Lasercutter' | 'Papierdrucker';
-    status: 'Verfügbar' | 'Wartung' | 'Defekt';
-
-    // devices.print_options
-    print_options: ThreeDOptions | LaserOptions | PaperOptions;
-}
-
-// spaceholder for other types - similar logic
 export interface LaserOptions {
     work_area: { x: number; y: number };
     presets: { material: string; thickness: number; power: number; speed: number }[];
 }
 
 export interface PaperOptions {
-    paper_weights: number[]; // [80, 100, 200]
-    formats: string[];       // ["A4", "A3"]
+    paper_weights: number[];
+    formats: string[];
 }
+
+// --- User Choices (Das wird später beim Buchen gespeichert) ---
+
+export interface ThreeDJobSettings {
+    selected_material: string;             
+    layer_height: number;                  
+    infill_percent: number;                
+    supports: 'none' | 'touching_bed' | 'everywhere' | 'auto'; 
+    adhesion: boolean;                     
+}
+
+// --- Haupt-Interfaces für die Geräte ---
+
+interface BaseGeraet {
+    id: number; // Backend sendet Integer
+    name: string;
+    description: string;
+    image: string;
+    status: GeraeteStatus; // Hier ist jetzt auch 'Maintenance' erlaubt
+    model?: string;
+}
+
+// Discriminated Unions für Typ-Sicherheit
+
+export interface FDMPrinter extends BaseGeraet {
+    type: 'FDM_Printer';
+    print_options: ThreeDOptions;
+}
+
+export interface SLAPrinter extends BaseGeraet {
+    type: 'SLA_Printer';
+    print_options: ThreeDOptions;
+}
+
+export interface LaserCutter extends BaseGeraet {
+    type: 'Laser_Cutter';
+    print_options: LaserOptions;
+}
+
+export interface CNCMill extends BaseGeraet {
+    type: 'CNC_Mill';
+    print_options: LaserOptions; 
+}
+
+export interface PaperPrinter extends BaseGeraet {
+    type: 'Printer'; 
+    print_options: PaperOptions;
+}
+
+// Der finale Typ für die Verwendung im Code
+export type Geraet = FDMPrinter | SLAPrinter | LaserCutter | CNCMill | PaperPrinter;
