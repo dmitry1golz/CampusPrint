@@ -25,21 +25,19 @@ public class Device {
     private String model;
 
     @Enumerated(EnumType.STRING)
-    // CNC_Mill hinzugefügt, damit SQL nicht crasht
-    @Column(columnDefinition = "ENUM('FDM_Printer', 'SLA_Printer', 'Laser_Cutter', 'Printer')")
+    @Column(columnDefinition = "ENUM('FDM_Printer', 'SLA_Printer', 'Laser_Cutter', 'CNC_Mill', 'Printer')")
     private DeviceType type;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, columnDefinition = "ENUM('Available', 'Unavailable') DEFAULT 'Unavailable'")
-    private DeviceStatus status = DeviceStatus.Unavailable;
+    // Hier fügen wir Maintenance und Defect hinzu:
+    @Column(nullable = false, columnDefinition = "ENUM('Available', 'Maintenance', 'Defect', 'InUse') DEFAULT 'Available'")
+    private DeviceStatus status = DeviceStatus.Available;
 
-    // Hier landet das komplexe JSON aus der data.sql
-    // Spring Boot mappt das automatisch in eine Map, die du als JSON ans Frontend schickst
-    @JdbcTypeCode(SqlTypes.JSON)
-    @Column(name = "print_options", columnDefinition = "json")
+    @JdbcTypeCode(SqlTypes.JSON) // Sagt Java: "Behandle das wie JSON"
+    @Column(name = "print_options", columnDefinition = "TEXT") // Sagt DB: "Speichere es als Text, damit du nicht abstürzt"
     private Map<String, Object> printOptions;
 
-    @Column(length = 255) // Habe die Länge erhöht, manche URLs sind lang
+    @Column(length = 255)
     private String image;
 
 }
