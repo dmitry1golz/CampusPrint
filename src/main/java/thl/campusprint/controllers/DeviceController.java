@@ -40,4 +40,19 @@ public class DeviceController {
     public Device createDevice(@RequestBody Device device) {
         return deviceRepository.save(device);
     }
+
+    @PostMapping
+    public Device createOrUpdateDevice(@RequestBody Device device) {
+        return deviceRepository.save(device);
+    }
+
+    // NEU: Gerät löschen
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteDevice(@PathVariable Integer id) {
+        if (deviceRepository.existsById(id)) {
+            deviceRepository.deleteById(id);
+            return ResponseEntity.ok().build();
+        }
+        return ResponseEntity.notFound().build();
+    }
 }

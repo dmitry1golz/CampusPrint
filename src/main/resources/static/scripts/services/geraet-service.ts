@@ -1,35 +1,29 @@
-import { Geraet } from '../models/geraet.js';
+import { Geraet, GeraeteStatus } from '../models/geraet.js';
 
-// Stelle sicher, dass der Port stimmt (8090 bei dir)
 const API_URL = 'http://localhost:8090/api/devices';
 
 export async function getAllGeraete(): Promise<Geraet[]> {
     try {
         const response = await fetch(API_URL);
-        if (!response.ok) {
-            throw new Error(`Server Fehler: ${response.status}`);
-        }
+        if (!response.ok) throw new Error(`Status: ${response.status}`);
         return await response.json();
     } catch (error) {
-        console.error("Fehler beim Laden der Geräte:", error);
+        console.error("Fehler beim Laden:", error);
         return [];
     }
 }
 
-export async function getGeraetById(id: string): Promise<Geraet | undefined> {
+export async function getGeraetById(id: number): Promise<Geraet | undefined> {
     try {
         const response = await fetch(`${API_URL}/${id}`);
-        if (!response.ok) {
-            return undefined;
-        }
+        if (!response.ok) return undefined;
         return await response.json();
     } catch (error) {
-        console.error(`Fehler beim Laden von Gerät ${id}:`, error);
         return undefined;
     }
 }
 
-// Admin Funktionen (vorerst Dummy oder API-Call)
+// Erstellen ODER Update (da Spring Boot .save() für beides nutzt)
 export async function addGeraet(geraet: Geraet): Promise<void> {
     await fetch(API_URL, {
         method: 'POST',
@@ -38,11 +32,15 @@ export async function addGeraet(geraet: Geraet): Promise<void> {
     });
 }
 
-export async function deleteGeraet(id: string): Promise<void> {
+export async function deleteGeraet(id: number): Promise<void> {
     await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
 }
 
-// TODO: Backend muss diesen Endpoint erst noch bereitstellen
-export async function updateGeraetStatus(id: string, status: any): Promise<void> {
-    console.log("Status Update TODO:", id, status);
+// Status ändern: Wir laden das Gerät, ändern den Status, speichern es.
+export async function updateGeraetStatus(id: number, newStatus: GeraeteStatus): Promise<void> {
+    const device = await getGeraetById(id);
+    if (device) {
+        device.status = newStatus;
+        await addGeraet(device);
+    }
 }
