@@ -127,8 +127,8 @@ document.addEventListener('DOMContentLoaded', () => {
             // Status-Toggle Button Logik
             let statusBtn = '';
             if (eq.status === 'Available') {
-                statusBtn = `<button class="btn btn-secondary btn-sm action-btn" data-action="maintenance" data-id="${eq.id}">Wartung</button>`;
-            } else if (eq.status === 'Maintenance') {
+                statusBtn = `<button class="btn btn-secondary btn-sm action-btn" data-action="unavailable" data-id="${eq.id}">Wartung</button>`;
+            } else if (eq.status === 'Unavailable') {
                 statusBtn = `<button class="btn btn-primary btn-sm action-btn" data-action="available" data-id="${eq.id}">Aktivieren</button>`;
             } else {
                 statusBtn = `<span class="text-muted text-sm">Status: ${eq.status}</span>`;
@@ -312,8 +312,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             
             // --- Geräte ---
-            if (action === 'maintenance') {
-                await updateGeraetStatus(numId, 'Maintenance');
+            if (action === 'unavailable') {
+                await updateGeraetStatus(numId, 'Unavailable');
                 renderAll();
             }
             if (action === 'available') {
@@ -369,9 +369,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Anzeige-Übersetzer
     function translateStatus(s: string) {
         if (s === 'Available') return 'Verfügbar';
-        if (s === 'Maintenance') return 'Wartung';
-        if (s === 'Defect') return 'Defekt';
-        if (s === 'InUse') return 'Besetzt';
+        if (s === 'Unavailable') return 'Wartung';
         return s;
     }
 

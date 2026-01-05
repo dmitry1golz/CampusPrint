@@ -41,9 +41,7 @@ function renderGeraete(data: Geraet[]): void {
         let displayStatus = 'Unbekannt';
         switch (g.status) {
             case 'Available': displayStatus = 'Verfügbar'; break;
-            case 'Maintenance': displayStatus = 'Wartung'; break;
-            case 'Defect': displayStatus = 'Defekt'; break;
-            case 'InUse': displayStatus = 'Besetzt'; break;
+            case 'Unavailable': displayStatus = 'Wartung'; break;
             default: displayStatus = g.status;
         }
 

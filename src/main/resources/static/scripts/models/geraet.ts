@@ -1,5 +1,5 @@
 // 1. Status: Passt jetzt zum erweiterten Java-Enum
-export type GeraeteStatus = 'Available' | 'Maintenance' | 'Defect' | 'InUse';
+export type GeraeteStatus = 'Available' | 'Unavailable';
 
 // 2. Typen: Passend zum Java-Enum DeviceType
 export type GeraeteTyp = 'FDM_Printer' | 'SLA_Printer' | 'Laser_Cutter' | 'CNC_Mill' | 'Printer';
