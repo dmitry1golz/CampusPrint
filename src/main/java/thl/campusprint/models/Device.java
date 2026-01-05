@@ -36,7 +36,7 @@ public class Device {
     @Column(
         nullable = false, 
         // Füge 'Unavailable' hier wieder ein!
-        columnDefinition = "ENUM('Available', 'Unavailable', 'Maintenance', 'Defect', 'InUse') DEFAULT 'Unavailable'"
+        columnDefinition = "ENUM('Available', 'Unavailable') DEFAULT 'Unavailable'"
     )
     private DeviceStatus status = DeviceStatus.Unavailable;
 
