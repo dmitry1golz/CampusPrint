@@ -9,10 +9,12 @@ INSERT INTO `users` (`idusers`, `email`, `password`, `role`) VALUES
 -- ########################################################
 -- 2. DEVICES
 -- ########################################################
--- CNC (ID 7) wurde entfernt. HP Plotter behält ID 8.
+-- CNC (ID 7) wurde entfernt. HP Plotter behaelt ID 8.
 
-INSERT INTO `devices` (`iddevice`, `name`, `model`, `status`, `type`, `image`, `print_options`) VALUES
-(1, 'Ultimaker S5', 'S5', 'Available', 'FDM_Printer', 
+INSERT INTO `devices` (`iddevice`, `name`, `description`, `model`, `status`, `type`, `image`, `print_options`) VALUES
+(1, 'Ultimaker S5',
+ 'Anfaengerfreundlicher 3D Drucker',
+ 'S5', 'Available', 'FDM_Printer',
  'https://ultimaker.com/wp-content/uploads/2023/05/The_Ultimaker_S5.jpg',
  '{
     "dimensions": {"x": 330, "y": 240, "z": 300}, 
@@ -25,7 +27,9 @@ INSERT INTO `devices` (`iddevice`, `name`, `model`, `status`, `type`, `image`, `
     "nozzle_sizes": [0.25, 0.4, 0.8]
  }'
 ),
-(2, 'Prusa MK4', 'MK4', 'Unavailable', 'FDM_Printer', 
+(2, 'Prusa MK4',
+ 'Vielseitiger FDM-3D-Drucker',
+ 'MK4', 'Unavailable', 'FDM_Printer',
  'assets/prusa.png',
  '{
     "dimensions": {"x": 250, "y": 210, "z": 210},
@@ -37,7 +41,9 @@ INSERT INTO `devices` (`iddevice`, `name`, `model`, `status`, `type`, `image`, `
     "nozzle_sizes": [0.4, 0.6]
  }'
 ),
-(3, 'Bambu Lab X1 Carbon', 'X1 Carbon', 'Available', 'FDM_Printer', 
+(3, 'Bambu Lab X1 Carbon',
+ 'High-End',
+ 'X1 Carbon', 'Available', 'FDM_Printer',
  'https://cdn.idealo.com/folder/Product/202800/9/202800985/s1_produktbild_max_1/bambu-lab-x1-carbon-combo.jpg',
  '{
     "dimensions": {"x": 256, "y": 256, "z": 256},
@@ -49,7 +55,7 @@ INSERT INTO `devices` (`iddevice`, `name`, `model`, `status`, `type`, `image`, `
     "nozzle_sizes": [0.4, 0.6]
  }'
 ),
-(4, 'Formlabs Form 3+', 'Form 3+', 'Available', 'SLA_Printer', 
+(4, 'Formlabs Form 3+', null, 'Form 3+', 'Available', 'SLA_Printer',
  'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS8d24UVAiCg6YEOh4P42Kc231qf6mfpw4eNg&s',
  '{
     "dimensions": {"x": 145, "y": 145, "z": 185},
@@ -61,7 +67,9 @@ INSERT INTO `devices` (`iddevice`, `name`, `model`, `status`, `type`, `image`, `
     "nozzle_sizes": []
  }'
 ),
-(5, 'Epilog Fusion Pro 32', 'Fusion Pro 32', 'Available', 'Laser_Cutter', 
+(5, 'Epilog Fusion Pro 32',
+ 'Geeignet für Gravieren und dicke Materialien',
+ 'Fusion Pro 32', 'Available', 'Laser_Cutter',
  'https://www.epiloglaser.com/assets/img/fusion-pro-24-laser.webp',
  '{
     "work_area": {"x": 812, "y": 508},
@@ -72,7 +80,9 @@ INSERT INTO `devices` (`iddevice`, `name`, `model`, `status`, `type`, `image`, `
     ]
  }'
 ),
-(6, 'Trotec Speedy 100', 'Speedy 100', 'Unavailable', 'Laser_Cutter', 
+(6, 'Trotec Speedy 100',
+ 'Kleine bis mittelgroßer Objekte'
+ ,'Speedy 100', 'Unavailable', 'Laser_Cutter',
  'https://puzzlebox3d.com/wp-content/uploads/2022/05/TRO_Speedy_100_2020_03_right-scaled.webp',
  '{
     "work_area": {"x": 610, "y": 305},
@@ -81,8 +91,10 @@ INSERT INTO `devices` (`iddevice`, `name`, `model`, `status`, `type`, `image`, `
     ]
  }'
 ),
--- ID 7 (CNC) übersprungen
-(8, 'HP DesignJet T650', 'T650', 'Available', 'Printer', 
+-- ID 7 (CNC) uebersprungen
+(8, 'HP DesignJet T650',
+ 'Großformat-Plotter',
+ 'T650', 'Available', 'Printer',
  'https://plotterkaufen24.com/wp-content/uploads/2020/10/HP-Designjet-T650-36-Zoll-A0-Drucker.jpg',
  '{
     "paper_weights": [80, 90, 120, 180],
@@ -97,22 +109,22 @@ INSERT INTO `devices` (`iddevice`, `name`, `model`, `status`, `type`, `image`, `
 -- Job 1 (Bachelorarbeit) - Device 1
 INSERT INTO `print_jobs` (`idprintjob`, `device`, `file_path`, `settings`) VALUES (1, 1, 'files/job1.gcode', '{"material": "PLA", "color": "white"}');
 INSERT INTO `bookings` (`print_job`, `status`, `start_time`, `end_time`, `user_id`, `user_notes`)
-VALUES (1, 0, '2025-11-25 10:00:00', '2025-11-25 14:00:00', 'a5835e04-c027-4493-b40e-ca3eeff921c7', 'Bachelorarbeit Gehäuse V3. Bitte weißes PLA nutzen.');
+VALUES (1, 0, '2025-11-25 10:00:00', '2025-11-25 14:00:00', 'a5835e04-c027-4493-b40e-ca3eeff921c7', 'Bachelorarbeit Gehaeuse V3. Bitte weißes PLA nutzen.');
 
 -- Job 2 (Architektur) - Device 5
 INSERT INTO `print_jobs` (`idprintjob`, `device`, `file_path`) VALUES (2, 5, 'files/arch.pdf');
 INSERT INTO `bookings` (`print_job`, `status`, `start_time`, `end_time`, `user_id`, `user_notes`)
 VALUES (2, 0, '2025-11-26 09:00:00', '2025-11-26 09:30:00', 'ecb1af1e-0f2b-4882-ab1f-5fee1ffccdf3', 'Architektur-Modell M 1:50, Sperrholz 4mm.');
 
--- Job 3 (Pläne) - Device 8 (Das hier hat den Fehler geworfen!)
+-- Job 3 (Plaene) - Device 8 (Das hier hat den Fehler geworfen!)
 INSERT INTO `print_jobs` (`idprintjob`, `device`) VALUES (3, 8);
 INSERT INTO `bookings` (`print_job`, `status`, `start_time`, `end_time`, `user_id`, `user_notes`)
-VALUES (3, 0, '2025-11-26 11:00:00', '2025-11-26 11:15:00', 'a5835e04-c027-4493-b40e-ca3eeff921c7', '3x A0 Pläne für Präsentation.');
+VALUES (3, 0, '2025-11-26 11:00:00', '2025-11-26 11:15:00', 'a5835e04-c027-4493-b40e-ca3eeff921c7', '3x A0 Plaene fuer Praesentation.');
 
 -- Job 4 (Aktiv: Roboter AG) - Device 2
 INSERT INTO `print_jobs` (`idprintjob`, `device`, `livestream`) VALUES (4, 2, 'https://images.unsplash.com/...');
 INSERT INTO `bookings` (`print_job`, `status`, `start_time`, `end_time`, `user_id`, `user_notes`)
-VALUES (4, 2, '2025-11-24 08:00:00', '2025-11-24 12:00:00', 'a5835e04-c027-4493-b40e-ca3eeff921c7', 'Ersatzteile für Roboter-AG');
+VALUES (4, 2, '2025-11-24 08:00:00', '2025-11-24 12:00:00', 'a5835e04-c027-4493-b40e-ca3eeff921c7', 'Ersatzteile fuer Roboter-AG');
 
 -- Job 5 (Abgelehnt) - Device 1
 INSERT INTO `print_jobs` (`idprintjob`, `device`) VALUES (5, 1);

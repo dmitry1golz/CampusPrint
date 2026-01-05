@@ -22,6 +22,9 @@ public class Device {
     @Column(nullable = false, length = 45)
     private String name;
 
+    @Column(length = 300)
+    private String description;
+
     @Column(length = 60)
     private String model;
 
