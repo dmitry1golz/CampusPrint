@@ -38,7 +38,7 @@ INSERT INTO `devices` (`iddevice`, `name`, `model`, `status`, `type`, `image`, `
  }'
 ),
 (3, 'Bambu Lab X1 Carbon', 'X1 Carbon', 'Available', 'FDM_Printer', 
- 'assets/Drucker1.jpg',
+ 'https://cdn.idealo.com/folder/Product/202800/9/202800985/s1_produktbild_max_1/bambu-lab-x1-carbon-combo.jpg',
  '{
     "dimensions": {"x": 256, "y": 256, "z": 256},
     "available_materials": [
@@ -50,7 +50,7 @@ INSERT INTO `devices` (`iddevice`, `name`, `model`, `status`, `type`, `image`, `
  }'
 ),
 (4, 'Formlabs Form 3+', 'Form 3+', 'Available', 'SLA_Printer', 
- 'https://formlabs-media.formlabs.com/filer_public_thumbnails/filer_public/5c/42/5c423730-a359-4d6d-888e-6c68a0a9926c/form-3-plus-render-front.png__1054x1054_subsampling-2.png',
+ 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS8d24UVAiCg6YEOh4P42Kc231qf6mfpw4eNg&s',
  '{
     "dimensions": {"x": 145, "y": 145, "z": 185},
     "available_materials": [
@@ -62,7 +62,7 @@ INSERT INTO `devices` (`iddevice`, `name`, `model`, `status`, `type`, `image`, `
  }'
 ),
 (5, 'Epilog Fusion Pro 32', 'Fusion Pro 32', 'Available', 'Laser_Cutter', 
- 'assets/laser.png',
+ 'https://www.epiloglaser.com/assets/img/fusion-pro-24-laser.webp',
  '{
     "work_area": {"x": 812, "y": 508},
     "presets": [
@@ -73,7 +73,7 @@ INSERT INTO `devices` (`iddevice`, `name`, `model`, `status`, `type`, `image`, `
  }'
 ),
 (6, 'Trotec Speedy 100', 'Speedy 100', 'Unavailable', 'Laser_Cutter', 
- 'assets/laser_old.png',
+ 'https://puzzlebox3d.com/wp-content/uploads/2022/05/TRO_Speedy_100_2020_03_right-scaled.webp',
  '{
     "work_area": {"x": 610, "y": 305},
     "presets": [
@@ -83,7 +83,7 @@ INSERT INTO `devices` (`iddevice`, `name`, `model`, `status`, `type`, `image`, `
 ),
 -- ID 7 (CNC) übersprungen
 (8, 'HP DesignJet T650', 'T650', 'Available', 'Printer', 
- 'assets/plotter.png',
+ 'https://plotterkaufen24.com/wp-content/uploads/2020/10/HP-Designjet-T650-36-Zoll-A0-Drucker.jpg',
  '{
     "paper_weights": [80, 90, 120, 180],
     "formats": ["A4", "A3", "A2", "A1", "A0", "Rollenware 24 Zoll"]
