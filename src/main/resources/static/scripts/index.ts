@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (myOrdersButton) {
         myOrdersButton.addEventListener('click', () => {
-            window.location.href = '/meine-drucke.html';
+            window.location.href = '/myPrints.html';
         });
     }
 });

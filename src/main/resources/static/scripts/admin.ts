@@ -1,8 +1,8 @@
-import { PrintBooking } from './models/buchung.js';
-import { Geraet, ThreeDOptions, LaserOptions, PaperOptions, GeraeteStatus, GeraeteTyp, MaterialProfile } from './models/geraet.js';
-import { getAllBookings, updateBookingStatus } from './services/buchung-service.js';
-import { getAllGeraete, addGeraet, deleteGeraet, updateGeraetStatus } from './services/geraet-service.js';
-import { requireAuth } from './services/auth-service.js';
+import { PrintBooking } from './models/booking.js';
+import { Geraet, ThreeDOptions, LaserOptions, PaperOptions, GeraeteStatus, GeraeteTyp, MaterialProfile } from './models/device.js';
+import { getAllBookings, updateBookingStatus } from './services/bookingService.js';
+import { getAllGeraete, addGeraet, deleteGeraet, updateGeraetStatus } from './services/deviceService.js';
+import { requireAuth } from './services/authService.js';
 
 declare global { interface Window { lucide: { createIcons: () => void; }; } }
 

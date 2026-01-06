@@ -18,7 +18,7 @@ export function login(email: string, pass: string): boolean {
 export function logout() {
     deleteCookie(COOKIE_NAME);
     // Redirect to login
-    window.location.href = 'admin-login.html';
+    window.location.href = 'adminLogin.html';
 }
 
 export function isAuthenticated(): boolean {
@@ -28,7 +28,7 @@ export function isAuthenticated(): boolean {
 export function requireAuth() {
     if (!isAuthenticated()) {
         console.warn("Zugriff verweigert. Redirect zum Login.");
-        window.location.href = 'admin-login.html';
+        window.location.href = 'adminLogin.html';
     }
 }
 

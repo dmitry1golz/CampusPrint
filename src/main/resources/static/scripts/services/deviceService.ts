@@ -1,4 +1,4 @@
-import { Geraet, GeraeteStatus } from '../models/geraet.js';
+import { Geraet, GeraeteStatus } from '../models/device.js';
 
 const API_URL = 'http://localhost:8090/api/devices';
 

@@ -1,5 +1,5 @@
-import { PrintBooking, NewPrintBooking, Buchungsverfuegbarkeit } from '../models/buchung.js';
-import { getGeraetById } from './geraet-service.js';
+import { PrintBooking, NewPrintBooking, Buchungsverfuegbarkeit } from '../models/booking.js';
+import { getGeraetById } from './deviceService.js';
 
 export let MOCK_BOOKING: PrintBooking[] = [
     {

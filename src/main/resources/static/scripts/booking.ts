@@ -1,8 +1,8 @@
-import { createNewBooking, getBuchungsverfuegbarkeitByGeraetId } from "./services/buchung-service.js";
-import { Buchungsverfuegbarkeit, NewPrintBooking } from "./models/buchung.js";
-import { getGeraetById } from "./services/geraet-service.js";
-import { setCookie } from "./services/auth-service.js";
-import { Geraet } from "./models/geraet.js";
+import { createNewBooking, getBuchungsverfuegbarkeitByGeraetId } from "./services/bookingService.js";
+import { Buchungsverfuegbarkeit, NewPrintBooking } from "./models/booking.js";
+import { getGeraetById } from "./services/deviceService.js";
+import { setCookie } from "./services/authService.js";
+import { Geraet } from "./models/device.js";
 
 type BuchenPageState = 'loading' | 'error' | 'ready';
 
@@ -89,7 +89,7 @@ async function handleFormSubmit(e: Event) {
     await createNewBooking(booking);
     
     setCookie('userEmail', email, 30);
-    window.location.href = "meine-drucke.html";
+    window.location.href = "myPrints.html";
 }
 
 function renderDateSelector(selectedDate: Date | undefined, year: number, month: number) {

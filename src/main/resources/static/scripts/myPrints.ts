@@ -1,6 +1,6 @@
-import { PrintBooking } from "./models/buchung.js";
-import { getBookingsForEmail } from './services/buchung-service.js';
-import { getCookie, setCookie } from './services/auth-service.js';
+import { PrintBooking } from "./models/booking.js";
+import { getBookingsForEmail } from './services/bookingService.js';
+import { getCookie, setCookie } from './services/authService.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('drucke-form') as HTMLFormElement | null;

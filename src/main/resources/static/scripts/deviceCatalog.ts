@@ -1,5 +1,5 @@
-import { Geraet, ThreeDOptions, LaserOptions, PaperOptions } from "./models/geraet.js";
-import { getAllGeraete } from "./services/geraet-service.js";
+import { Geraet, ThreeDOptions, LaserOptions, PaperOptions } from "./models/device.js";
+import { getAllGeraete } from "./services/deviceService.js";
 
 // Cache für Geräte, damit wir nicht bei jedem Klick neu laden müssen
 let allDevicesCache: Geraet[] = [];
@@ -101,7 +101,7 @@ function renderGeraete(data: Geraet[]): void {
             button.classList.add('btn-disabled'); // Optional für Styling
         } else {
             button.addEventListener('click', () => {
-                window.location.href = `buchung.html?geraet_id=${encodeURIComponent(g.id)}`;
+                window.location.href = `booking.html?geraet_id=${encodeURIComponent(g.id)}`;
             });
         }
 
