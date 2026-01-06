@@ -1,8 +1,8 @@
-import { Geraet, GeraeteStatus } from '../models/device.js';
+import { Device, DeviceStatus } from '../models/device.js';
 
 const API_URL = 'http://localhost:8090/api/devices';
 
-export async function getAllGeraete(): Promise<Geraet[]> {
+export async function getAllDevices(): Promise<Device[]> {
     try {
         const response = await fetch(API_URL);
         if (!response.ok) throw new Error(`Status: ${response.status}`);
@@ -13,7 +13,7 @@ export async function getAllGeraete(): Promise<Geraet[]> {
     }
 }
 
-export async function getGeraetById(id: number): Promise<Geraet | undefined> {
+export async function getDeviceById(id: number): Promise<Device | undefined> {
     try {
         const response = await fetch(`${API_URL}/${id}`);
         if (!response.ok) return undefined;
@@ -24,23 +24,23 @@ export async function getGeraetById(id: number): Promise<Geraet | undefined> {
 }
 
 // Erstellen ODER Update (da Spring Boot .save() für beides nutzt)
-export async function addGeraet(geraet: Geraet): Promise<void> {
+export async function addDevice(device: Device): Promise<void> {
     await fetch(API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(geraet)
+        body: JSON.stringify(device)
     });
 }
 
-export async function deleteGeraet(id: number): Promise<void> {
+export async function deleteDevice(id: number): Promise<void> {
     await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
 }
 
 // Status ändern: Wir laden das Gerät, ändern den Status, speichern es.
-export async function updateGeraetStatus(id: number, newStatus: GeraeteStatus): Promise<void> {
-    const device = await getGeraetById(id);
+export async function updateDeviceStatus(id: number, newStatus: DeviceStatus): Promise<void> {
+    const device = await getDeviceById(id);
     if (device) {
         device.status = newStatus;
-        await addGeraet(device);
+        await addDevice(device);
     }
 }

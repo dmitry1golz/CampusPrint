@@ -1,7 +1,7 @@
 import { PrintBooking } from './models/booking.js';
-import { Geraet, ThreeDOptions, LaserOptions, PaperOptions, GeraeteStatus, GeraeteTyp, MaterialProfile } from './models/device.js';
+import { Device, ThreeDOptions, LaserOptions, PaperOptions, DeviceStatus, DeviceTyp, MaterialProfile } from './models/device.js';
 import { getAllBookings, updateBookingStatus } from './services/bookingService.js';
-import { getAllGeraete, addGeraet, deleteGeraet, updateGeraetStatus } from './services/deviceService.js';
+import { getAllDevices, addDevice, deleteDevice, updateDeviceStatus } from './services/deviceService.js';
 import { requireAuth } from './services/authService.js';
 
 declare global { interface Window { lucide: { createIcons: () => void; }; } }
@@ -75,7 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function renderAll() {
         try {
             const bookings = getAllBookings();
-            const equipment = await getAllGeraete();
+            const equipment = await getAllDevices();
             
             renderBookingList('pending', bookings, containers.pending);
             renderBookingList('active', bookings, containers.active);
@@ -196,12 +196,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function handleSave() {
         const name = getIn('eq-name').value;
-        const type = forms.type.value as GeraeteTyp;
+        const type = forms.type.value as DeviceTyp;
         const desc = getArea('eq-desc').value;
         
         if (!name || !desc) { alert('Name & Beschreibung fehlen.'); return; }
 
-        const all = await getAllGeraete();
+        const all = await getAllDevices();
         const old = editingDeviceId ? all.find(g => g.id === editingDeviceId) : null;
         const oldStatus = old ? old.status : 'Available';
         const oldModel = old && old.model ? old.model : '';
@@ -215,7 +215,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const x = Number(forms.dimX.value)||0; 
         const y = Number(forms.dimY.value)||0; 
         const z = Number(forms.dimZ.value)||0;
-        let final: Geraet;
+        let final: Device;
 
         if (type === 'FDM_Printer') {
             const opts: ThreeDOptions = {
@@ -225,7 +225,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 supported_layer_heights: [0.1, 0.2],
                 nozzle_sizes: [0.4]
             };
-            final = { ...base, type, print_options: opts } as Geraet;
+            final = { ...base, type, print_options: opts } as Device;
         } else if (type === 'SLA_Printer') {
             const opts: ThreeDOptions = {
                 tech_type: 'SLA',
@@ -233,7 +233,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 available_materials: tempMaterials, 
                 supported_layer_heights: [0.05]
             };
-            final = { ...base, type, print_options: opts } as Geraet;
+            final = { ...base, type, print_options: opts } as Device;
         } else if (type === 'Laser_Cutter' || type === 'CNC_Mill') {
             const opts: LaserOptions = {
                 tech_type: 'LASER',
@@ -241,24 +241,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 presets: tempLaserPresets
             };
             // @ts-ignore
-            final = { ...base, type, print_options: opts } as Geraet;
+            final = { ...base, type, print_options: opts } as Device;
         } else {
             const opts: PaperOptions = {
                 tech_type: 'PAPER',
                 paper_weights: [80], 
                 formats: tempPaperFormats
             };
-            final = { ...base, type: 'Printer', print_options: opts } as Geraet;
+            final = { ...base, type: 'Printer', print_options: opts } as Device;
         }
 
-        await addGeraet(final);
+        await addDevice(final);
         closeForm();
         renderAll();
     }
 
     async function openEdit(idStr: string) {
         const id = parseInt(idStr);
-        const all = await getAllGeraete();
+        const all = await getAllDevices();
         const dev = all.find(g => g.id === id);
         if(!dev) return;
 
@@ -333,9 +333,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const numId = parseInt(id);
 
             if (action === 'edit-device') openEdit(id);
-            if (action === 'delete-device') if(confirm('Löschen?')) { await deleteGeraet(numId); renderAll(); }
-            if (action === 'set-unavailable') { await updateGeraetStatus(numId, 'Unavailable'); renderAll(); }
-            if (action === 'set-available') { await updateGeraetStatus(numId, 'Available'); renderAll(); }
+            if (action === 'delete-device') if(confirm('Löschen?')) { await deleteDevice(numId); renderAll(); }
+            if (action === 'set-unavailable') { await updateDeviceStatus(numId, 'Unavailable'); renderAll(); }
+            if (action === 'set-available') { await updateDeviceStatus(numId, 'Available'); renderAll(); }
             
             // Buchungs Actions
             if (action === 'confirm') { await updateBookingStatus(id, 'confirmed'); renderAll(); }
@@ -413,7 +413,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- OTHER HELPERS (WICHTIG: NICHT MEHR LEER LASSEN) ---
     
-    function renderEquipmentList(equipment: Geraet[]) {
+    function renderEquipmentList(equipment: Device[]) {
         if (!containers.equipment) return;
         containers.equipment.innerHTML = '';
         equipment.forEach(eq => {
@@ -490,7 +490,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function updateCounts(b: PrintBooking[], e: Geraet[]) {
+    function updateCounts(b: PrintBooking[], e: Device[]) {
         const setTxt = (id: string, txt: string) => { const el = document.getElementById(id); if(el) el.textContent = txt; };
         setTxt('count-pending', `(${b.filter(x => x.status === 'pending').length})`);
         setTxt('count-active', `(${b.filter(x => ['confirmed', 'running'].includes(x.status)).length})`);

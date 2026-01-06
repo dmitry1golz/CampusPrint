@@ -1,14 +1,14 @@
-import { Geraet, ThreeDOptions, LaserOptions, PaperOptions } from "./models/device.js";
-import { getAllGeraete } from "./services/deviceService.js";
+import { Device, ThreeDOptions, LaserOptions, PaperOptions } from "./models/device.js";
+import { getAllDevices } from "./services/deviceService.js";
 
 // Cache für Geräte, damit wir nicht bei jedem Klick neu laden müssen
-let allDevicesCache: Geraet[] = [];
+let allDevicesCache: Device[] = [];
 
 // Start: Daten laden, sobald die Seite bereit ist
 document.addEventListener('DOMContentLoaded', async () => {
     try {
-        allDevicesCache = await getAllGeraete();
-        renderGeraete(allDevicesCache);
+        allDevicesCache = await getAllDevices();
+        renderDevices(allDevicesCache);
         setupFilterButtons();
     } catch (error) {
         console.error("Failed to load devices:", error);
@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 });
 
-function renderGeraete(data: Geraet[]): void {
+function renderDevices(data: Device[]): void {
     const container = document.getElementById('geraete-container');
     if (!container) return;
 
@@ -101,7 +101,7 @@ function renderGeraete(data: Geraet[]): void {
             button.classList.add('btn-disabled'); // Optional für Styling
         } else {
             button.addEventListener('click', () => {
-                window.location.href = `booking.html?geraet_id=${encodeURIComponent(g.id)}`;
+                window.location.href = `booking.html?device_id=${encodeURIComponent(g.id)}`;
             });
         }
 
@@ -139,7 +139,7 @@ function setupFilterButtons(): void {
                         break;
                 }
             }
-            renderGeraete(filtered);
+            renderDevices(filtered);
         });
     });
 }

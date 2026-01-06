@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const savedEmail = getCookie('userEmail');
     if (savedEmail) {
         emailInput.value = savedEmail;
-        renderDrucke(container, getBookingsForEmail(savedEmail));
+        renderPrintBookings(container, getBookingsForEmail(savedEmail));
     }
 
     form.addEventListener('submit', (e) => {
@@ -21,11 +21,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!email) return;
 
         setCookie('userEmail', email, 30);
-        renderDrucke(container, getBookingsForEmail(email));
+        renderPrintBookings(container, getBookingsForEmail(email));
     });
 });
 
-function renderDrucke(container: HTMLElement, bookings: PrintBooking[]) {
+function renderPrintBookings(container: HTMLElement, bookings: PrintBooking[]) {
     container.innerHTML = '';
     
     if (bookings.length === 0) {
