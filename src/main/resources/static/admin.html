@@ -29,6 +29,7 @@
         </nav>
 
         <div class="tabs-content">
+            
             <div id="tab-pending" class="tab-pane active">
                 <div id="pending-list" class="cards-grid"></div>
                 <div id="pending-empty" class="alert alert-danger hidden mt-2 text-center">Keine ausstehenden Anfragen.</div>
@@ -52,18 +53,18 @@
                 </div>
                 
                 <div id="add-equipment-form" class="card mb-4 hidden">
-                    <h3 class="mb-2">Neues Gerät konfigurieren</h3>
+                    <h3 class="mb-2">Gerät konfigurieren</h3>
                     
                     <div class="form-row">
                         <div class="form-group">
                             <label for="eq-name">Modell Name *</label>
-                            <input type="text" id="eq-name" placeholder="z.B. Prusa MK4" />
+                            <input type="text" id="eq-name" class="form-control" placeholder="z.B. Prusa MK4" />
                         </div>
                         <div class="form-group">
                             <label for="eq-type">Gerätetyp *</label>
                             <select id="eq-type" class="form-control">
-                                <option value="FDM_Printer">FDM Drucker</option>
-                                <option value="SLA_Printer">SLA Drucker</option>
+                                <option value="FDM_Printer">FDM Drucker (Filament)</option>
+                                <option value="SLA_Printer">SLA Drucker (Resin)</option>
                                 <option value="Laser_Cutter">Lasercutter</option>
                                 <option value="CNC_Mill">CNC Fräse</option>
                                 <option value="Printer">Papierdrucker</option>
@@ -71,35 +72,60 @@
                         </div>
                     </div>
 
-                    <label class="text-muted text-sm mb-1">Bauraum / Arbeitsfläche (in mm)</label>
+                    <label class="text-muted text-sm mb-1" style="display:block; margin-top:10px;">Bauraum / Arbeitsfläche (in mm)</label>
                     <div class="form-row">
                         <div class="form-group">
                             <label for="eq-dim-x">Breite (X)</label>
-                            <input type="number" id="eq-dim-x" placeholder="z.B. 250" />
+                            <input type="number" id="eq-dim-x" class="form-control" placeholder="250" />
                         </div>
                         <div class="form-group">
                             <label for="eq-dim-y">Tiefe (Y)</label>
-                            <input type="number" id="eq-dim-y" placeholder="z.B. 210" />
+                            <input type="number" id="eq-dim-y" class="form-control" placeholder="210" />
                         </div>
                         <div class="form-group" id="group-dim-z">
                             <label for="eq-dim-z">Höhe (Z)</label>
-                            <input type="number" id="eq-dim-z" placeholder="z.B. 200" />
+                            <input type="number" id="eq-dim-z" class="form-control" placeholder="200" />
                         </div>
                     </div>
 
-                    <div class="form-group mb-2">
+                    <div id="group-materials" class="hidden" style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px;">
+                        <h4 style="font-size: 1rem; margin-bottom: 10px;">Material Profile (Filamente)</h4>
+                        
+                        <div id="material-list" style="margin-bottom: 15px; border: 1px solid #eee; border-radius: 4px; max-height: 150px; overflow-y: auto;">
+                            </div>
+
+                        <div style="display: flex; gap: 8px; align-items: center; background: #f8f9fa; padding: 10px; border-radius: 6px;">
+                            <div style="flex: 2;">
+                                <input type="text" id="mat-name" class="form-control" placeholder="Name (z.B. PLA)" style="margin:0;">
+                            </div>
+                            <div style="flex: 1;">
+                                <input type="number" id="mat-nozzle" class="form-control" placeholder="Düse °C" style="margin:0;">
+                            </div>
+                            <div style="flex: 1;">
+                                <input type="number" id="mat-bed" class="form-control" placeholder="Bett °C" style="margin:0;">
+                            </div>
+                            <div>
+                                <input type="color" id="mat-color" value="#ffffff" title="Farbe für Vorschau" style="width: 40px; height: 38px; padding: 0; border: 1px solid #ccc; border-radius: 4px; cursor: pointer;">
+                            </div>
+                            <button type="button" id="btn-add-material" class="btn btn-secondary btn-sm" style="height: 38px; min-width: 40px;" title="Hinzufügen">
+                                <i data-lucide="plus"></i>
+                            </button>
+                        </div>
+                        <small class="text-muted" style="display:block; margin-top:5px;">Diese Temperaturen werden fest für diesen Drucker hinterlegt.</small>
+                    </div>
+                    <div class="form-group mb-2" style="margin-top: 15px;">
                         <label for="eq-image">Bild URL</label>
-                        <input type="text" id="eq-image" placeholder="https://..." />
+                        <input type="text" id="eq-image" class="form-control" placeholder="https://..." />
                     </div>
 
                     <div class="form-group mb-2">
                         <label for="eq-desc">Beschreibung *</label>
-                        <textarea id="eq-desc" rows="3"></textarea>
+                        <textarea id="eq-desc" rows="3" class="form-control"></textarea>
                     </div>
 
-                    <div class="text-right">
+                    <div class="text-right" style="margin-top: 20px;">
                         <button id="btn-cancel-equipment" class="btn btn-secondary">Abbrechen</button>
-                        <button id="btn-save-equipment" class="btn btn-primary">Speichern</button>
+                        <button id="btn-save-equipment" class="btn btn-primary">Gerät Speichern</button>
                     </div>
                 </div>
 
@@ -115,7 +141,7 @@
     <div class="modal-box card">
         <h3 class="mb-1">Buchung ablehnen</h3>
         <p class="text-muted mb-2">Grund für den Studenten:</p>
-        <textarea id="reject-reason" rows="4" class="w-full mb-2" placeholder="z.B. Datei nicht druckbar..."></textarea>
+        <textarea id="reject-reason" rows="4" class="form-control w-full mb-2" placeholder="z.B. Datei nicht druckbar oder Material nicht vorrätig..."></textarea>
         <div class="text-right">
             <button id="btn-cancel-reject" class="btn btn-secondary">Abbrechen</button>
             <button id="btn-confirm-reject" class="btn btn-danger">Ablehnen bestätigen</button>
