@@ -1,8 +1,8 @@
 // 1. Status: Passt jetzt zum erweiterten Java-Enum
-export type GeraeteStatus = 'Available' | 'Unavailable';
+export type DeviceStatus = 'Available' | 'Unavailable';
 
 // 2. Typen: Passend zum Java-Enum DeviceType
-export type GeraeteTyp = 'FDM_Printer' | 'SLA_Printer' | 'Laser_Cutter' | 'CNC_Mill' | 'Printer';
+export type DeviceTyp = 'FDM_Printer' | 'SLA_Printer' | 'Laser_Cutter' | 'CNC_Mill' | 'Printer';
 
 // --- Options-Strukturen (Admin definiert diese im Backend) ---
 
@@ -46,42 +46,42 @@ export interface ThreeDJobSettings {
 
 // --- Haupt-Interfaces für die Geräte ---
 
-interface BaseGeraet {
+interface BaseDevice {
     id: number; // Backend sendet Integer
     name: string;
     description: string;
     image: string;
-    status: GeraeteStatus;
+    status: DeviceStatus;
     model?: string;
     print_options?: ThreeDOptions | LaserOptions | PaperOptions;
 }
 
 // Discriminated Unions für Typ-Sicherheit
 
-export interface FDMPrinter extends BaseGeraet {
+export interface FDMPrinter extends BaseDevice {
     type: 'FDM_Printer';
     print_options: ThreeDOptions;
 }
 
-export interface SLAPrinter extends BaseGeraet {
+export interface SLAPrinter extends BaseDevice {
     type: 'SLA_Printer';
     print_options: ThreeDOptions;
 }
 
-export interface LaserCutter extends BaseGeraet {
+export interface LaserCutter extends BaseDevice {
     type: 'Laser_Cutter';
     print_options: LaserOptions;
 }
 
-export interface CNCMill extends BaseGeraet {
+export interface CNCMill extends BaseDevice {
     type: 'CNC_Mill';
     print_options: LaserOptions; 
 }
 
-export interface PaperPrinter extends BaseGeraet {
+export interface PaperPrinter extends BaseDevice {
     type: 'Printer'; 
     print_options: PaperOptions;
 }
 
 // Der finale Typ für die Verwendung im Code
-export type Geraet = FDMPrinter | SLAPrinter | LaserCutter | CNCMill | PaperPrinter;
+export type Device = FDMPrinter | SLAPrinter | LaserCutter | CNCMill | PaperPrinter;

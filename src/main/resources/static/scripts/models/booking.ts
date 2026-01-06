@@ -19,7 +19,7 @@ export interface NewPrintBooking {
     notes?: string;
 }
 
-export interface Buchungsverfuegbarkeit {
+export interface BookingAvailability {
     blockedWeekDays: number[];
     fullyBookedDays: Date[];
     partialyBookedDays: Date[];
