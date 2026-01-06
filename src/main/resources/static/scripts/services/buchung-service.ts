@@ -18,6 +18,7 @@ export let MOCK_BOOKING: PrintBooking[] = [
         notes: 'Architektur-Modell M 1:50, Sperrholz 4mm.',
         status: 'pending'
     },
+    // ... restliche Mocks ...
     {
         id: 'b-new-3',
         printerName: 'HP DesignJet T650',
@@ -34,7 +35,6 @@ export let MOCK_BOOKING: PrintBooking[] = [
         notes: 'Langer Druck, 4-farbig. Datei liegt auf dem Stick bei.',
         status: 'pending'
     },
-
     // Active
     {
         id: 'b-active-1',
@@ -43,7 +43,6 @@ export let MOCK_BOOKING: PrintBooking[] = [
         endDate: new Date(2025, 10, 24, 12, 0),
         notes: 'Ersatzteile für Roboter-AG',
         status: 'running',
-        // Dummy URL
         videoUrl: 'https://images.unsplash.com/photo-1629739824696-e13c6d67b2be?q=80&w=1000&auto=format&fit=crop' 
     },
     {
@@ -100,8 +99,9 @@ export let MOCK_BOOKING: PrintBooking[] = [
     }
 ];
 
-// API 
+// API Functions
 
+// Returns sync array because admin.ts expects direct array (for now)
 export function getAllBookings(): PrintBooking[] {
     return MOCK_BOOKING;
 }
@@ -110,36 +110,39 @@ export function getBookingsForEmail(email: string): PrintBooking[] {
     return MOCK_BOOKING;
 }
 
-export function updateBookingStatus(id: string, newStatus: PrintBooking['status'], message?: string) {
+// CHANGED TO ASYNC: This fixes the 'Property then does not exist' error in admin.ts
+export async function updateBookingStatus(id: string, newStatus: PrintBooking['status'], message?: string): Promise<void> {
     const b = MOCK_BOOKING.find(x => x.id === id);
     if (b) {
         b.status = newStatus;
         if(message) b.message = message;
     }
+    // Simulate network delay if you want
+    // await new Promise(r => setTimeout(r, 100));
 }
 
-export function createNewBooking(newBooking: NewPrintBooking) {
-    const printer = getGeraetById(newBooking.printerId);
+export async function createNewBooking(newBooking: NewPrintBooking) {
+    // newBooking.printerId is now a number. getGeraetById expects number.
+    // Casting or direct usage works if NewPrintBooking interface has number type for printerId.
+    // Assuming newBooking.printerId is number based on updated models.
+    const printer = await getGeraetById(newBooking.printerId);
     
     const booking: PrintBooking = {
         id: `book-${Date.now()}`,
-        printerName: printer ? printer.name : 'Unbekannt',
+        printerName: printer ? printer.name : 'Unknown',
         startDate: newBooking.startDate,
         endDate: newBooking.endDate,
         notes: newBooking.notes,
         status: 'pending'
     };
     MOCK_BOOKING.push(booking);
-    console.log("Buchung angelegt:", booking);
+    console.log("Booking created locally (Mock):", booking);
 }
 
-export function getBuchungsverfuegbarkeitByGeraetId(id: string): Buchungsverfuegbarkeit {
-    // While no backend, ID is never checked
+export function getBuchungsverfuegbarkeitByGeraetId(id: string | number): Buchungsverfuegbarkeit {
     // Static MOCK Data
     return {
-        blockedWeekDays: [
-            5, 6 // Sa and So blocked (0 Indexed)
-        ],
+        blockedWeekDays: [ 5, 6 ], // Sa, Su
         fullyBookedDays: [
             new Date(2025, 11, 16),
             new Date(2025, 11, 17),

@@ -5,6 +5,7 @@ import { setCookie } from "./services/auth-service.js";
 import { Geraet } from "./models/geraet.js";
 
 type BuchenPageState = 'loading' | 'error' | 'ready';
+
 interface DateSelectorOption {
     value: string;
     selectable: boolean;
@@ -24,19 +25,33 @@ let currentDateSelectorMonth: number = new Date().getMonth();
 let geraet: Geraet;
 let buchungsverfuegbarkeit: Buchungsverfuegbarkeit;
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     const urlParams = new URLSearchParams(window.location.search);
-    const geraetId = urlParams.get('geraet_id');
+    const geraetIdStr = urlParams.get('geraet_id');
 
-    if (!geraetId || !getGeraetById(geraetId)) {
+    // Parse ID to number because DB uses integers
+    const geraetId = parseInt(geraetIdStr || '0');
+
+    if (!geraetIdStr || isNaN(geraetId)) {
         updateState('error');
         return;
     }
 
-    geraet = getGeraetById(geraetId)!;
-    buchungsverfuegbarkeit = getBuchungsverfuegbarkeitByGeraetId(geraetId);
+    // Fetch real device data from Backend via Service
+    const foundGeraet = await getGeraetById(geraetId);
 
-    // Printer Info setzen
+    if (!foundGeraet) {
+        console.error(`Device with ID ${geraetId} not found.`);
+        updateState('error');
+        return;
+    }
+
+    geraet = foundGeraet;
+    
+    // Mock availability (Backend logic not ready yet)
+    buchungsverfuegbarkeit = getBuchungsverfuegbarkeitByGeraetId(geraetIdStr!);
+
+    // Populate UI
     document.getElementById('printerInfo-Name')!.innerText = geraet.name;
     document.getElementById('printerInfo-Description')!.innerText = geraet.description;
 
@@ -50,7 +65,8 @@ document.addEventListener('DOMContentLoaded', () => {
     updateState('ready');
 });
 
-function handleFormSubmit(e: Event) {
+// Made async to await the booking creation
+async function handleFormSubmit(e: Event) {
     e.preventDefault();
     const email = (document.getElementById('email') as HTMLInputElement).value;
     const start = (document.getElementById('start') as HTMLInputElement).value;
@@ -58,18 +74,20 @@ function handleFormSubmit(e: Event) {
     const notes = (document.getElementById('notes') as HTMLTextAreaElement).value;
 
     if (!currentlySelectedDate || start >= end) {
-        alert("Bitte prüfe Datum und Uhrzeit.");
+        alert("Please check date and time.");
         return;
     }
 
+    // printerId must be number now
     const booking: NewPrintBooking = {
-        printerId: geraet.id,
+        printerId: geraet.id, 
         startDate: createDateTime(currentlySelectedDate, start),
         endDate: createDateTime(currentlySelectedDate, end),
         notes: notes
     };
 
-    createNewBooking(booking);
+    await createNewBooking(booking);
+    
     setCookie('userEmail', email, 30);
     window.location.href = "meine-drucke.html";
 }
@@ -80,7 +98,6 @@ function renderDateSelector(selectedDate: Date | undefined, year: number, month:
     
     header.innerText = new Date(year, month).toLocaleString('de-DE', { month: 'long', year: 'numeric' });
 
-    // empty grid
     while (grid.children.length > 1) grid.removeChild(grid.lastElementChild!);
 
     const firstWeekDay = (new Date(year, month, 1).getDay() + 6) % 7;
@@ -90,8 +107,9 @@ function renderDateSelector(selectedDate: Date | undefined, year: number, month:
 
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-    for (let i = 1; i <= new Date(year, month + 1, 0).getDate(); i++) {
+    for (let i = 1; i <= daysInMonth; i++) {
         const date = new Date(year, month, i);
         let status: DateSelectorOption['status'] = 'availible';
         let selectable = true;
@@ -107,7 +125,6 @@ function renderDateSelector(selectedDate: Date | undefined, year: number, month:
         days.push({ value: i.toString(), selectable, isSelected: date.getTime() === selectedDate?.getTime(), status, date });
     }
 
-    // fill grid
     const rowCount = Math.ceil(days.length / 7);
     for (let r = 0; r < rowCount; r++) {
         const row = document.createElement('div');

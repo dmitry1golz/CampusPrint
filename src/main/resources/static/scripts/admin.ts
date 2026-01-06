@@ -1,34 +1,66 @@
 import { PrintBooking } from './models/buchung.js';
-import { Geraet } from './models/geraet.js';
+import { Geraet, ThreeDOptions, LaserOptions, PaperOptions, GeraeteStatus, GeraeteTyp, MaterialProfile } from './models/geraet.js';
 import { getAllBookings, updateBookingStatus } from './services/buchung-service.js';
 import { getAllGeraete, addGeraet, deleteGeraet, updateGeraetStatus } from './services/geraet-service.js';
 import { requireAuth } from './services/auth-service.js';
+
+declare global { interface Window { lucide: { createIcons: () => void; }; } }
 
 requireAuth();
 
 document.addEventListener('DOMContentLoaded', () => {
 
+    // --- STATE ---
+    let editingDeviceId: number | null = null;
     let currentRejectId: string | null = null;
-    let editingDeviceId: string | null = null;
+    
+    // Temporäre Speicher für die Listen
+    let tempMaterials: MaterialProfile[] = [];
+    let tempLaserPresets: { material: string; thickness: number; power: number; speed: number }[] = [];
+    let tempPaperFormats: string[] = [];
+
+    // --- DOM HELPER ---
+    const getIn = (id: string) => document.getElementById(id) as HTMLInputElement;
+    const getSel = (id: string) => document.getElementById(id) as HTMLSelectElement;
+    const getArea = (id: string) => document.getElementById(id) as HTMLTextAreaElement;
+    const getDiv = (id: string) => document.getElementById(id) as HTMLDivElement;
 
     const containers = {
-        pending: document.getElementById('pending-list') as HTMLDivElement,
-        active: document.getElementById('active-list') as HTMLDivElement,
-        completed: document.getElementById('completed-list') as HTMLDivElement,
-        equipment: document.getElementById('equipment-list') as HTMLDivElement
+        equipment: getDiv('equipment-list'),
+        pending: getDiv('pending-list'),
+        active: getDiv('active-list'),
+        completed: getDiv('completed-list')
     };
 
     const forms = {
-        add: document.getElementById('add-equipment-form') as HTMLDivElement,
-        formTitle: document.querySelector('#add-equipment-form h3') as HTMLHeadingElement,
-        typeSelect: document.getElementById('eq-type') as HTMLSelectElement,
-        specific3d: document.getElementById('specific-3d-fields') as HTMLDivElement,
-        volumeLabel: document.getElementById('label-volume') as HTMLLabelElement
+        add: getDiv('add-equipment-form'),
+        title: document.querySelector('#add-equipment-form h3') as HTMLHeadingElement,
+        type: getSel('eq-type'),
+        dimX: getIn('eq-dim-x'), dimY: getIn('eq-dim-y'), dimZ: getIn('eq-dim-z'),
+        
+        // Gruppen
+        groupZ: getDiv('group-dim-z'),
+        groupMaterials: getDiv('group-materials'),
+        groupLaser: getDiv('group-laser-presets'),
+        groupPaper: getDiv('group-paper-config'),
+
+        // Listen-Container
+        listMat: getDiv('material-list'),
+        listLas: getDiv('laser-list'),
+        listPap: getDiv('paper-list')
     };
 
+    // Inputs für Hinzufügen
+    const inpMat = { name: getIn('mat-name'), nozzle: getIn('mat-nozzle'), bed: getIn('mat-bed'), color: getIn('mat-color'), btn: document.getElementById('btn-add-material') };
+    const inpLas = { mat: getIn('las-mat'), thick: getIn('las-thick'), power: getIn('las-power'), speed: getIn('las-speed'), btn: document.getElementById('btn-add-laser') };
+    const inpPap = { fmt: getIn('pap-format'), btn: document.getElementById('btn-add-paper') };
+
+    // Modal
     const modal = {
-        element: document.getElementById('reject-modal') as HTMLDivElement,
-        reasonInput: document.getElementById('reject-reason') as HTMLTextAreaElement
+        element: getDiv('reject-modal'),
+        reasonInput: getArea('reject-reason'),
+        btnConfirm: document.getElementById('btn-confirm-reject'),
+        btnCancel: document.getElementById('btn-cancel-reject')
     };
 
     init();
@@ -40,19 +72,385 @@ document.addEventListener('DOMContentLoaded', () => {
         handleTypeChange();
     }
 
-    function renderAll() {
-        const bookings = getAllBookings();
-        const equipment = getAllGeraete();
+    async function renderAll() {
+        try {
+            const bookings = getAllBookings();
+            const equipment = await getAllGeraete();
+            
+            renderBookingList('pending', bookings, containers.pending);
+            renderBookingList('active', bookings, containers.active);
+            renderBookingList('completed', bookings, containers.completed);
+            
+            renderEquipmentList(equipment);
+            
+            updateCounts(bookings, equipment);
+            
+            if (window.lucide) window.lucide.createIcons();
+        } catch(e) { 
+            console.error("Fehler beim Laden:", e); 
+        }
+    }
 
-        renderBookingList('pending', bookings, containers.pending);
-        renderBookingList('active', bookings, containers.active);
-        renderBookingList('completed', bookings, containers.completed);
-        renderEquipmentList(equipment);
+    // --- RENDER LISTEN HELPER ---
+
+    function renderMaterialList() {
+        forms.listMat.innerHTML = '';
+        const isSLA = forms.type.value === 'SLA_Printer';
         
-        updateCounts(bookings, equipment);
+        if (tempMaterials.length === 0) {
+            forms.listMat.innerHTML = '<div class="text-muted text-sm text-center">Keine Materialien.</div>';
+            return;
+        }
+
+        tempMaterials.forEach((m, i) => {
+            const tempInfo = isSLA ? '' : `<span class="text-muted">(${m.temp_nozzle}°C / ${m.temp_bed}°C)</span>`;
+            const row = document.createElement('div');
+            row.className = 'item-row';
+            row.innerHTML = `
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <div style="width:12px; height:12px; background:${m.color_hex}; border-radius:50%; border:1px solid #ccc;"></div>
+                    <strong>${m.name}</strong> ${tempInfo}
+                </div>
+                <button class="btn-del text-danger" style="background:none; border:none; cursor:pointer;" data-idx="${i}" data-type="mat">✕</button>
+            `;
+            forms.listMat.appendChild(row);
+        });
+    }
+
+    function renderLaserList() {
+        forms.listLas.innerHTML = '';
+        if (tempLaserPresets.length === 0) {
+            forms.listLas.innerHTML = '<div class="text-muted text-sm text-center">Keine Presets.</div>';
+            return;
+        }
+        tempLaserPresets.forEach((p, i) => {
+            const row = document.createElement('div');
+            row.className = 'item-row';
+            row.innerHTML = `
+                <div><strong>${p.material}</strong> (${p.thickness}mm) - P:${p.power}% S:${p.speed}%</div>
+                <button class="btn-del text-danger" style="background:none; border:none; cursor:pointer;" data-idx="${i}" data-type="las">✕</button>
+            `;
+            forms.listLas.appendChild(row);
+        });
+    }
+
+    function renderPaperList() {
+        forms.listPap.innerHTML = '';
+        if (tempPaperFormats.length === 0) {
+            forms.listPap.innerHTML = '<div class="text-muted text-sm text-center">Keine Formate.</div>';
+            return;
+        }
+        tempPaperFormats.forEach((f, i) => {
+            const row = document.createElement('div');
+            row.className = 'item-row';
+            row.innerHTML = `
+                <strong>${f}</strong>
+                <button class="btn-del text-danger" style="background:none; border:none; cursor:pointer;" data-idx="${i}" data-type="pap">✕</button>
+            `;
+            forms.listPap.appendChild(row);
+        });
+    }
+
+    // Globale Delete Listener für alle Listen
+    document.addEventListener('click', (e) => {
+        const target = e.target as HTMLElement;
+        if (target.classList.contains('btn-del')) {
+            const idx = parseInt(target.dataset.idx || '0');
+            const type = target.dataset.type;
+            if (type === 'mat') { tempMaterials.splice(idx, 1); renderMaterialList(); }
+            if (type === 'las') { tempLaserPresets.splice(idx, 1); renderLaserList(); }
+            if (type === 'pap') { tempPaperFormats.splice(idx, 1); renderPaperList(); }
+        }
+    });
+
+    // --- FORM LOGIC ---
+
+    function handleTypeChange() {
+        if(!forms.type) return;
+        const t = forms.type.value;
+        const isFDM = t === 'FDM_Printer';
+        const isSLA = t === 'SLA_Printer';
+        const isLaser = t === 'Laser_Cutter' || t === 'CNC_Mill';
+        const isPaper = t === 'Printer';
+
+        // Sichtbarkeit der Hauptgruppen
+        if(forms.groupZ) forms.groupZ.classList.toggle('hidden', !isFDM && !isSLA);
+        if(forms.groupMaterials) forms.groupMaterials.classList.toggle('hidden', !isFDM && !isSLA);
+        if(forms.groupLaser) forms.groupLaser.classList.toggle('hidden', !isLaser);
+        if(forms.groupPaper) forms.groupPaper.classList.toggle('hidden', !isPaper);
+
+        // Spezial: Temperatur-Inputs bei SLA ausblenden
+        document.querySelectorAll('.temp-input').forEach(el => {
+            (el as HTMLElement).style.display = isSLA ? 'none' : 'block';
+        });
         
-        // @ts-ignore
-        if (window.lucide) window.lucide.createIcons();
+        // Überschriften anpassen
+        const matHeader = forms.groupMaterials?.querySelector('h4');
+        if(matHeader) matHeader.textContent = isSLA ? 'Harze (Resins)' : 'Materialien (Filamente)';
+        
+        // Listen neu zeichnen (um UI Glitches zu vermeiden)
+        if(isFDM || isSLA) renderMaterialList();
+        if(isLaser) renderLaserList();
+        if(isPaper) renderPaperList();
+    }
+
+    async function handleSave() {
+        const name = getIn('eq-name').value;
+        const type = forms.type.value as GeraeteTyp;
+        const desc = getArea('eq-desc').value;
+        
+        if (!name || !desc) { alert('Name & Beschreibung fehlen.'); return; }
+
+        const all = await getAllGeraete();
+        const old = editingDeviceId ? all.find(g => g.id === editingDeviceId) : null;
+        const oldStatus = old ? old.status : 'Available';
+        const oldModel = old && old.model ? old.model : '';
+
+        const base = {
+            id: editingDeviceId || 0,
+            name, type, description: desc, status: oldStatus, 
+            image: getIn('eq-image').value, model: oldModel
+        };
+
+        const x = Number(forms.dimX.value)||0; 
+        const y = Number(forms.dimY.value)||0; 
+        const z = Number(forms.dimZ.value)||0;
+        let final: Geraet;
+
+        if (type === 'FDM_Printer') {
+            const opts: ThreeDOptions = {
+                tech_type: 'FDM',
+                dimensions: {x,y,z},
+                available_materials: tempMaterials, 
+                supported_layer_heights: [0.1, 0.2],
+                nozzle_sizes: [0.4]
+            };
+            final = { ...base, type, print_options: opts } as Geraet;
+        } else if (type === 'SLA_Printer') {
+            const opts: ThreeDOptions = {
+                tech_type: 'SLA',
+                dimensions: {x,y,z},
+                available_materials: tempMaterials, 
+                supported_layer_heights: [0.05]
+            };
+            final = { ...base, type, print_options: opts } as Geraet;
+        } else if (type === 'Laser_Cutter' || type === 'CNC_Mill') {
+            const opts: LaserOptions = {
+                tech_type: 'LASER',
+                work_area: {x,y},
+                presets: tempLaserPresets
+            };
+            // @ts-ignore
+            final = { ...base, type, print_options: opts } as Geraet;
+        } else {
+            const opts: PaperOptions = {
+                tech_type: 'PAPER',
+                paper_weights: [80], 
+                formats: tempPaperFormats
+            };
+            final = { ...base, type: 'Printer', print_options: opts } as Geraet;
+        }
+
+        await addGeraet(final);
+        closeForm();
+        renderAll();
+    }
+
+    async function openEdit(idStr: string) {
+        const id = parseInt(idStr);
+        const all = await getAllGeraete();
+        const dev = all.find(g => g.id === id);
+        if(!dev) return;
+
+        editingDeviceId = id;
+        forms.title.textContent = 'Gerät bearbeiten';
+        
+        // Basisdaten
+        getIn('eq-name').value = dev.name;
+        forms.type.value = dev.type;
+        getArea('eq-desc').value = dev.description;
+        getIn('eq-image').value = dev.image;
+
+        // Reset Listen
+        tempMaterials = [];
+        tempLaserPresets = [];
+        tempPaperFormats = [];
+
+        // Optionen laden
+        if (dev.print_options) {
+            const opts = dev.print_options;
+            
+            // Dimensionen laden
+            if('dimensions' in opts) {
+                forms.dimX.value = opts.dimensions.x.toString();
+                forms.dimY.value = opts.dimensions.y.toString();
+                forms.dimZ.value = opts.dimensions.z.toString();
+            } else if ('work_area' in opts) {
+                forms.dimX.value = opts.work_area.x.toString();
+                forms.dimY.value = opts.work_area.y.toString();
+                forms.dimZ.value = '';
+            }
+
+            // Spezifische Listen laden
+            if (dev.type === 'FDM_Printer' || dev.type === 'SLA_Printer') {
+                const o = opts as ThreeDOptions;
+                if(o.available_materials) tempMaterials = [...o.available_materials];
+            } else if (dev.type === 'Laser_Cutter' || dev.type === 'CNC_Mill') {
+                const o = opts as LaserOptions;
+                if(o.presets) tempLaserPresets = [...o.presets];
+            } else if (dev.type === 'Printer') {
+                const o = opts as PaperOptions;
+                if(o.formats) tempPaperFormats = [...o.formats];
+            }
+        }
+
+        handleTypeChange();
+        renderMaterialList();
+        renderLaserList();
+        renderPaperList();
+        
+        forms.add.classList.remove('hidden');
+        forms.add.scrollIntoView({behavior:'smooth'});
+    }
+
+    function closeForm() {
+        forms.add.classList.add('hidden');
+        editingDeviceId = null;
+        getIn('eq-name').value = '';
+        getArea('eq-desc').value = '';
+        getIn('eq-image').value = '';
+        forms.dimX.value=''; forms.dimY.value=''; forms.dimZ.value='';
+    }
+
+    // --- EVENT LISTENERS ---
+    function setupEventListeners() {
+        // Global Actions
+        document.addEventListener('click', async (e) => {
+            const btn = (e.target as HTMLElement).closest('.action-btn') as HTMLElement;
+            if (!btn) return;
+            const { action, id } = btn.dataset;
+            if(!id) return;
+            const numId = parseInt(id);
+
+            if (action === 'edit-device') openEdit(id);
+            if (action === 'delete-device') if(confirm('Löschen?')) { await deleteGeraet(numId); renderAll(); }
+            if (action === 'set-unavailable') { await updateGeraetStatus(numId, 'Unavailable'); renderAll(); }
+            if (action === 'set-available') { await updateGeraetStatus(numId, 'Available'); renderAll(); }
+            
+            // Buchungs Actions
+            if (action === 'confirm') { await updateBookingStatus(id, 'confirmed'); renderAll(); }
+            if (action === 'run') { await updateBookingStatus(id, 'running'); renderAll(); }
+            if (action === 'complete') { await updateBookingStatus(id, 'completed'); renderAll(); }
+            if (action === 'reject') { 
+                currentRejectId = id; 
+                if(modal.element) modal.element.classList.remove('hidden'); 
+            }
+        });
+
+        // Add Material (FDM/SLA)
+        inpMat.btn?.addEventListener('click', () => {
+            if(inpMat.name.value) {
+                tempMaterials.push({
+                    name: inpMat.name.value,
+                    temp_nozzle: Number(inpMat.nozzle.value)||0,
+                    temp_bed: Number(inpMat.bed.value)||0,
+                    color_hex: inpMat.color.value
+                });
+                renderMaterialList();
+                inpMat.name.value=''; inpMat.nozzle.value=''; inpMat.bed.value='';
+            }
+        });
+
+        // Add Laser Preset
+        inpLas.btn?.addEventListener('click', () => {
+            if(inpLas.mat.value) {
+                tempLaserPresets.push({
+                    material: inpLas.mat.value,
+                    thickness: Number(inpLas.thick.value)||0,
+                    power: Number(inpLas.power.value)||0,
+                    speed: Number(inpLas.speed.value)||0
+                });
+                renderLaserList();
+                inpLas.mat.value=''; inpLas.thick.value='';
+            }
+        });
+
+        // Add Paper Format
+        inpPap.btn?.addEventListener('click', () => {
+            if(inpPap.fmt.value) {
+                tempPaperFormats.push(inpPap.fmt.value);
+                renderPaperList();
+                inpPap.fmt.value = '';
+            }
+        });
+
+        // Save / Cancel / Show Add
+        document.getElementById('btn-save-equipment')?.addEventListener('click', handleSave);
+        document.getElementById('btn-cancel-equipment')?.addEventListener('click', closeForm);
+        forms.type?.addEventListener('change', handleTypeChange);
+        
+        document.getElementById('btn-show-add-equipment')?.addEventListener('click', () => {
+            closeForm(); // Reset
+            forms.title.textContent = 'Neues Gerät';
+            tempMaterials=[]; tempLaserPresets=[]; tempPaperFormats=[];
+            renderMaterialList(); renderLaserList(); renderPaperList();
+            forms.add.classList.remove('hidden');
+            handleTypeChange();
+        });
+
+        // Reject Modal
+        modal.btnCancel?.addEventListener('click', () => modal.element.classList.add('hidden'));
+        modal.btnConfirm?.addEventListener('click', async () => {
+            if (currentRejectId && modal.reasonInput.value) {
+                await updateBookingStatus(currentRejectId, 'rejected', modal.reasonInput.value);
+                modal.element.classList.add('hidden');
+                modal.reasonInput.value = '';
+                currentRejectId = null;
+                renderAll();
+            }
+        });
+    }
+
+    // --- OTHER HELPERS (WICHTIG: NICHT MEHR LEER LASSEN) ---
+    
+    function renderEquipmentList(equipment: Geraet[]) {
+        if (!containers.equipment) return;
+        containers.equipment.innerHTML = '';
+        equipment.forEach(eq => {
+            const card = document.createElement('div');
+            card.className = 'card';
+            const statusBtn = eq.status === 'Available' 
+                ? `<button class="btn btn-secondary btn-sm action-btn" data-action="set-unavailable" data-id="${eq.id}">Deaktivieren</button>` 
+                : `<button class="btn btn-primary btn-sm action-btn" data-action="set-available" data-id="${eq.id}">Aktivieren</button>`;
+
+            let info = 'Keine Details';
+            if (eq.print_options) {
+                // Defensive Prüfung, da Backend-Daten theoretisch fehlen könnten
+                if((eq.type === 'FDM_Printer') && 'available_materials' in eq.print_options) 
+                    info = `${(eq.print_options as ThreeDOptions).available_materials?.length || 0} Filamente`;
+                else if((eq.type === 'SLA_Printer') && 'available_materials' in eq.print_options) 
+                    info = `${(eq.print_options as ThreeDOptions).available_materials?.length || 0} Harze`;
+                else if((eq.type === 'Laser_Cutter') && 'presets' in eq.print_options) 
+                    info = `${(eq.print_options as LaserOptions).presets?.length || 0} Presets`;
+                else if((eq.type === 'Printer') && 'formats' in eq.print_options) 
+                    info = `${(eq.print_options as PaperOptions).formats?.join(', ')}`;
+            }
+
+            card.innerHTML = `
+                <div class="card-header"><h3 class="card-title">${eq.name}</h3><span class="badge ${eq.status==='Available'?'confirmed':'pending'}">${eq.status === 'Available' ? 'Verfügbar' : 'Nicht Verfügbar'}</span></div>
+                <div class="card-body">
+                    ${eq.image ? `<img src="${eq.image}" style="width:100%; height:100px; object-fit:cover; margin-bottom:8px;">` : ''}
+                    <p>Typ: ${eq.type}</p>
+                    <p class="text-muted text-sm">${info}</p>
+                </div>
+                <div class="card-actions">
+                    <button class="btn btn-secondary btn-sm action-btn" data-action="edit-device" data-id="${eq.id}">Edit</button>
+                    ${statusBtn}
+                    <button class="btn btn-danger btn-sm action-btn" data-action="delete-device" data-id="${eq.id}"><i data-lucide="trash-2"></i></button>
+                </div>
+            `;
+            containers.equipment.appendChild(card);
+        });
     }
 
     function renderBookingList(viewType: string, allBookings: PrintBooking[], container: HTMLDivElement) {
@@ -69,7 +467,6 @@ document.addEventListener('DOMContentLoaded', () => {
             emptyMsg?.classList.remove('hidden');
         } else {
             emptyMsg?.classList.add('hidden');
-            
             filtered.forEach(b => {
                 const card = document.createElement('div');
                 card.className = 'card';
@@ -77,181 +474,28 @@ document.addEventListener('DOMContentLoaded', () => {
                 let actionsHtml = '';
                 if (b.status === 'pending') {
                     actionsHtml = `
-                        <button class="btn btn-primary action-btn" data-action="confirm" data-id="${b.id}" title="Annehmen"><i data-lucide="check"></i></button>
-                        <button class="btn btn-danger action-btn" data-action="reject" data-id="${b.id}" title="Ablehnen"><i data-lucide="x"></i></button>
+                        <button class="btn btn-primary action-btn" data-action="confirm" data-id="${b.id}"><i data-lucide="check"></i></button>
+                        <button class="btn btn-danger action-btn" data-action="reject" data-id="${b.id}"><i data-lucide="x"></i></button>
                     `;
-                } else if (b.status === 'confirmed') {
-                    actionsHtml = `<button class="btn btn-primary action-btn w-full" data-action="run" data-id="${b.id}">Druck starten</button>`;
-                } else if (b.status === 'running') {
-                    actionsHtml = `<button class="btn btn-primary action-btn w-full" data-action="complete" data-id="${b.id}">Druck abschließen</button>`;
-                }
+                } else if (b.status === 'confirmed') actionsHtml = `<button class="btn btn-primary action-btn w-full" data-action="run" data-id="${b.id}">Starten</button>`;
+                else if (b.status === 'running') actionsHtml = `<button class="btn btn-primary action-btn w-full" data-action="complete" data-id="${b.id}">Abschließen</button>`;
 
                 card.innerHTML = `
-                    <div class="card-header">
-                        <h3 class="card-title">${b.printerName}</h3>
-                        <span class="badge ${b.status}">${translateStatus(b.status)}</span>
-                    </div>
-                    <div class="card-body">
-                        <p class="text-sm"><strong>Zeit:</strong> ${b.startDate} - ${b.endDate}</p>
-                        ${b.notes ? `<p class="text-sm text-muted"><strong>Notiz:</strong> ${b.notes}</p>` : ''}
-                        ${b.message ? `<p class="text-sm" style="color:var(--danger)"><strong>Grund:</strong> ${b.message}</p>` : ''}
-                    </div>
-                    <div class="card-actions">${actionsHtml}</div>
+                   <div class="card-header"><h3 class="card-title">${b.printerName}</h3><span class="badge ${b.status}">${b.status}</span></div>
+                   <div class="card-body"><p class="text-sm">${b.startDate.toLocaleDateString()}</p></div>
+                   <div class="card-actions">${actionsHtml}</div>
                 `;
                 container.appendChild(card);
             });
         }
     }
 
-    function renderEquipmentList(equipment: Geraet[]) {
-        if (!containers.equipment) return;
-        containers.equipment.innerHTML = '';
-
-        equipment.forEach(eq => {
-            const card = document.createElement('div');
-            card.className = 'card';
-            
-            const statusBtn = eq.status === 'Verfügbar' 
-                ? `<button class="btn btn-secondary btn-sm action-btn" data-action="maintenance" data-id="${eq.id}">Wartung</button>`
-                : `<button class="btn btn-primary btn-sm action-btn" data-action="available" data-id="${eq.id}">Aktivieren</button>`;
-
-            card.innerHTML = `
-                <div class="card-header">
-                    <h3 class="card-title">${eq.name}</h3>
-                    <span class="badge ${eq.status === 'Verfügbar' ? 'confirmed' : 'pending'}">${eq.status}</span>
-                </div>
-                <div class="card-body">
-                    ${eq.image ? `<img src="${eq.image}" class="mb-2" style="width:100%; height:120px; object-fit:cover; border-radius:4px;">` : ''}
-                    <p class="text-muted text-sm mb-1">${eq.description}</p>
-                    <p class="text-sm"><strong>Typ:</strong> ${eq.type}</p>
-                </div>
-                <div class="card-actions">
-                    <button class="btn btn-secondary btn-sm action-btn" data-action="edit-device" data-id="${eq.id}" title="Bearbeiten">Bearbeiten</button>
-                    ${statusBtn}
-                    <button class="btn btn-danger btn-sm action-btn" data-action="delete-device" data-id="${eq.id}"><i data-lucide="trash-2"></i></button>
-                </div>
-            `;
-            containers.equipment.appendChild(card);
-        });
-    }
-
-    function handleTypeChange() {
-        const type = forms.typeSelect.value;
-        const is3D = (type === 'FDM_Drucker' || type === 'SLA_Drucker');
-        if (is3D) {
-            forms.specific3d.classList.remove('hidden');
-            forms.volumeLabel.textContent = 'Bauvolumen';
-        } else {
-            forms.specific3d.classList.add('hidden');
-            forms.volumeLabel.textContent = type === 'Papierdrucker' ? 'Formate (A4, A3)' : 'Arbeitsbereich';
-        }
-    }
-
-    function openEditForm(id: string) {
-        const device = getAllGeraete().find(g => g.id === id);
-        if (!device) return;
-        editingDeviceId = id;
-        forms.formTitle.textContent = 'Gerät bearbeiten';
-        (document.getElementById('eq-name') as HTMLInputElement).value = device.name;
-        forms.typeSelect.value = device.type;
-        (document.getElementById('eq-desc') as HTMLTextAreaElement).value = device.description;
-        (document.getElementById('eq-volume') as HTMLInputElement).value = device.volume || '';
-        (document.getElementById('eq-image') as HTMLInputElement).value = device.image || '';
-        (document.getElementById('eq-nozzle') as HTMLInputElement).value = device.nozzle || '';
-        (document.getElementById('eq-layer') as HTMLInputElement).value = device.layer || '';
-        handleTypeChange();
-        forms.add.classList.remove('hidden');
-        forms.add.scrollIntoView({ behavior: 'smooth' });
-    }
-
-    function handleSaveEquipment() {
-        const name = (document.getElementById('eq-name') as HTMLInputElement).value;
-        const type = forms.typeSelect.value as Geraet['type'];
-        const desc = (document.getElementById('eq-desc') as HTMLTextAreaElement).value;
-
-        if (!name || !desc) {
-            alert('Bitte Name und Beschreibung angeben.');
-            return;
-        }
-
-        const deviceData: Geraet = {
-            id: editingDeviceId || Date.now().toString(),
-            name, type, description: desc,
-            status: editingDeviceId ? (getAllGeraete().find(g => g.id === editingDeviceId)?.status || 'Verfügbar') : 'Verfügbar',
-            image: (document.getElementById('eq-image') as HTMLInputElement).value,
-            volume: (document.getElementById('eq-volume') as HTMLInputElement).value,
-            nozzle: (document.getElementById('eq-nozzle') as HTMLInputElement).value || undefined,
-            layer: (document.getElementById('eq-layer') as HTMLInputElement).value || undefined
-        };
-
-        if (editingDeviceId) {
-            deleteGeraet(editingDeviceId);
-            addGeraet(deviceData);
-            editingDeviceId = null;
-        } else {
-            addGeraet(deviceData);
-        }
-
-        renderAll();
-        forms.add.classList.add('hidden');
-        resetInputs();
-    }
-
-    function setupEventListeners() {
-        document.addEventListener('click', (e) => {
-            const target = (e.target as HTMLElement).closest('.action-btn') as HTMLElement;
-            if (!target) return;
-            const { action, id } = target.dataset;
-
-            if (action === 'confirm') updateBookingStatus(id!, 'confirmed');
-            if (action === 'run') updateBookingStatus(id!, 'running');
-            if (action === 'complete') updateBookingStatus(id!, 'completed');
-            if (action === 'reject') {
-                currentRejectId = id!;
-                modal.element.classList.remove('hidden');
-            }
-            if (action === 'maintenance') updateGeraetStatus(id!, 'Wartung');
-            if (action === 'available') updateGeraetStatus(id!, 'Verfügbar');
-            if (action === 'edit-device') openEditForm(id!);
-            if (action === 'delete-device') {
-                if(confirm('Gerät wirklich löschen?')) deleteGeraet(id!);
-            }
-            renderAll();
-        });
-
-        document.getElementById('btn-show-add-equipment')?.addEventListener('click', () => {
-            editingDeviceId = null;
-            forms.formTitle.textContent = 'Neues Gerät konfigurieren';
-            resetInputs();
-            forms.add.classList.remove('hidden');
-        });
-
-        document.getElementById('btn-cancel-equipment')?.addEventListener('click', () => forms.add.classList.add('hidden'));
-        document.getElementById('btn-save-equipment')?.addEventListener('click', handleSaveEquipment);
-        forms.typeSelect.addEventListener('change', handleTypeChange);
-
-        document.getElementById('btn-cancel-reject')?.addEventListener('click', () => modal.element.classList.add('hidden'));
-        document.getElementById('btn-confirm-reject')?.addEventListener('click', () => {
-            if (currentRejectId && modal.reasonInput.value) {
-                updateBookingStatus(currentRejectId, 'rejected', modal.reasonInput.value);
-                modal.element.classList.add('hidden');
-                modal.reasonInput.value = '';
-                currentRejectId = null;
-                renderAll();
-            }
-        });
-    }
-
-    function translateStatus(s: string) {
-        const map: any = { 'pending': 'Ausstehend', 'confirmed': 'Bestätigt', 'running': 'Läuft', 'completed': 'Fertig', 'rejected': 'Abgelehnt' };
-        return map[s] || s;
-    }
-
     function updateCounts(b: PrintBooking[], e: Geraet[]) {
-        document.getElementById('count-pending')!.textContent = `(${b.filter(x => x.status === 'pending').length})`;
-        document.getElementById('count-active')!.textContent = `(${b.filter(x => ['confirmed', 'running'].includes(x.status)).length})`;
-        document.getElementById('count-completed')!.textContent = `(${b.filter(x => ['completed', 'rejected'].includes(x.status)).length})`;
-        document.getElementById('count-equipment')!.textContent = `(${e.length})`;
+        const setTxt = (id: string, txt: string) => { const el = document.getElementById(id); if(el) el.textContent = txt; };
+        setTxt('count-pending', `(${b.filter(x => x.status === 'pending').length})`);
+        setTxt('count-active', `(${b.filter(x => ['confirmed', 'running'].includes(x.status)).length})`);
+        setTxt('count-completed', `(${b.filter(x => ['completed', 'rejected'].includes(x.status)).length})`);
+        setTxt('count-equipment', `(${e.length})`);
     }
 
     function setupTabs() {
@@ -260,16 +504,8 @@ document.addEventListener('DOMContentLoaded', () => {
             tabs.forEach(x => x.classList.remove('active'));
             document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
             t.classList.add('active');
-            document.getElementById(`tab-${(t as HTMLElement).dataset.target}`)?.classList.add('active');
+            const target = (t as HTMLElement).dataset.target;
+            document.getElementById(`tab-${target}`)?.classList.add('active');
         }));
-    }
-
-    function resetInputs() {
-        (document.getElementById('eq-name') as HTMLInputElement).value = '';
-        (document.getElementById('eq-desc') as HTMLTextAreaElement).value = '';
-        (document.getElementById('eq-volume') as HTMLInputElement).value = '';
-        (document.getElementById('eq-image') as HTMLInputElement).value = '';
-        (document.getElementById('eq-nozzle') as HTMLInputElement).value = '';
-        (document.getElementById('eq-layer') as HTMLInputElement).value = '';
     }
 });

@@ -13,7 +13,7 @@ export interface PrintBooking {
 }
 
 export interface NewPrintBooking {
-    printerId: string;
+    printerId: number;
     startDate: Date;
     endDate: Date;
     notes?: string;
