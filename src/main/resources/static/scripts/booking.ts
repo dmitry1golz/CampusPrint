@@ -1,10 +1,10 @@
-import { createNewBooking, getBuchungsverfuegbarkeitByGeraetId } from "./services/buchung-service.js";
-import { Buchungsverfuegbarkeit, NewPrintBooking } from "./models/buchung.js";
-import { getGeraetById } from "./services/geraet-service.js";
-import { setCookie } from "./services/auth-service.js";
-import { Geraet } from "./models/geraet.js";
+import { createNewBooking, getBookingAvailabilityByDeviceId } from "./services/bookingService.js";
+import { BookingAvailability, NewPrintBooking } from "./models/booking.js";
+import { getDeviceById } from "./services/deviceService.js";
+import { setCookie } from "./services/authService.js";
+import { Device } from "./models/device.js";
 
-type BuchenPageState = 'loading' | 'error' | 'ready';
+type BookingPageState = 'loading' | 'error' | 'ready';
 
 interface DateSelectorOption {
     value: string;
@@ -22,38 +22,38 @@ let currentlySelectedDate: Date | undefined;
 let currentDateSelectorYear: number = new Date().getFullYear();
 let currentDateSelectorMonth: number = new Date().getMonth();
 
-let geraet: Geraet;
-let buchungsverfuegbarkeit: Buchungsverfuegbarkeit;
+let device: Device;
+let bookingAvailability: BookingAvailability;
 
 document.addEventListener('DOMContentLoaded', async () => {
     const urlParams = new URLSearchParams(window.location.search);
-    const geraetIdStr = urlParams.get('geraet_id');
+    const deviceIdStr = urlParams.get('device_id');
 
     // Parse ID to number because DB uses integers
-    const geraetId = parseInt(geraetIdStr || '0');
+    const deviceId = parseInt(deviceIdStr || '0');
 
-    if (!geraetIdStr || isNaN(geraetId)) {
+    if (!deviceIdStr || isNaN(deviceId)) {
         updateState('error');
         return;
     }
 
     // Fetch real device data from Backend via Service
-    const foundGeraet = await getGeraetById(geraetId);
+    const foundDevice = await getDeviceById(deviceId);
 
-    if (!foundGeraet) {
-        console.error(`Device with ID ${geraetId} not found.`);
+    if (!foundDevice) {
+        console.error(`Device with ID ${deviceId} not found.`);
         updateState('error');
         return;
     }
 
-    geraet = foundGeraet;
+    device = foundDevice;
     
     // Mock availability (Backend logic not ready yet)
-    buchungsverfuegbarkeit = getBuchungsverfuegbarkeitByGeraetId(geraetIdStr!);
+    bookingAvailability = getBookingAvailabilityByDeviceId(deviceIdStr!);
 
     // Populate UI
-    document.getElementById('printerInfo-Name')!.innerText = geraet.name;
-    document.getElementById('printerInfo-Description')!.innerText = geraet.description;
+    document.getElementById('printerInfo-Name')!.innerText = device.name;
+    document.getElementById('printerInfo-Description')!.innerText = device.description;
 
     const form = document.getElementById('bookingForm') as HTMLFormElement;
     form.addEventListener('submit', handleFormSubmit);
@@ -80,7 +80,7 @@ async function handleFormSubmit(e: Event) {
 
     // printerId must be number now
     const booking: NewPrintBooking = {
-        printerId: geraet.id, 
+        printerId: device.id, 
         startDate: createDateTime(currentlySelectedDate, start),
         endDate: createDateTime(currentlySelectedDate, end),
         notes: notes
@@ -89,7 +89,7 @@ async function handleFormSubmit(e: Event) {
     await createNewBooking(booking);
     
     setCookie('userEmail', email, 30);
-    window.location.href = "meine-drucke.html";
+    window.location.href = "myPrints.html";
 }
 
 function renderDateSelector(selectedDate: Date | undefined, year: number, month: number) {
@@ -114,11 +114,11 @@ function renderDateSelector(selectedDate: Date | undefined, year: number, month:
         let status: DateSelectorOption['status'] = 'availible';
         let selectable = true;
 
-        if (date < today || buchungsverfuegbarkeit.blockedWeekDays.includes((date.getDay() + 6) % 7)) {
+        if (date < today || bookingAvailability.blockedWeekDays.includes((date.getDay() + 6) % 7)) {
             status = 'unavailible'; selectable = false;
-        } else if (buchungsverfuegbarkeit.fullyBookedDays.some(d => d.getTime() === date.getTime())) {
+        } else if (bookingAvailability.fullyBookedDays.some(d => d.getTime() === date.getTime())) {
             status = 'booked'; selectable = false;
-        } else if (buchungsverfuegbarkeit.partialyBookedDays.some(d => d.getTime() === date.getTime())) {
+        } else if (bookingAvailability.partialyBookedDays.some(d => d.getTime() === date.getTime())) {
             status = 'partially-booked';
         }
 
@@ -157,7 +157,7 @@ function changeMonth(offset: number) {
     renderDateSelector(currentlySelectedDate, currentDateSelectorYear, currentDateSelectorMonth);
 }
 
-function updateState(newState: BuchenPageState) {
+function updateState(newState: BookingPageState) {
     ['loading', 'error', 'ready'].forEach(s => {
         const el = document.getElementById(`pageState-${s}`);
         if (el) el.classList.toggle('hidden', s !== newState);

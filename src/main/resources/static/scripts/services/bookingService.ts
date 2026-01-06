@@ -1,5 +1,5 @@
-import { PrintBooking, NewPrintBooking, Buchungsverfuegbarkeit } from '../models/buchung.js';
-import { getGeraetById } from './geraet-service.js';
+import { PrintBooking, NewPrintBooking, BookingAvailability } from '../models/booking.js';
+import { getDeviceById } from './deviceService.js';
 
 export let MOCK_BOOKING: PrintBooking[] = [
     {
@@ -125,7 +125,7 @@ export async function createNewBooking(newBooking: NewPrintBooking) {
     // newBooking.printerId is now a number. getGeraetById expects number.
     // Casting or direct usage works if NewPrintBooking interface has number type for printerId.
     // Assuming newBooking.printerId is number based on updated models.
-    const printer = await getGeraetById(newBooking.printerId);
+    const printer = await getDeviceById(newBooking.printerId);
     
     const booking: PrintBooking = {
         id: `book-${Date.now()}`,
@@ -139,7 +139,7 @@ export async function createNewBooking(newBooking: NewPrintBooking) {
     console.log("Booking created locally (Mock):", booking);
 }
 
-export function getBuchungsverfuegbarkeitByGeraetId(id: string | number): Buchungsverfuegbarkeit {
+export function getBookingAvailabilityByDeviceId(id: string | number): BookingAvailability {
     // Static MOCK Data
     return {
         blockedWeekDays: [ 5, 6 ], // Sa, Su

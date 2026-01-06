@@ -1,4 +1,4 @@
-import { login, isAuthenticated } from './services/auth-service.js';
+import { login, isAuthenticated } from './services/authService.js';
 
 if (isAuthenticated()) {
     window.location.href = 'admin.html';

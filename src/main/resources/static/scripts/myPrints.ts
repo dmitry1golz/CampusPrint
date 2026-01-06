@@ -1,6 +1,6 @@
-import { PrintBooking } from "./models/buchung.js";
-import { getBookingsForEmail } from './services/buchung-service.js';
-import { getCookie, setCookie } from './services/auth-service.js';
+import { PrintBooking } from "./models/booking.js";
+import { getBookingsForEmail } from './services/bookingService.js';
+import { getCookie, setCookie } from './services/authService.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('drucke-form') as HTMLFormElement | null;
@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const savedEmail = getCookie('userEmail');
     if (savedEmail) {
         emailInput.value = savedEmail;
-        renderDrucke(container, getBookingsForEmail(savedEmail));
+        renderPrintBookings(container, getBookingsForEmail(savedEmail));
     }
 
     form.addEventListener('submit', (e) => {
@@ -21,11 +21,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!email) return;
 
         setCookie('userEmail', email, 30);
-        renderDrucke(container, getBookingsForEmail(email));
+        renderPrintBookings(container, getBookingsForEmail(email));
     });
 });
 
-function renderDrucke(container: HTMLElement, bookings: PrintBooking[]) {
+function renderPrintBookings(container: HTMLElement, bookings: PrintBooking[]) {
     container.innerHTML = '';
     
     if (bookings.length === 0) {
