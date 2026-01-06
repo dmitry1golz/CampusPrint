@@ -3,6 +3,8 @@ package thl.campusprint.models;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import thl.campusprint.models.options.DeviceOptions;
+
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 import java.util.Map;
@@ -40,10 +42,10 @@ public class Device {
     )
     private DeviceStatus status = DeviceStatus.Unavailable;
 
-    @JsonProperty("print_options") // <--- Das sorgt dafür, dass im JSON "print_options" steht
+    @JsonProperty("print_options") // <--- ZWINGEND NOTWENDIG
     @JdbcTypeCode(SqlTypes.JSON)
-    @Column(name = "print_options", columnDefinition = "TEXT") 
-    private Map<String, Object> printOptions;
+    @Column(name = "print_options", columnDefinition = "TEXT")
+    private DeviceOptions printOptions;
 
     @Column(length = 255)
     private String image;
