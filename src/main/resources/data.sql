@@ -10,7 +10,7 @@ INSERT INTO `users` (`idusers`, `email`, `password`, `role`) VALUES
 -- 2. DEVICES
 -- ########################################################
 
-INSERT INTO `devices` (`iddevice`, `name`, `description`, `model`, `status`, `type`, `image`, `print_options`) VALUES
+INSERT INTO `devices` (`iddevice`, `name`, `description`, `model`, `status`, `type`, `image`, `print_options`, `booking_availability_blocked_weekdays`) VALUES
 (1, 'Ultimaker S5',
  'Anfaengerfreundlicher 3D Drucker',
  'S5', 'Available', 'FDM_Printer',
@@ -25,6 +25,9 @@ INSERT INTO `devices` (`iddevice`, `name`, `description`, `model`, `status`, `ty
     ],
     "supported_layer_heights": [0.06, 0.1, 0.15, 0.2],
     "nozzle_sizes": [0.25, 0.4, 0.8]
+ }',
+ '{
+    "weekdays": [0,2,5]
  }'
 ),
 (2, 'Prusa MK4',
@@ -40,6 +43,9 @@ INSERT INTO `devices` (`iddevice`, `name`, `description`, `model`, `status`, `ty
     ],
     "supported_layer_heights": [0.05, 0.1, 0.2, 0.3],
     "nozzle_sizes": [0.4, 0.6]
+ }',
+ '{
+    "weekdays": [1]
  }'
 ),
 (3, 'Bambu Lab X1 Carbon',
@@ -55,6 +61,9 @@ INSERT INTO `devices` (`iddevice`, `name`, `description`, `model`, `status`, `ty
     ],
     "supported_layer_heights": [0.08, 0.12, 0.16, 0.2, 0.24],
     "nozzle_sizes": [0.4, 0.6]
+ }',
+ '{
+    "weekdays": []
  }'
 ),
 (4, 'Formlabs Form 3+', 
@@ -69,6 +78,9 @@ INSERT INTO `devices` (`iddevice`, `name`, `description`, `model`, `status`, `ty
         {"name": "Clear Resin", "color_hex": "#E0E0E0"}
     ],
     "supported_layer_heights": [0.025, 0.05, 0.1]
+ }',
+ '{
+    "weekdays": [6]
  }'
 ),
 (5, 'Epilog Fusion Pro 32',
@@ -83,6 +95,9 @@ INSERT INTO `devices` (`iddevice`, `name`, `description`, `model`, `status`, `ty
         {"material": "Acryl 3mm", "thickness": 3, "power": 100, "speed": 20},
         {"material": "Gravur Glas", "thickness": 0, "power": 40, "speed": 80}
     ]
+ }',
+ '{
+    "weekdays": []
  }'
 ),
 (6, 'Trotec Speedy 100',
@@ -95,6 +110,9 @@ INSERT INTO `devices` (`iddevice`, `name`, `description`, `model`, `status`, `ty
     "presets": [
         {"material": "Papier/Karton", "thickness": 1, "power": 20, "speed": 60}
     ]
+ }',
+ '{
+    "weekdays": []
  }'
 ),
 (8, 'HP DesignJet T650',
@@ -105,6 +123,9 @@ INSERT INTO `devices` (`iddevice`, `name`, `description`, `model`, `status`, `ty
     "tech_type": "PAPER",
     "paper_weights": [80, 90, 120, 180],
     "formats": ["A4", "A3", "A2", "A1", "A0", "Rollenware 24 Zoll"]
+ }',
+ '{
+    "weekdays": []
  }'
 );
 

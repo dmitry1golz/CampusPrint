@@ -49,4 +49,9 @@ public class Device {
     @Column(length = 255)
     private String image;
 
+    @JsonProperty("booking_availability_blocked_weekdays")
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "booking_availability_blocked_weekdays", columnDefinition = "TEXT")
+    private BlockedWeekdays bookingAvailabilityBlockedWeekdays;
+
 }
