@@ -7,25 +7,29 @@ export type GeraeteTyp = 'FDM_Printer' | 'SLA_Printer' | 'Laser_Cutter' | 'CNC_M
 // --- Options-Strukturen (Admin definiert diese im Backend) ---
 
 export interface MaterialProfile {
-    name: string;          // e.g PLA
-    temp_nozzle: number;   // auto set
-    temp_bed: number;      // auto set
-    color_hex?: string;    
+    name: string;
+    temp_nozzle: number;
+    temp_bed: number;
+    color_hex?: string;
 }
 
+// FDM & SLA teilen sich viele Felder, aber wir unterscheiden sie sauber
 export interface ThreeDOptions {
+    tech_type: 'FDM' | 'SLA'; // <--- NEU: Das kommt jetzt aus dem Backend JSON
     dimensions: { x: number; y: number; z: number };
-    available_materials: MaterialProfile[];
+    available_materials: MaterialProfile[]; // oder ResinProfile
     supported_layer_heights: number[];
-    nozzle_sizes: number[];
+    nozzle_sizes?: number[]; // Optional, da SLA das nicht hat
 }
 
 export interface LaserOptions {
+    tech_type: 'LASER'; // <--- NEU
     work_area: { x: number; y: number };
     presets: { material: string; thickness: number; power: number; speed: number }[];
 }
 
 export interface PaperOptions {
+    tech_type: 'PAPER'; // <--- NEU
     paper_weights: number[];
     formats: string[];
 }
@@ -47,8 +51,9 @@ interface BaseGeraet {
     name: string;
     description: string;
     image: string;
-    status: GeraeteStatus; // Hier ist jetzt auch 'Maintenance' erlaubt
+    status: GeraeteStatus;
     model?: string;
+    print_options?: ThreeDOptions | LaserOptions | PaperOptions;
 }
 
 // Discriminated Unions für Typ-Sicherheit
