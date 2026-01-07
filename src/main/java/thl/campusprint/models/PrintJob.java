@@ -5,7 +5,8 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
-import java.util.Map;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Entity
 @Table(name = "print_jobs")
@@ -22,9 +23,10 @@ public class PrintJob {
     @JoinColumn(name = "device", nullable = false)
     private Device device;
 
+    @JsonProperty("settings") // <--- ZWINGEND NOTWENDIG
     @JdbcTypeCode(SqlTypes.JSON)
-    @Column(name = "settings", columnDefinition = "json")
-    private Map<String, Object> settings;
+    @Column(name = "settings", columnDefinition = "TEXT")
+    private PrintJobOptions settings;
 
     @Column(name = "file_path", length = 45)
     private String filePath;
