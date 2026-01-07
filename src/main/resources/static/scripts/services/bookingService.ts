@@ -1,10 +1,10 @@
-import { PrintBooking, NewPrintBooking, BookingAvailability } from '../models/booking.js';
+import { Booking, NewBooking, BookingAvailability } from '../models/booking.js';
 import { Device } from '../models/device.js';
 import { getDeviceById } from './deviceService.js';
 
 const API_URL = 'http://localhost:8090/api/bookings';
 
-export let MOCK_BOOKING: PrintBooking[] = [
+export let MOCK_BOOKING: Booking[] = [
     {
         id: 'b-new-1',
         printerName: 'Ultimaker S5',
@@ -105,16 +105,16 @@ export let MOCK_BOOKING: PrintBooking[] = [
 // API Functions
 
 // Returns sync array because admin.ts expects direct array (for now)
-export function getAllBookings(): PrintBooking[] {
+export function getAllBookings(): Booking[] {
     return MOCK_BOOKING;
 }
 
-export function getBookingsForEmail(email: string): PrintBooking[] {
+export function getBookingsForEmail(email: string): Booking[] {
     return MOCK_BOOKING;
 }
 
 // CHANGED TO ASYNC: This fixes the 'Property then does not exist' error in admin.ts
-export async function updateBookingStatus(id: string, newStatus: PrintBooking['status'], message?: string): Promise<void> {
+export async function updateBookingStatus(id: string, newStatus: Booking['status'], message?: string): Promise<void> {
     const b = MOCK_BOOKING.find(x => x.id === id);
     if (b) {
         b.status = newStatus;
@@ -124,13 +124,13 @@ export async function updateBookingStatus(id: string, newStatus: PrintBooking['s
     // await new Promise(r => setTimeout(r, 100));
 }
 
-export async function createNewBooking(newBooking: NewPrintBooking) {
+export async function createNewBooking(newBooking: NewBooking) {
     // newBooking.printerId is now a number. getGeraetById expects number.
     // Casting or direct usage works if NewPrintBooking interface has number type for printerId.
     // Assuming newBooking.printerId is number based on updated models.
     const printer = await getDeviceById(newBooking.printerId);
     
-    const booking: PrintBooking = {
+    const booking: Booking = {
         id: `book-${Date.now()}`,
         printerName: printer ? printer.name : 'Unknown',
         startDate: newBooking.startDate,
@@ -145,7 +145,7 @@ export async function createNewBooking(newBooking: NewPrintBooking) {
 export async function getBookingAvailabilityForDevice(device: Device): Promise<BookingAvailability | undefined> {
     const response = await fetch(`${API_URL}?deviceId=${device.id}&futureOnly=true`);
     if (!response.ok) return undefined;
-    const bookings: PrintBooking[] = await response.json();
+    const bookings: Booking[] = await response.json();
 
     // ---------- Convert Booked Days into Map of free hours per day
     let bookedDays: Map<Date, number> = new Map();

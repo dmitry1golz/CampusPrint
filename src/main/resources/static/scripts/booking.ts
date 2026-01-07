@@ -1,5 +1,5 @@
 import { createNewBooking, getBookingAvailabilityForDevice } from "./services/bookingService.js";
-import { BookingAvailability, NewPrintBooking } from "./models/booking.js";
+import { BookingAvailability, NewBooking } from "./models/booking.js";
 import { getDeviceById } from "./services/deviceService.js";
 import { setCookie } from "./services/authService.js";
 import { Device } from "./models/device.js";
@@ -84,7 +84,7 @@ async function handleFormSubmit(e: Event) {
     }
 
     // printerId must be number now
-    const booking: NewPrintBooking = {
+    const booking: NewBooking = {
         printerId: device.id, 
         startDate: createDateTime(currentlySelectedDate, start),
         endDate: createDateTime(currentlySelectedDate, end),

@@ -1,4 +1,4 @@
-import { PrintBooking } from "./models/booking.js";
+import { Booking } from "./models/booking.js";
 import { getBookingsForEmail } from './services/bookingService.js';
 import { getCookie, setCookie } from './services/authService.js';
 
@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-function renderPrintBookings(container: HTMLElement, bookings: PrintBooking[]) {
+function renderPrintBookings(container: HTMLElement, bookings: Booking[]) {
     container.innerHTML = '';
     
     if (bookings.length === 0) {
@@ -40,7 +40,7 @@ function renderPrintBookings(container: HTMLElement, bookings: PrintBooking[]) {
     }
 }
 
-function createCard(b: PrintBooking): HTMLElement {
+function createCard(b: Booking): HTMLElement {
     const article = document.createElement('article');
     article.className = 'card'; // base.css Klasse
 

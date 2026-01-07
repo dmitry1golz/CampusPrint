@@ -1,4 +1,4 @@
-import { PrintBooking } from './models/booking.js';
+import { Booking } from './models/booking.js';
 import { Device, ThreeDOptions, LaserOptions, PaperOptions, DeviceStatus, DeviceTyp, MaterialProfile } from './models/device.js';
 import { getAllBookings, updateBookingStatus } from './services/bookingService.js';
 import { getAllDevices, addDevice, deleteDevice, updateDeviceStatus } from './services/deviceService.js';
@@ -453,11 +453,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    function renderBookingList(viewType: string, allBookings: PrintBooking[], container: HTMLDivElement) {
+    function renderBookingList(viewType: string, allBookings: Booking[], container: HTMLDivElement) {
         if (!container) return;
         container.innerHTML = '';
         
-        let filtered: PrintBooking[] = [];
+        let filtered: Booking[] = [];
         if (viewType === 'pending') filtered = allBookings.filter(b => b.status === 'pending');
         else if (viewType === 'active') filtered = allBookings.filter(b => ['confirmed', 'running'].includes(b.status));
         else if (viewType === 'completed') filtered = allBookings.filter(b => ['completed', 'rejected'].includes(b.status));
@@ -490,7 +490,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function updateCounts(b: PrintBooking[], e: Device[]) {
+    function updateCounts(b: Booking[], e: Device[]) {
         const setTxt = (id: string, txt: string) => { const el = document.getElementById(id); if(el) el.textContent = txt; };
         setTxt('count-pending', `(${b.filter(x => x.status === 'pending').length})`);
         setTxt('count-active', `(${b.filter(x => ['confirmed', 'running'].includes(x.status)).length})`);
