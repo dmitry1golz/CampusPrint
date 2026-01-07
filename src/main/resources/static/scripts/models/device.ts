@@ -54,6 +54,7 @@ interface BaseDevice {
     status: DeviceStatus;
     model?: string;
     print_options?: ThreeDOptions | LaserOptions | PaperOptions;
+    bookingAvailabilityBlockedWeekdays: number[];
 }
 
 // Discriminated Unions für Typ-Sicherheit
