@@ -1,5 +1,8 @@
 import { PrintBooking, NewPrintBooking, BookingAvailability } from '../models/booking.js';
+import { Device } from '../models/device.js';
 import { getDeviceById } from './deviceService.js';
+
+const API_URL = 'http://localhost:8090/api/bookings';
 
 export let MOCK_BOOKING: PrintBooking[] = [
     {
@@ -139,18 +142,45 @@ export async function createNewBooking(newBooking: NewPrintBooking) {
     console.log("Booking created locally (Mock):", booking);
 }
 
-export function getBookingAvailabilityByDeviceId(id: string | number): BookingAvailability {
-    // Static MOCK Data
+export async function getBookingAvailabilityForDevice(device: Device): Promise<BookingAvailability | undefined> {
+    const response = await fetch(`${API_URL}?deviceId=${device.id}&futureOnly=true`);
+    if (!response.ok) return undefined;
+    const bookings: PrintBooking[] = await response.json();
+
+    // ---------- Convert Booked Days into Map of free hours per day
+    let bookedDays: Map<Date, number> = new Map();
+    function subTractHoursFromDay(day: Date, toSubtract: number) {
+        if (!bookedDays.has(day)) {
+            bookedDays.set(day, 24);
+        }
+        bookedDays.set(day, bookedDays.get(day)! - toSubtract);
+    }
+    for (let booking of bookings) {
+        // Same day -> Subtract the hours
+        if (booking.startDate.getFullYear() === booking.endDate.getFullYear() &&
+            booking.startDate.getMonth() === booking.endDate.getMonth() &&
+            booking.startDate.getDate() === booking.endDate.getDate()) {
+            const diffMs = Math.abs(booking.startDate.getTime() - booking.startDate.getTime()); // difference in milliseconds
+            const diffHours = diffMs / (1000 * 60 * 60); // convert ms -> hours
+            subTractHoursFromDay(new Date(booking.startDate.getFullYear(), booking.startDate.getMonth(), booking.startDate.getDate()), diffHours);
+        } else {
+            // Subtract start and end hours from each of thair days
+            const hoursPassedFirstDay = booking.startDate.getHours() + booking.startDate.getMinutes() / 60 + booking.startDate.getSeconds() / 3600;
+            subTractHoursFromDay(new Date(booking.startDate.getFullYear(), booking.startDate.getMonth(), booking.startDate.getDate()), hoursPassedFirstDay);
+
+            const hoursRemainingSecondDay = 24 - (booking.endDate.getHours() + booking.endDate.getMinutes() / 60 + booking.endDate.getSeconds() / 3600);
+            subTractHoursFromDay(new Date(booking.endDate.getFullYear(), booking.endDate.getMonth(), booking.endDate.getDate()), hoursRemainingSecondDay);
+        }
+    }
     return {
-        blockedWeekDays: [ 5, 6 ], // Sa, Su
-        fullyBookedDays: [
-            new Date(2025, 11, 16),
-            new Date(2025, 11, 17),
-        ],
-        partialyBookedDays: [
-            new Date(2025, 11, 18),
-            new Date(2025, 11, 22),
-            new Date(2026, 0, 13),
-        ]
+        blockedWeekDays: device.bookingAvailabilityBlockedWeekdays ?? [],
+        // Less than 10 Hours remaining is fully booked
+        fullyBookedDays: Array.from(bookedDays.entries())
+            .filter(([_, value]) => value < 10)
+            .map(([date, _]) => date),
+        // Anything with more than 10 Hours free but still a booking
+        partialyBookedDays: Array.from(bookedDays.entries())
+            .filter(([_, value]) => value >= 10)
+            .map(([date, _]) => date)
     };
 }

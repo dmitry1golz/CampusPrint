@@ -1,4 +1,4 @@
-import { createNewBooking, getBookingAvailabilityByDeviceId } from "./services/bookingService.js";
+import { createNewBooking, getBookingAvailabilityForDevice } from "./services/bookingService.js";
 import { BookingAvailability, NewPrintBooking } from "./models/booking.js";
 import { getDeviceById } from "./services/deviceService.js";
 import { setCookie } from "./services/authService.js";
@@ -48,8 +48,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     device = foundDevice;
     
-    // Mock availability (Backend logic not ready yet)
-    bookingAvailability = getBookingAvailabilityByDeviceId(deviceIdStr!);
+    const foundBookingAvailability = await getBookingAvailabilityForDevice(device);
+    if (!foundBookingAvailability) {
+        console.error(`BookingAvailability not found.`);
+        updateState('error');
+        return;
+    }
+    bookingAvailability = foundBookingAvailability;
 
     // Populate UI
     document.getElementById('printerInfo-Name')!.innerText = device.name;
