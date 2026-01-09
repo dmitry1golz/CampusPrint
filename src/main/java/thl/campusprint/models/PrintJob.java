@@ -3,6 +3,9 @@ package thl.campusprint.models;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.UUID;
+
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
@@ -15,9 +18,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class PrintJob {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "idprintjob")
-    private Integer id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "idprintjob", updatable = false, nullable = false)
+    @JdbcTypeCode(java.sql.Types.VARCHAR)
+    private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "device", nullable = false)

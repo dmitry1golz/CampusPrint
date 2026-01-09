@@ -133,24 +133,24 @@ INSERT INTO `devices` (`iddevice`, `name`, `description`, `model`, `status`, `ty
 -- 3. PRINT JOBS & BOOKINGS
 -- ########################################################
 
-INSERT INTO `print_jobs` (`idprintjob`, `device`, `file_path`, `settings`) VALUES (1, 1, 'files/job1.gcode', '{"name": "PLA", "color_hex": "white"}');
+INSERT INTO `print_jobs` (`idprintjob`, `device`, `file_path`, `settings`) VALUES ('a9cf03d2-c2f6-4589-b9b5-ebf252c45ee3', 1, 'files/job1.gcode', '{"name": "PLA", "color_hex": "white"}');
 INSERT INTO `bookings` (`print_job`, `status`, `start_time`, `end_time`, `user_id`, `user_notes`)
-VALUES (1, 0, '2025-11-25 10:00:00', '2025-11-25 14:00:00', 'a5835e04-c027-4493-b40e-ca3eeff921c7', 'Bachelorarbeit Gehaeuse V3. Bitte weißes PLA nutzen.');
+VALUES ('a9cf03d2-c2f6-4589-b9b5-ebf252c45ee3', 0, '2025-11-25 10:00:00', '2025-11-25 14:00:00', 'a5835e04-c027-4493-b40e-ca3eeff921c7', 'Bachelorarbeit Gehaeuse V3. Bitte weißes PLA nutzen.');
 
-INSERT INTO `print_jobs` (`idprintjob`, `device`, `file_path`) VALUES (2, 5, 'files/arch.pdf');
+INSERT INTO `print_jobs` (`idprintjob`, `device`, `file_path`) VALUES ('3d9bce52-9202-4383-a838-0a33574fb117', 5, 'files/arch.pdf');
 INSERT INTO `bookings` (`print_job`, `status`, `start_time`, `end_time`, `user_id`, `user_notes`)
-VALUES (2, 0, '2025-11-26 09:00:00', '2025-11-26 09:30:00', 'ecb1af1e-0f2b-4882-ab1f-5fee1ffccdf3', 'Architektur-Modell M 1:50, Sperrholz 4mm.');
+VALUES ('3d9bce52-9202-4383-a838-0a33574fb117', 0, '2025-11-26 09:00:00', '2025-11-26 09:30:00', 'ecb1af1e-0f2b-4882-ab1f-5fee1ffccdf3', 'Architektur-Modell M 1:50, Sperrholz 4mm.');
 
-INSERT INTO `print_jobs` (`idprintjob`, `device`) VALUES (3, 8);
+INSERT INTO `print_jobs` (`idprintjob`, `device`) VALUES ('31ebb7dd-f6d9-4210-8132-c09ab105e4c7', 8);
 INSERT INTO `bookings` (`print_job`, `status`, `start_time`, `end_time`, `user_id`, `user_notes`)
-VALUES (3, 0, '2025-11-26 11:00:00', '2025-11-26 11:15:00', 'a5835e04-c027-4493-b40e-ca3eeff921c7', '3x A0 Plaene fuer Praesentation.');
+VALUES ('31ebb7dd-f6d9-4210-8132-c09ab105e4c7', 0, '2025-11-26 11:00:00', '2025-11-26 11:15:00', 'a5835e04-c027-4493-b40e-ca3eeff921c7', '3x A0 Plaene fuer Praesentation.');
 
-INSERT INTO `print_jobs` (`idprintjob`, `device`, `livestream`) VALUES (4, 2, 'https://images.unsplash.com/...');
+INSERT INTO `print_jobs` (`idprintjob`, `device`, `livestream`) VALUES ('e74ca0d3-ce9d-420c-9fbf-2ad55c677af1', 2, 'https://images.unsplash.com/...');
 INSERT INTO `bookings` (`print_job`, `status`, `start_time`, `end_time`, `user_id`, `user_notes`)
-VALUES (4, 2, '2025-11-24 08:00:00', '2025-11-24 12:00:00', 'a5835e04-c027-4493-b40e-ca3eeff921c7', 'Ersatzteile fuer Roboter-AG');
+VALUES ('e74ca0d3-ce9d-420c-9fbf-2ad55c677af1', 2, '2025-11-24 08:00:00', '2025-11-24 12:00:00', 'a5835e04-c027-4493-b40e-ca3eeff921c7', 'Ersatzteile fuer Roboter-AG');
 
-INSERT INTO `print_jobs` (`idprintjob`, `device`) VALUES (5, 1);
+INSERT INTO `print_jobs` (`idprintjob`, `device`) VALUES ('d0f01f02-184a-4895-b7c3-a9e0735b465b', 1);
 INSERT INTO `bookings` (`print_job`, `status`, `start_time`, `end_time`, `user_id`, `user_notes`, `admin_message`)
-VALUES (5, 3, '2025-11-19 14:00:00', '2025-11-19 18:00:00', 'ecb1af1e-0f2b-4882-ab1f-5fee1ffccdf3', 'Privatprojekt', 'Drucken von Waffen-Repliken ist laut Nutzungsordnung untersagt.');
+VALUES ('d0f01f02-184a-4895-b7c3-a9e0735b465b', 3, '2025-11-19 14:00:00', '2025-11-19 18:00:00', 'ecb1af1e-0f2b-4882-ab1f-5fee1ffccdf3', 'Privatprojekt', 'Drucken von Waffen-Repliken ist laut Nutzungsordnung untersagt.');
 
 COMMIT;
