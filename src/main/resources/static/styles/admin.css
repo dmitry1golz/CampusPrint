@@ -36,6 +36,10 @@
     margin: 0;
 }
 
+.card-body {
+    flex: 1;
+}
+
 .card-actions {
     display: flex;
     justify-content: flex-start;
