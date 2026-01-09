@@ -137,42 +137,95 @@ export async function createNewBooking(newBooking: NewBooking): Promise<Booking 
 export async function getBookingAvailabilityForDevice(device: Device): Promise<BookingAvailability | undefined> {
     const response = await fetch(`${API_URL}?deviceId=${device.id}&futureOnly=true`);
     if (!response.ok) return undefined;
-    const bookings: Booking[] = await response.json();
-
-    // ---------- Convert Booked Days into Map of free hours per day
-    let bookedDays: Map<Date, number> = new Map();
-    function subTractHoursFromDay(day: Date, toSubtract: number) {
-        if (!bookedDays.has(day)) {
-            bookedDays.set(day, 24);
-        }
-        bookedDays.set(day, bookedDays.get(day)! - toSubtract);
-    }
-    for (let booking of bookings) {
-        // Same day -> Subtract the hours
-        if (booking.startDate.getFullYear() === booking.endDate.getFullYear() &&
-            booking.startDate.getMonth() === booking.endDate.getMonth() &&
-            booking.startDate.getDate() === booking.endDate.getDate()) {
-            const diffMs = Math.abs(booking.startDate.getTime() - booking.startDate.getTime()); // difference in milliseconds
-            const diffHours = diffMs / (1000 * 60 * 60); // convert ms -> hours
-            subTractHoursFromDay(new Date(booking.startDate.getFullYear(), booking.startDate.getMonth(), booking.startDate.getDate()), diffHours);
-        } else {
-            // Subtract start and end hours from each of thair days
-            const hoursPassedFirstDay = booking.startDate.getHours() + booking.startDate.getMinutes() / 60 + booking.startDate.getSeconds() / 3600;
-            subTractHoursFromDay(new Date(booking.startDate.getFullYear(), booking.startDate.getMonth(), booking.startDate.getDate()), hoursPassedFirstDay);
-
-            const hoursRemainingSecondDay = 24 - (booking.endDate.getHours() + booking.endDate.getMinutes() / 60 + booking.endDate.getSeconds() / 3600);
-            subTractHoursFromDay(new Date(booking.endDate.getFullYear(), booking.endDate.getMonth(), booking.endDate.getDate()), hoursRemainingSecondDay);
-        }
-    }
+    const rawBookings = await response.json();
+    const bookings: Booking[] = rawBookings.map((b: any) => ({
+        ...b,
+        startDate: new Date(b.startDate),
+        endDate: new Date(b.endDate),
+    }));
+    const congestedDays = calculateDailyCongestion(bookings);
     return {
         blockedWeekDays: device.bookingAvailabilityBlockedWeekdays ?? [],
-        // Less than 10 Hours remaining is fully booked
-        fullyBookedDays: Array.from(bookedDays.entries())
-            .filter(([_, value]) => value < 10)
-            .map(([date, _]) => date),
-        // Anything with more than 10 Hours free but still a booking
-        partialyBookedDays: Array.from(bookedDays.entries())
-            .filter(([_, value]) => value >= 10)
-            .map(([date, _]) => date)
+        fullyBookedDays: congestedDays.over12Hours,
+        partialyBookedDays: congestedDays.under12Hours,
     };
+}
+
+type CongestionResult = {
+    over12Hours: Date[];  // local date objects (midnight)
+    under12Hours: Date[]; // local date objects (midnight)
+};
+
+function calculateDailyCongestion(bookings: Booking[]): CongestionResult {
+    // Map: local-day (ms since epoch at local midnight) -> total milliseconds booked
+    const perDay: Map<number, number> = new Map();
+
+    for (const booking of bookings) {
+        if (!booking.startDate || !booking.endDate) continue;
+
+        let startUtc = new Date(booking.startDate);
+        let endUtc = new Date(booking.endDate);
+
+        // Convert to local time instants (Dates always represent UTC internally;
+        // "local" means how we slice by local calendar days).
+        const startLocal = new Date(startUtc.getTime());
+        const endLocal = new Date(endUtc.getTime());
+
+        // Walk day-by-day in local time
+        let current = new Date(
+            startLocal.getFullYear(),
+            startLocal.getMonth(),
+            startLocal.getDate(),
+            0, 0, 0, 0
+        );
+
+        // Iterate while booking overlaps this day
+        while (current <= endLocal) {
+            const dayStart = new Date(
+                current.getFullYear(),
+                current.getMonth(),
+                current.getDate(),
+                0, 0, 0, 0
+            );
+
+            const dayEnd = new Date(
+                current.getFullYear(),
+                current.getMonth(),
+                current.getDate(),
+                23, 59, 59, 999
+            );
+
+            // overlap within this day
+            const overlapStart = new Date(Math.max(dayStart.getTime(), startLocal.getTime()));
+            const overlapEnd = new Date(Math.min(dayEnd.getTime(), endLocal.getTime()));
+
+            if (overlapEnd > overlapStart) {
+                const ms = overlapEnd.getTime() - overlapStart.getTime();
+                const key = dayStart.getTime(); // local-midnight identifier
+
+                perDay.set(key, (perDay.get(key) ?? 0) + ms);
+            }
+
+            // move to next day
+            current.setDate(current.getDate() + 1);
+        }
+    }
+
+    // Split into ≥ 12h vs < 12h
+    const twelveHoursMs = 12 * 60 * 60 * 1000;
+
+    const over12Hours: Date[] = [];
+    const under12Hours: Date[] = [];
+
+    for (const [midnightMs, totalMs] of perDay.entries()) {
+        const date = new Date(midnightMs); // local midnight date
+        if (totalMs >= twelveHoursMs) over12Hours.push(date);
+        else under12Hours.push(date);
+    }
+
+    // Optional: sort results chronologically
+    over12Hours.sort((a, b) => a.getTime() - b.getTime());
+    under12Hours.sort((a, b) => a.getTime() - b.getTime());
+
+    return { over12Hours, under12Hours };
 }
