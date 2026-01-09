@@ -14,6 +14,7 @@ export interface Booking {
 
 export interface NewBooking {
     printerId: number;
+    userEmail: string;
     startDate: Date;
     endDate: Date;
     notes?: string;

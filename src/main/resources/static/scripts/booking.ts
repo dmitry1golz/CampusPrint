@@ -1,5 +1,5 @@
 import { createNewBooking, getBookingAvailabilityForDevice } from "./services/bookingService.js";
-import { BookingAvailability, NewBooking } from "./models/booking.js";
+import { Booking, BookingAvailability, NewBooking } from "./models/booking.js";
 import { getDeviceById } from "./services/deviceService.js";
 import { setCookie } from "./services/authService.js";
 import { Device } from "./models/device.js";
@@ -85,16 +85,21 @@ async function handleFormSubmit(e: Event) {
 
     // printerId must be number now
     const booking: NewBooking = {
-        printerId: device.id, 
+        printerId: device.id,
+        userEmail: email,
         startDate: createDateTime(currentlySelectedDate, start),
         endDate: createDateTime(currentlySelectedDate, end),
         notes: notes
     };
 
-    await createNewBooking(booking);
+    const createdBooking: Booking | undefined = await createNewBooking(booking);
+    if (createdBooking === undefined) {
+        updateState('error');
+    } else {
+        setCookie('userEmail', email, 30);
+        window.location.href = "myPrints.html";
+    }
     
-    setCookie('userEmail', email, 30);
-    window.location.href = "myPrints.html";
 }
 
 function renderDateSelector(selectedDate: Date | undefined, year: number, month: number) {

@@ -124,22 +124,14 @@ export async function updateBookingStatus(id: string, newStatus: Booking['status
     // await new Promise(r => setTimeout(r, 100));
 }
 
-export async function createNewBooking(newBooking: NewBooking) {
-    // newBooking.printerId is now a number. getGeraetById expects number.
-    // Casting or direct usage works if NewPrintBooking interface has number type for printerId.
-    // Assuming newBooking.printerId is number based on updated models.
-    const printer = await getDeviceById(newBooking.printerId);
-    
-    const booking: Booking = {
-        id: `book-${Date.now()}`,
-        printerName: printer ? printer.name : 'Unknown',
-        startDate: newBooking.startDate,
-        endDate: newBooking.endDate,
-        notes: newBooking.notes,
-        status: 'pending'
-    };
-    MOCK_BOOKING.push(booking);
-    console.log("Booking created locally (Mock):", booking);
+export async function createNewBooking(newBooking: NewBooking): Promise<Booking | undefined> {
+    const response = await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newBooking)
+    });
+    if (!response.ok) return undefined;
+    return await response.json();
 }
 
 export async function getBookingAvailabilityForDevice(device: Device): Promise<BookingAvailability | undefined> {
