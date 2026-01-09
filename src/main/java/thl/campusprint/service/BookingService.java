@@ -1,6 +1,7 @@
 package thl.campusprint.service;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 import jakarta.transaction.Transactional;
@@ -74,5 +75,19 @@ public class BookingService {
 
         return bookingRepository.save(booking);
     }
+
+    @Transactional
+    public boolean changeBookingStatus(int bookingId, BookingStatus status, User modifiedBy, String adminMessage) {
+        return bookingRepository.findById(bookingId).map(booking -> {
+            booking.setStatus(status);
+            booking.setLastModifiedBy(null);
+            if ( adminMessage != null )
+                booking.setAdminMessage(adminMessage);
+            // Last modified automatically updated by @PreUpdate
+            bookingRepository.save(booking);
+            return true;
+        }).orElse(false);
+    }
+
 }
 
