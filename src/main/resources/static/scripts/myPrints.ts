@@ -2,7 +2,7 @@ import { Booking } from "./models/booking.js";
 import { getBookingsForEmail } from './services/bookingService.js';
 import { getCookie, setCookie } from './services/authService.js';
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     const form = document.getElementById('drucke-form') as HTMLFormElement | null;
     const emailInput = document.getElementById('email') as HTMLInputElement | null;
     const container = document.getElementById('drucke-ergebnisse') as HTMLElement | null;
@@ -12,24 +12,29 @@ document.addEventListener('DOMContentLoaded', () => {
     const savedEmail = getCookie('userEmail');
     if (savedEmail) {
         emailInput.value = savedEmail;
-        renderPrintBookings(container, getBookingsForEmail(savedEmail));
+        renderPrintBookings(container, await getBookingsForEmail(savedEmail));
     }
 
-    form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', async (e) => {
         e.preventDefault();
         const email = emailInput.value.trim();
         if (!email) return;
 
         setCookie('userEmail', email, 30);
-        renderPrintBookings(container, getBookingsForEmail(email));
+        var bookings = await getBookingsForEmail(email);
+        renderPrintBookings(container, bookings);
     });
 });
 
-function renderPrintBookings(container: HTMLElement, bookings: Booking[]) {
+function renderPrintBookings(container: HTMLElement, bookings: Booking[] | undefined) {
+    if (bookings === undefined) {
+        container.innerHTML = '<div class="alert w-full text-center"></div><div class="alert alert-danger w-full text-center">Fehler beim Laden der Buchungen. Bitte versuchen Sie es erneut.</div>';
+        return;
+    }
     container.innerHTML = '';
     
     if (bookings.length === 0) {
-        container.innerHTML = '<div class="alert alert-danger w-full text-center">Keine Buchungen gefunden.</div>';
+        container.innerHTML = '<div class="alert w-full text-center"></div><div class="alert alert-danger w-full text-center">Keine Buchungen gefunden.</div>';
         return;
     }
 

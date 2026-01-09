@@ -73,7 +73,7 @@ export interface PaperOptions {
 // --- Haupt-Interfaces für die Geräte ---
 
 interface BaseDevice {
-    id: number; // Backend sendet Integer
+    id: string; // Backend sendet String
     name: string;
     description: string;
     model?: string;

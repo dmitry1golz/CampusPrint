@@ -11,7 +11,7 @@ INSERT INTO `users` (`idusers`, `email`, `password`, `role`) VALUES
 -- ########################################################
 
 INSERT INTO `devices` (`iddevice`, `name`, `description`, `model`, `status`, `type`, `image`, `print_options`, `booking_availability_blocked_weekdays`) VALUES
-(1, 'Ultimaker S5',
+('5b526244-e177-4ade-a43b-bc3f976dad4a', 'Ultimaker S5',
  'Anfaengerfreundlicher 3D Drucker',
  'S5', 'Available', 'FDM_Printer',
  'https://ultimaker.com/wp-content/uploads/2023/05/The_Ultimaker_S5.jpg',
@@ -30,7 +30,7 @@ INSERT INTO `devices` (`iddevice`, `name`, `description`, `model`, `status`, `ty
     "weekdays": [0,2,5]
  }'
 ),
-(2, 'Prusa MK4',
+('2bd7b025-4f26-41ee-ae64-7ef57ae79ccd', 'Prusa MK4',
  'Vielseitiger FDM-3D-Drucker',
  'MK4', 'Unavailable', 'FDM_Printer',
  'assets/prusa.png',
@@ -48,7 +48,7 @@ INSERT INTO `devices` (`iddevice`, `name`, `description`, `model`, `status`, `ty
     "weekdays": [1]
  }'
 ),
-(3, 'Bambu Lab X1 Carbon',
+('a8e206ed-6dfd-4c98-8c1a-aedae96283f2', 'Bambu Lab X1 Carbon',
  'High-End',
  'X1 Carbon', 'Available', 'FDM_Printer',
  'https://cdn.idealo.com/folder/Product/202800/9/202800985/s1_produktbild_max_1/bambu-lab-x1-carbon-combo.jpg',
@@ -66,10 +66,10 @@ INSERT INTO `devices` (`iddevice`, `name`, `description`, `model`, `status`, `ty
     "weekdays": []
  }'
 ),
-(4, 'Formlabs Form 3+', 
+('d011be88-3e1e-4384-b373-3f0d75971039', 'Formlabs Form 3+', 
  null, 
  'Form 3+', 'Available', 'SLA_Printer',
- 'https://formlabs-media.formlabs.com/filer_public_thumbnails/filer_public/5c/42/5c423730-a359-4d6d-888e-6c68a0a9926c/form-3-plus-render-front.png__1054x1054_subsampling-2.png',
+ 'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fcdn.mos.cms.futurecdn.net%2F5Pfuvxw3XNgQD4YWjeNc2N-1200-80.jpg&f=1&nofb=1&ipt=da15a618dd64a4127be8cbc71fb63532cf09349b66d1eec02c4436d753e7bdad',
  '{
     "tech_type": "SLA",
     "work_area": {"x": 145, "y": 145, "z": 185},
@@ -83,7 +83,7 @@ INSERT INTO `devices` (`iddevice`, `name`, `description`, `model`, `status`, `ty
     "weekdays": [6]
  }'
 ),
-(5, 'Epilog Fusion Pro 32',
+('d81f12c6-02f3-4e3f-8ac9-f3705473ddbf', 'Epilog Fusion Pro 32',
  'Geeignet für Gravieren und dicke Materialien',
  'Fusion Pro 32', 'Available', 'Laser_Cutter',
  'https://www.epiloglaser.com/assets/img/fusion-pro-24-laser.webp',
@@ -100,7 +100,7 @@ INSERT INTO `devices` (`iddevice`, `name`, `description`, `model`, `status`, `ty
     "weekdays": []
  }'
 ),
-(6, 'Trotec Speedy 100',
+('4c817471-57c1-4b00-b340-c72caa9aeccb', 'Trotec Speedy 100',
  'Kleine bis mittelgroßer Objekte'
  ,'Speedy 100', 'Unavailable', 'Laser_Cutter',
  'https://puzzlebox3d.com/wp-content/uploads/2022/05/TRO_Speedy_100_2020_03_right-scaled.webp',
@@ -115,7 +115,7 @@ INSERT INTO `devices` (`iddevice`, `name`, `description`, `model`, `status`, `ty
     "weekdays": []
  }'
 ),
-(8, 'HP DesignJet T650',
+('f8a3c7b1-9d2e-4f5a-b6c8-1e4d3a7b9c5f', 'HP DesignJet T650',
  'Großformat-Plotter',
  'T650', 'Available', 'Printer',
  'https://plotterkaufen24.com/wp-content/uploads/2020/10/HP-Designjet-T650-36-Zoll-A0-Drucker.jpg',
@@ -133,23 +133,23 @@ INSERT INTO `devices` (`iddevice`, `name`, `description`, `model`, `status`, `ty
 -- 3. PRINT JOBS & BOOKINGS
 -- ########################################################
 
-INSERT INTO `print_jobs` (`idprintjob`, `device`, `file_path`, `settings`) VALUES ('a9cf03d2-c2f6-4589-b9b5-ebf252c45ee3', 1, 'files/job1.gcode', '{"name": "PLA", "color_hex": "white"}');
+INSERT INTO `print_jobs` (`idprintjob`, `device`, `file_path`, `settings`) VALUES ('a9cf03d2-c2f6-4589-b9b5-ebf252c45ee3', '5b526244-e177-4ade-a43b-bc3f976dad4a', 'files/job1.gcode', '{"name": "PLA", "color_hex": "white"}');
 INSERT INTO `bookings` (`print_job`, `status`, `start_time`, `end_time`, `user_id`, `user_notes`)
 VALUES ('a9cf03d2-c2f6-4589-b9b5-ebf252c45ee3', 0, '2025-11-25 10:00:00', '2025-11-25 14:00:00', 'a5835e04-c027-4493-b40e-ca3eeff921c7', 'Bachelorarbeit Gehaeuse V3. Bitte weißes PLA nutzen.');
 
-INSERT INTO `print_jobs` (`idprintjob`, `device`, `file_path`) VALUES ('3d9bce52-9202-4383-a838-0a33574fb117', 5, 'files/arch.pdf');
+INSERT INTO `print_jobs` (`idprintjob`, `device`, `file_path`) VALUES ('3d9bce52-9202-4383-a838-0a33574fb117', 'd81f12c6-02f3-4e3f-8ac9-f3705473ddbf', 'files/arch.pdf');
 INSERT INTO `bookings` (`print_job`, `status`, `start_time`, `end_time`, `user_id`, `user_notes`)
 VALUES ('3d9bce52-9202-4383-a838-0a33574fb117', 0, '2025-11-26 09:00:00', '2025-11-26 09:30:00', 'ecb1af1e-0f2b-4882-ab1f-5fee1ffccdf3', 'Architektur-Modell M 1:50, Sperrholz 4mm.');
 
-INSERT INTO `print_jobs` (`idprintjob`, `device`) VALUES ('31ebb7dd-f6d9-4210-8132-c09ab105e4c7', 8);
+INSERT INTO `print_jobs` (`idprintjob`, `device`) VALUES ('31ebb7dd-f6d9-4210-8132-c09ab105e4c7', 'f8a3c7b1-9d2e-4f5a-b6c8-1e4d3a7b9c5f');
 INSERT INTO `bookings` (`print_job`, `status`, `start_time`, `end_time`, `user_id`, `user_notes`)
 VALUES ('31ebb7dd-f6d9-4210-8132-c09ab105e4c7', 0, '2025-11-26 11:00:00', '2025-11-26 11:15:00', 'a5835e04-c027-4493-b40e-ca3eeff921c7', '3x A0 Plaene fuer Praesentation.');
 
-INSERT INTO `print_jobs` (`idprintjob`, `device`, `livestream`) VALUES ('e74ca0d3-ce9d-420c-9fbf-2ad55c677af1', 2, 'https://images.unsplash.com/...');
+INSERT INTO `print_jobs` (`idprintjob`, `device`, `livestream`) VALUES ('e74ca0d3-ce9d-420c-9fbf-2ad55c677af1', '2bd7b025-4f26-41ee-ae64-7ef57ae79ccd', 'https://images.unsplash.com/...');
 INSERT INTO `bookings` (`print_job`, `status`, `start_time`, `end_time`, `user_id`, `user_notes`)
 VALUES ('e74ca0d3-ce9d-420c-9fbf-2ad55c677af1', 2, '2025-11-24 08:00:00', '2025-11-24 12:00:00', 'a5835e04-c027-4493-b40e-ca3eeff921c7', 'Ersatzteile fuer Roboter-AG');
 
-INSERT INTO `print_jobs` (`idprintjob`, `device`) VALUES ('d0f01f02-184a-4895-b7c3-a9e0735b465b', 1);
+INSERT INTO `print_jobs` (`idprintjob`, `device`) VALUES ('d0f01f02-184a-4895-b7c3-a9e0735b465b', '5b526244-e177-4ade-a43b-bc3f976dad4a');
 INSERT INTO `bookings` (`print_job`, `status`, `start_time`, `end_time`, `user_id`, `user_notes`, `admin_message`)
 VALUES ('d0f01f02-184a-4895-b7c3-a9e0735b465b', 3, '2025-11-19 14:00:00', '2025-11-19 18:00:00', 'ecb1af1e-0f2b-4882-ab1f-5fee1ffccdf3', 'Privatprojekt', 'Drucken von Waffen-Repliken ist laut Nutzungsordnung untersagt.');
 

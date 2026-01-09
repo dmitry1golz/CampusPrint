@@ -29,19 +29,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     const urlParams = new URLSearchParams(window.location.search);
     const deviceIdStr = urlParams.get('device_id');
 
-    // Parse ID to number because DB uses integers
-    const deviceId = parseInt(deviceIdStr || '0');
-
-    if (!deviceIdStr || isNaN(deviceId)) {
+    if (!deviceIdStr) {
         updateState('error');
         return;
     }
 
     // Fetch real device data from Backend via Service
-    const foundDevice = await getDeviceById(deviceId);
+    const foundDevice = await getDeviceById(deviceIdStr);
 
     if (!foundDevice) {
-        console.error(`Device with ID ${deviceId} not found.`);
+        console.error(`Device with ID ${deviceIdStr} not found.`);
         updateState('error');
         return;
     }

@@ -11,7 +11,7 @@ requireAuth();
 document.addEventListener('DOMContentLoaded', () => {
 
     // --- STATE ---
-    let editingDeviceId: number | null = null;
+    let editingDeviceId: string | null = null;
     let currentRejectId: string | null = null;
     
     // Temporäre Speicher für die Listen
@@ -237,7 +237,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const oldModel = old && old.model ? old.model : '';
 
         const base = {
-            id: editingDeviceId || 0,
+            id: editingDeviceId || '',
             name, type, description: desc, status: oldStatus, 
             image: getIn('eq-image').value, model: oldModel
         };
@@ -286,12 +286,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function openEdit(idStr: string) {
-        const id = parseInt(idStr);
         const all = await getAllDevices();
-        const dev = all.find(g => g.id === id);
+        const dev = all.find(g => g.id === idStr);
         if(!dev) return;
 
-        editingDeviceId = id;
+        editingDeviceId = idStr;
         forms.title.textContent = 'Gerät bearbeiten';
         
         // Basisdaten
@@ -368,12 +367,11 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!btn) return;
             const { action, id } = btn.dataset;
             if(!id) return;
-            const numId = parseInt(id);
 
             if (action === 'edit-device') openEdit(id);
-            if (action === 'delete-device') if(confirm('Löschen?')) { await deleteDevice(numId); renderAll(); }
-            if (action === 'set-unavailable') { await updateDeviceStatus(numId, 'Unavailable'); renderAll(); }
-            if (action === 'set-available') { await updateDeviceStatus(numId, 'Available'); renderAll(); }
+            if (action === 'delete-device') if(confirm('Löschen?')) { await deleteDevice(id); renderAll(); }
+            if (action === 'set-unavailable') { await updateDeviceStatus(id, 'Unavailable'); renderAll(); }
+            if (action === 'set-available') { await updateDeviceStatus(id, 'Available'); renderAll(); }
             
             // Buchungs Actions
             if (action === 'confirm') { await updateBookingStatus(id, 'confirmed'); renderAll(); }

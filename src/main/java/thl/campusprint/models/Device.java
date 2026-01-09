@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.Setter;
 import thl.campusprint.models.options.DeviceOptions;
 
+import java.util.UUID;
+
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -16,9 +18,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class Device {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "iddevice")
-    private Integer id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "iddevice", updatable = false, nullable = false)
+    private UUID id;
 
     @Column(nullable = false, length = 45)
     private String name;

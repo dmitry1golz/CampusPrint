@@ -13,7 +13,7 @@ export async function getAllDevices(): Promise<Device[]> {
     }
 }
 
-export async function getDeviceById(id: number): Promise<Device | undefined> {
+export async function getDeviceById(id: string): Promise<Device | undefined> {
     try {
         const response = await fetch(`${API_URL}/${id}`);
         if (!response.ok) return undefined;
@@ -32,12 +32,12 @@ export async function addDevice(device: Device): Promise<void> {
     });
 }
 
-export async function deleteDevice(id: number): Promise<void> {
+export async function deleteDevice(id: string): Promise<void> {
     await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
 }
 
 // Status ändern: Wir laden das Gerät, ändern den Status, speichern es.
-export async function updateDeviceStatus(id: number, newStatus: DeviceStatus): Promise<void> {
+export async function updateDeviceStatus(id: string, newStatus: DeviceStatus): Promise<void> {
     const device = await getDeviceById(id);
     if (device) {
         device.status = newStatus;
