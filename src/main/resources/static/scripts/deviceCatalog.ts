@@ -1,4 +1,4 @@
-import { Device, ThreeDOptions, LaserOptions, PaperOptions } from "./models/device.js";
+import { Device, FdmOptions, LaserOptions, PaperOptions, SlaOptions } from "./models/device.js";
 import { getAllDevices } from "./services/deviceService.js";
 
 // Cache für Geräte, damit wir nicht bei jedem Klick neu laden müssen
@@ -48,8 +48,8 @@ function renderDevices(data: Device[]): void {
         // --- DETAILS LOGIK (Type Narrowing) ---
         let detailsHtml = '';
 
-        if (g.type === 'FDM_Printer' || g.type === 'SLA_Printer') {
-            const opts = g.print_options as ThreeDOptions;
+        if (g.type === 'FDM_Printer') {
+            const opts = g.print_options as FdmOptions;
             
             // Fallback für Düsen-Größen
             const nozzleStr = opts.nozzle_sizes && opts.nozzle_sizes.length > 0 
@@ -57,12 +57,18 @@ function renderDevices(data: Device[]): void {
                 : '-';
 
             detailsHtml = `
-                <li><span class="text-muted">Bauraum:</span> <span>${opts.dimensions.x}x${opts.dimensions.y}x${opts.dimensions.z} mm</span></li>
+                <li><span class="text-muted">Bauraum:</span> <span>${opts.work_area.x}x${opts.work_area.y}x${opts.work_area.z} mm</span></li>
                 <li><span class="text-muted">Düse:</span> <span>${nozzleStr}</span></li>
             `;
         } 
-        else if (g.type === 'Laser_Cutter' || g.type === 'CNC_Mill') {
-            // Laser und CNC teilen sich hier oft die Logik (Work Area)
+        else if (g.type === 'SLA_Printer') {
+            const opts = g.print_options as SlaOptions;
+            detailsHtml = `
+                <li><span class="text-muted">Bauraum:</span> <span>${opts.work_area.x}x${opts.work_area.y}x${opts.work_area.z} mm</span></li>
+                <li><span class="text-muted">Materialien:</span> <span>${opts.available_materials ? opts.available_materials.length : 0} Stück</span></li>
+            `;
+        }
+        else if (g.type === 'Laser_Cutter') {
             const opts = g.print_options as LaserOptions;
             detailsHtml = `
                 <li><span class="text-muted">Arbeitsfläche:</span> <span>${opts.work_area.x}x${opts.work_area.y} mm</span></li>
@@ -130,9 +136,6 @@ function setupFilterButtons(): void {
                         break;
                     case 'Laserschneider':
                         filtered = filtered.filter(g => g.type === 'Laser_Cutter'); 
-                        break;
-                    case 'CNC-Fräsen': // Falls du einen Button dafür im HTML hast
-                        filtered = filtered.filter(g => g.type === 'CNC_Mill');
                         break;
                     case 'Papierdrucker':
                         filtered = filtered.filter(g => g.type === 'Printer');
