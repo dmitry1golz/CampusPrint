@@ -1,6 +1,5 @@
-import { Booking, NewBooking, BookingAvailability } from '../models/booking.js';
-import { Device } from '../models/device.js';
-import { getDeviceById } from './deviceService.js';
+import {Booking, BookingAvailability, NewBooking} from '../models/booking.js';
+import {Device} from '../models/device.js';
 
 const API_URL = 'http://localhost:8090/api/bookings';
 
@@ -109,8 +108,16 @@ export function getAllBookings(): Booking[] {
     return MOCK_BOOKING;
 }
 
-export function getBookingsForEmail(email: string): Booking[] {
-    return MOCK_BOOKING;
+export async function getBookingsForEmail(email: string): Promise<Booking[] | undefined> {
+    const response = await fetch(`${API_URL}?email=${email}`);
+    if (!response.ok) return undefined;
+
+    const rawBookings = await response.json();
+    return rawBookings.map((b: any) => ({
+        ...b,
+        startDate: new Date(b.startDate),
+        endDate: new Date(b.endDate),
+    }));
 }
 
 // CHANGED TO ASYNC: This fixes the 'Property then does not exist' error in admin.ts
