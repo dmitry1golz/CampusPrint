@@ -68,7 +68,6 @@ export interface PaperOptions {
     formats: string[];
 }
 
-// --- User Choices (Das wird später beim Buchen gespeichert) ---
 
 
 // --- Haupt-Interfaces für die Geräte ---

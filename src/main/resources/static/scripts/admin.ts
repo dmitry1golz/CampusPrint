@@ -1,5 +1,5 @@
 import { Booking } from './models/booking.js';
-import { Device, ThreeDOptions, LaserOptions, PaperOptions, DeviceStatus, DeviceTyp, MaterialProfile } from './models/device.js';
+import { Device, LaserOptions, PaperOptions, DeviceTyp, FdmOptions, SlaOptions, LaserPreset, FdmMaterial, SlaMaterial } from './models/device.js';
 import { getAllBookings, updateBookingStatus } from './services/bookingService.js';
 import { getAllDevices, addDevice, deleteDevice, updateDeviceStatus } from './services/deviceService.js';
 import { requireAuth } from './services/authService.js';
@@ -15,8 +15,9 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentRejectId: string | null = null;
     
     // Temporäre Speicher für die Listen
-    let tempMaterials: MaterialProfile[] = [];
-    let tempLaserPresets: { material: string; thickness: number; power: number; speed: number }[] = [];
+    let tempFdmMaterials: FdmMaterial[] = [];
+    let tempSlaMaterials: SlaMaterial[] = [];
+    let tempLaserPresets: LaserPreset[] = [];
     let tempPaperFormats: string[] = [];
 
     // --- DOM HELPER ---
@@ -39,19 +40,25 @@ document.addEventListener('DOMContentLoaded', () => {
         dimX: getIn('eq-dim-x'), dimY: getIn('eq-dim-y'), dimZ: getIn('eq-dim-z'),
         
         // Gruppen
+        group: getDiv('group-dim'),
+        groupX: getDiv('group-dim-x'),
+        groupY: getDiv('group-dim-y'),
         groupZ: getDiv('group-dim-z'),
-        groupMaterials: getDiv('group-materials'),
+        groupFdmMaterials: getDiv('group-materials-fdm'),
+        groupSlaMaterials: getDiv('group-materials-sla'),
         groupLaser: getDiv('group-laser-presets'),
         groupPaper: getDiv('group-paper-config'),
 
         // Listen-Container
-        listMat: getDiv('material-list'),
+        listMatFdm: getDiv('fdm-material-list'),
+        listMatSla: getDiv('sla-material-list'),
         listLas: getDiv('laser-list'),
         listPap: getDiv('paper-list')
     };
 
     // Inputs für Hinzufügen
-    const inpMat = { name: getIn('mat-name'), nozzle: getIn('mat-nozzle'), bed: getIn('mat-bed'), color: getIn('mat-color'), btn: document.getElementById('btn-add-material') };
+    const inpFdmMat = { name: getIn('fdm-mat-name'), nozzle: getIn('fdm-mat-nozzle'), bed: getIn('fdm-mat-bed'), color: getIn('fdm-mat-color'), btn: document.getElementById('btn-add-fdm-material') };
+    const inpSlaMat = { name: getIn('sla-mat-name'), color: getIn('sla-mat-color'), btn: document.getElementById('btn-add-sla-material') };
     const inpLas = { mat: getIn('las-mat'), thick: getIn('las-thick'), power: getIn('las-power'), speed: getIn('las-speed'), btn: document.getElementById('btn-add-laser') };
     const inpPap = { fmt: getIn('pap-format'), btn: document.getElementById('btn-add-paper') };
 
@@ -93,17 +100,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- RENDER LISTEN HELPER ---
 
-    function renderMaterialList() {
-        forms.listMat.innerHTML = '';
-        const isSLA = forms.type.value === 'SLA_Printer';
+    function renderFdmMaterialList() {
+        forms.listMatFdm.innerHTML = '';
         
-        if (tempMaterials.length === 0) {
-            forms.listMat.innerHTML = '<div class="text-muted text-sm text-center">Keine Materialien.</div>';
+        if (tempFdmMaterials.length === 0) {
+            forms.listMatFdm.innerHTML = '<div class="text-muted text-sm text-center">Keine Materialien.</div>';
             return;
         }
 
-        tempMaterials.forEach((m, i) => {
-            const tempInfo = isSLA ? '' : `<span class="text-muted">(${m.temp_nozzle}°C / ${m.temp_bed}°C)</span>`;
+        tempFdmMaterials.forEach((m, i) => {
+            const tempInfo = `<span class="text-muted">(${m.temp_nozzle}°C / ${m.temp_bed}°C)</span>`;
             const row = document.createElement('div');
             row.className = 'item-row';
             row.innerHTML = `
@@ -113,7 +119,29 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
                 <button class="btn-del text-danger" style="background:none; border:none; cursor:pointer;" data-idx="${i}" data-type="mat">✕</button>
             `;
-            forms.listMat.appendChild(row);
+            forms.listMatFdm.appendChild(row);
+        });
+    }
+
+    function renderSlaMaterialList() {
+        forms.listMatSla.innerHTML = '';
+        
+        if (tempSlaMaterials.length === 0) {
+            forms.listMatSla.innerHTML = '<div class="text-muted text-sm text-center">Keine Materialien.</div>';
+            return;
+        }
+
+        tempSlaMaterials.forEach((m, i) => {
+            const row = document.createElement('div');
+            row.className = 'item-row';
+            row.innerHTML = `
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <div style="width:12px; height:12px; background:${m.color_hex}; border-radius:50%; border:1px solid #ccc;"></div>
+                    <strong>${m.name}</strong>
+                </div>
+                <button class="btn-del text-danger" style="background:none; border:none; cursor:pointer;" data-idx="${i}" data-type="mat">✕</button>
+            `;
+            forms.listMatSla.appendChild(row);
         });
     }
 
@@ -157,7 +185,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (target.classList.contains('btn-del')) {
             const idx = parseInt(target.dataset.idx || '0');
             const type = target.dataset.type;
-            if (type === 'mat') { tempMaterials.splice(idx, 1); renderMaterialList(); }
+            if (type === 'fdm') { tempFdmMaterials.splice(idx, 1); renderFdmMaterialList(); }
+            if (type === 'sla') { tempSlaMaterials.splice(idx, 1); renderSlaMaterialList(); }
             if (type === 'las') { tempLaserPresets.splice(idx, 1); renderLaserList(); }
             if (type === 'pap') { tempPaperFormats.splice(idx, 1); renderPaperList(); }
         }
@@ -170,12 +199,16 @@ document.addEventListener('DOMContentLoaded', () => {
         const t = forms.type.value;
         const isFDM = t === 'FDM_Printer';
         const isSLA = t === 'SLA_Printer';
-        const isLaser = t === 'Laser_Cutter' || t === 'CNC_Mill';
+        const isLaser = t === 'Laser_Cutter';
         const isPaper = t === 'Printer';
 
         // Sichtbarkeit der Hauptgruppen
+        if(forms.group) forms.group.classList.toggle('hidden', isPaper);
+        if(forms.groupX) forms.groupX.classList.toggle('hidden', isPaper);
+        if(forms.groupY) forms.groupY.classList.toggle('hidden', isPaper);
         if(forms.groupZ) forms.groupZ.classList.toggle('hidden', !isFDM && !isSLA);
-        if(forms.groupMaterials) forms.groupMaterials.classList.toggle('hidden', !isFDM && !isSLA);
+        if(forms.groupFdmMaterials) forms.groupFdmMaterials.classList.toggle('hidden', !isFDM);
+        if(forms.groupSlaMaterials) forms.groupSlaMaterials.classList.toggle('hidden', !isSLA);
         if(forms.groupLaser) forms.groupLaser.classList.toggle('hidden', !isLaser);
         if(forms.groupPaper) forms.groupPaper.classList.toggle('hidden', !isPaper);
 
@@ -184,12 +217,9 @@ document.addEventListener('DOMContentLoaded', () => {
             (el as HTMLElement).style.display = isSLA ? 'none' : 'block';
         });
         
-        // Überschriften anpassen
-        const matHeader = forms.groupMaterials?.querySelector('h4');
-        if(matHeader) matHeader.textContent = isSLA ? 'Harze (Resins)' : 'Materialien (Filamente)';
-        
         // Listen neu zeichnen (um UI Glitches zu vermeiden)
-        if(isFDM || isSLA) renderMaterialList();
+        if(isFDM) renderFdmMaterialList();
+        if(isSLA) renderSlaMaterialList();
         if(isLaser) renderLaserList();
         if(isPaper) renderPaperList();
     }
@@ -218,29 +248,28 @@ document.addEventListener('DOMContentLoaded', () => {
         let final: Device;
 
         if (type === 'FDM_Printer') {
-            const opts: ThreeDOptions = {
+            const opts: FdmOptions = {
                 tech_type: 'FDM',
-                dimensions: {x,y,z},
-                available_materials: tempMaterials, 
+                work_area: {x,y,z},
+                available_materials: tempFdmMaterials, 
                 supported_layer_heights: [0.1, 0.2],
                 nozzle_sizes: [0.4]
             };
             final = { ...base, type, print_options: opts } as Device;
         } else if (type === 'SLA_Printer') {
-            const opts: ThreeDOptions = {
+            const opts: SlaOptions = {
                 tech_type: 'SLA',
-                dimensions: {x,y,z},
-                available_materials: tempMaterials, 
+                work_area: {x,y,z},
+                available_materials: tempSlaMaterials, 
                 supported_layer_heights: [0.05]
             };
             final = { ...base, type, print_options: opts } as Device;
-        } else if (type === 'Laser_Cutter' || type === 'CNC_Mill') {
+        } else if (type === 'Laser_Cutter') {
             const opts: LaserOptions = {
                 tech_type: 'LASER',
                 work_area: {x,y},
                 presets: tempLaserPresets
             };
-            // @ts-ignore
             final = { ...base, type, print_options: opts } as Device;
         } else {
             const opts: PaperOptions = {
@@ -272,30 +301,38 @@ document.addEventListener('DOMContentLoaded', () => {
         getIn('eq-image').value = dev.image;
 
         // Reset Listen
-        tempMaterials = [];
+        tempFdmMaterials = [];
+        tempSlaMaterials = [];
         tempLaserPresets = [];
         tempPaperFormats = [];
 
         // Optionen laden
         if (dev.print_options) {
             const opts = dev.print_options;
-            
-            // Dimensionen laden
-            if('dimensions' in opts) {
-                forms.dimX.value = opts.dimensions.x.toString();
-                forms.dimY.value = opts.dimensions.y.toString();
-                forms.dimZ.value = opts.dimensions.z.toString();
-            } else if ('work_area' in opts) {
-                forms.dimX.value = opts.work_area.x.toString();
-                forms.dimY.value = opts.work_area.y.toString();
-                forms.dimZ.value = '';
-            }
+            switch (opts.tech_type) {
+                case "FDM":
+                case "SLA":
+                    forms.dimX.value = opts.work_area.x.toString();
+                    forms.dimY.value = opts.work_area.y.toString();
+                    forms.dimZ.value = opts.work_area.z.toString();
+                    break;
+                case "LASER":
+                    forms.dimX.value = opts.work_area.x.toString();
+                    forms.dimY.value = opts.work_area.y.toString();
+                    forms.dimZ.value = '';
+                    break;
+                case "PAPER":
+                    break;
+            } 
 
             // Spezifische Listen laden
-            if (dev.type === 'FDM_Printer' || dev.type === 'SLA_Printer') {
-                const o = opts as ThreeDOptions;
-                if(o.available_materials) tempMaterials = [...o.available_materials];
-            } else if (dev.type === 'Laser_Cutter' || dev.type === 'CNC_Mill') {
+            if (dev.type === 'FDM_Printer') {
+                const o = opts as FdmOptions;
+                if(o.available_materials) tempFdmMaterials = [...o.available_materials];
+            } else if (dev.type === 'SLA_Printer' ) {
+                const o = opts as SlaOptions;
+                if(o.available_materials) tempSlaMaterials = [...o.available_materials];
+            } else if (dev.type === 'Laser_Cutter') {
                 const o = opts as LaserOptions;
                 if(o.presets) tempLaserPresets = [...o.presets];
             } else if (dev.type === 'Printer') {
@@ -305,7 +342,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         handleTypeChange();
-        renderMaterialList();
+        renderFdmMaterialList();
+        renderSlaMaterialList();
         renderLaserList();
         renderPaperList();
         
@@ -347,17 +385,29 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // Add Material (FDM/SLA)
-        inpMat.btn?.addEventListener('click', () => {
-            if(inpMat.name.value) {
-                tempMaterials.push({
-                    name: inpMat.name.value,
-                    temp_nozzle: Number(inpMat.nozzle.value)||0,
-                    temp_bed: Number(inpMat.bed.value)||0,
-                    color_hex: inpMat.color.value
+        // Add Material FDM
+        inpFdmMat.btn?.addEventListener('click', () => {
+            if(inpFdmMat.name.value) {
+                tempFdmMaterials.push({
+                    name: inpFdmMat.name.value,
+                    temp_nozzle: Number(inpFdmMat.nozzle.value)||0,
+                    temp_bed: Number(inpFdmMat.bed.value)||0,
+                    color_hex: inpFdmMat.color.value
                 });
-                renderMaterialList();
-                inpMat.name.value=''; inpMat.nozzle.value=''; inpMat.bed.value='';
+                renderFdmMaterialList();
+                inpFdmMat.name.value=''; inpFdmMat.nozzle.value=''; inpFdmMat.bed.value='';
+            }
+        });
+
+        // Add Material SLA
+        inpSlaMat.btn?.addEventListener('click', () => {
+            if(inpSlaMat.name.value) {
+                tempSlaMaterials.push({
+                    name: inpSlaMat.name.value,
+                    color_hex: inpSlaMat.color.value
+                });
+                renderSlaMaterialList();
+                inpSlaMat.name.value='';
             }
         });
 
@@ -392,8 +442,11 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('btn-show-add-equipment')?.addEventListener('click', () => {
             closeForm(); // Reset
             forms.title.textContent = 'Neues Gerät';
-            tempMaterials=[]; tempLaserPresets=[]; tempPaperFormats=[];
-            renderMaterialList(); renderLaserList(); renderPaperList();
+            tempFdmMaterials=[];
+            tempSlaMaterials=[];
+            tempLaserPresets=[];
+            tempPaperFormats=[];
+            renderFdmMaterialList(); renderLaserList(); renderPaperList();
             forms.add.classList.remove('hidden');
             handleTypeChange();
         });
@@ -427,9 +480,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (eq.print_options) {
                 // Defensive Prüfung, da Backend-Daten theoretisch fehlen könnten
                 if((eq.type === 'FDM_Printer') && 'available_materials' in eq.print_options) 
-                    info = `${(eq.print_options as ThreeDOptions).available_materials?.length || 0} Filamente`;
+                    info = `${(eq.print_options as FdmOptions).available_materials?.length || 0} Filamente`;
                 else if((eq.type === 'SLA_Printer') && 'available_materials' in eq.print_options) 
-                    info = `${(eq.print_options as ThreeDOptions).available_materials?.length || 0} Harze`;
+                    info = `${(eq.print_options as SlaOptions).available_materials?.length || 0} Harze`;
                 else if((eq.type === 'Laser_Cutter') && 'presets' in eq.print_options) 
                     info = `${(eq.print_options as LaserOptions).presets?.length || 0} Presets`;
                 else if((eq.type === 'Printer') && 'formats' in eq.print_options) 
