@@ -56,6 +56,86 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Populate UI
     document.getElementById('printerInfo-Name')!.innerText = device.name;
     document.getElementById('printerInfo-Description')!.innerText = device.description;
+    switch (device.type) {
+        case "FDM_Printer":
+            document.getElementById("device-config-fdm")!.classList.remove("hidden");
+
+            var materialOptions = "";
+            device.print_options.available_materials.forEach(mat => {
+                // TODO render color??
+                materialOptions += `
+                    <option value="${mat.name}">${mat.name} - ${mat.temp_nozzle}/${mat.temp_bed}</option>
+                `;
+            })
+            document.getElementById("fdm-mat-select")!.innerHTML = materialOptions;
+
+            var layerOptions = "";
+            device.print_options.supported_layer_heights.forEach(layer => {
+                layerOptions += `
+                    <option value="${layer}">${layer}</option>
+                `;
+            })
+            document.getElementById("fdm-layer-select")!.innerHTML = layerOptions;
+
+            var nozzleOptions = "";
+            device.print_options.nozzle_sizes.forEach(nozzle => {
+                nozzleOptions += `
+                    <option value="${nozzle}">${nozzle}</option>
+                `;
+            })
+            document.getElementById("fdm-nozzle-select")!.innerHTML = nozzleOptions;
+            break;
+        case "SLA_Printer":
+            document.getElementById("device-config-sla")?.classList.remove("hidden");
+
+            var materialOptions = "";
+            device.print_options.available_materials.forEach(mat => {
+                // TODO render color??
+                materialOptions += `
+                    <option value="${mat.name}">${mat.name}</option>
+                `;
+            })
+            document.getElementById("sla-mat-select")!.innerHTML = materialOptions;
+
+            var layerOptions = "";
+            device.print_options.supported_layer_heights.forEach(layer => {
+                layerOptions += `
+                    <option value="${layer}">${layer}</option>
+                `;
+            })
+            document.getElementById("sla-layer-select")!.innerHTML = layerOptions;
+            break;
+        case "Laser_Cutter":
+            document.getElementById("device-config-laser")?.classList.remove("hidden");
+
+            var presetOptions = "";
+            device.print_options.presets.forEach(preset => {
+                presetOptions += `
+                    <option value="${preset.material}">${preset.material} - ${preset.thickness}   ${preset.power} ${preset.speed}</option>
+                `;
+            })
+            document.getElementById("laser-preset-select")!.innerHTML = presetOptions;
+            break;
+        case "Printer":
+            document.getElementById("device-config-paper")?.classList.remove("hidden");
+
+            var weightOptions = "";
+            device.print_options.paper_weights.forEach(weight => {
+                weightOptions += `
+                    <option value="${weight}">${weight}</option>
+                `;
+            })
+            document.getElementById("paper-weight-select")!.innerHTML = weightOptions;
+
+            var formatOptions = "";
+            device.print_options.formats.forEach(format => {
+                formatOptions += `
+                    <option value="${format}">${format}</option>
+                `;
+            })
+            document.getElementById("paper-format-select")!.innerHTML = formatOptions;
+            break;
+    }
 
     const form = document.getElementById('bookingForm') as HTMLFormElement;
     form.addEventListener('submit', handleFormSubmit);

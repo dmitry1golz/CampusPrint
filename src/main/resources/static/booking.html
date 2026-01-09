@@ -83,7 +83,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="form-row">
                         <div class="form-group">
                             <label for="start">Startzeit</label>
@@ -92,6 +92,106 @@
                         <div class="form-group">
                             <label for="end">Endzeit</label>
                             <input type="time" id="end" required/>
+                        </div>
+                    </div>
+
+                    <div class="form-group card">
+                        <div class="form-row">
+                            <label>Gerätekonfiguration:</label>
+                        </div>
+
+                        <div class="hidden" id="device-config-fdm">
+                            <div class="form-row">
+                                <div>
+                                    <label>Material</label>
+                                    <select id="fdm-mat-select" class="form-control">
+                                    </select>
+                                </div>
+                                <div>
+                                    <label>Layer</label>
+                                    <select id="fdm-layer-select" class="form-control">
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div>
+                                    <label>Nozzle</label>
+                                    <select id="fdm-nozzle-select" class="form-control">
+                                    </select>
+                                </div>
+                                <div>
+                                    <label>Support</label>
+                                    <select id="fdm-support-select" class="form-control">
+                                        <option value="none">none</option>
+                                        <option value="touching_bed">touching_bed</option>
+                                        <option value="everywhere">everywhere</option>
+                                        <option value="auto">auto</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div>
+                                    <label>Infill</label>
+                                    <input type="number" id="fdm-infill-input" class="form-control" placeholder="50" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="hidden" id="device-config-sla">
+                            <div class="form-row">
+                                <div>
+                                    <label>Harz (Resin)</label>
+                                    <select id="sla-mat-select" class="form-control">
+                                    </select>
+                                </div>
+                                <div>
+                                    <label>Layer</label>
+                                    <select id="sla-layer-select" class="form-control">
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div>
+                                    <label>Support</label>
+                                    <select id="sla-support-select" class="form-control">
+                                        <option value="none">none</option>
+                                        <option value="touching_bed">touching_bed</option>
+                                        <option value="everywhere">everywhere</option>
+                                        <option value="auto">auto</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div>
+                                    <label>Infill</label>
+                                    <input type="number" id="sla-infill-input" class="form-control" placeholder="250" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="hidden" id="device-config-laser">
+                            <div class="form-row">
+                                <div>
+                                    <label>Preset</label>
+                                    <select id="laser-preset-select" class="form-control">
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="hidden" id="device-config-paper">
+                            <div class="form-row">
+                                <div>
+                                    <label>Papierdicke</label>
+                                    <select id="paper-weight-select" class="form-control">
+                                    </select>
+                                </div>
+                                <div>
+                                    <label>Papierformat</label>
+                                    <select id="paper-format-select" class="form-control">
+                                    </select>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     

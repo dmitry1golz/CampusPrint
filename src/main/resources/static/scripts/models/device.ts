@@ -59,8 +59,7 @@ export interface LaserOptions {
 
 // Other 3D options -> TODO in Booking settings beachten
 // infill_percent: number;                
-// supports: 'none' | 'touching_bed' | 'everywhere' | 'auto'; 
-// adhesion: boolean;
+// supports: 'none' | 'touching_bed' | 'everywhere' | 'auto';
 
 export interface PaperOptions {
     tech_type: 'PAPER';
