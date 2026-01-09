@@ -546,7 +546,7 @@ document.addEventListener('DOMContentLoaded', () => {
                      // Weitere Settings aus JSON parsen
 
                      card.innerHTML = `
-                         <div class="card-header"><h3 class="card-title">${b.printerName}</h3><span class="badge ${b.status}">${b.status}</span></div>
+                         <div class="card-header"><h3 class="card-title">${b.printerName}</h3><span class="badge ${b.status}">${bookingStatusToString(b.status)}</span></div>
                          <div class="card-body">
                                 ${startDateInfoHTML}
                                 ${endDateInfoHTML}
@@ -582,3 +582,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }));
     }
 });
+
+
+function bookingStatusToString(status: string): string {
+    switch (status) {
+        case 'pending': return 'Ausstehend';
+        case 'confirmed': return 'Bestätigt';
+        case 'running': return 'In Bearbeitung';
+        case 'completed': return 'Abgeschlossen';
+        case 'rejected': return 'Abgelehnt';
+        default: return status;
+    }
+}
