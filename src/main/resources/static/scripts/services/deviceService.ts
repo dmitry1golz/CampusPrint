@@ -6,7 +6,10 @@ export async function getAllDevices(): Promise<Device[]> {
     try {
         const response = await fetch(API_URL);
         if (!response.ok) throw new Error(`Status: ${response.status}`);
-        return await response.json();
+        var d : Device[] = await response.json();
+        var de = d[0];
+        console.log("Ein Gerät " + de.name + " mit Status " + de.status + " model " + de.model + " geladen.");
+        return d;
     } catch (error) {
         console.error("Fehler beim Laden:", error);
         return [];
