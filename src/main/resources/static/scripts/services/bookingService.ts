@@ -1,7 +1,9 @@
-import { PrintBooking, NewPrintBooking, BookingAvailability } from '../models/booking.js';
-import { getDeviceById } from './deviceService.js';
+import {Booking, BookingAvailability, NewBooking} from '../models/booking.js';
+import {Device} from '../models/device.js';
 
-export let MOCK_BOOKING: PrintBooking[] = [
+const API_URL = 'http://localhost:8090/api/bookings';
+
+export let MOCK_BOOKING: Booking[] = [
     {
         id: 'b-new-1',
         printerName: 'Ultimaker S5',
@@ -102,16 +104,24 @@ export let MOCK_BOOKING: PrintBooking[] = [
 // API Functions
 
 // Returns sync array because admin.ts expects direct array (for now)
-export function getAllBookings(): PrintBooking[] {
+export function getAllBookings(): Booking[] {
     return MOCK_BOOKING;
 }
 
-export function getBookingsForEmail(email: string): PrintBooking[] {
-    return MOCK_BOOKING;
+export async function getBookingsForEmail(email: string): Promise<Booking[] | undefined> {
+    const response = await fetch(`${API_URL}?email=${email}`);
+    if (!response.ok) return undefined;
+
+    const rawBookings = await response.json();
+    return rawBookings.map((b: any) => ({
+        ...b,
+        startDate: new Date(b.startDate),
+        endDate: new Date(b.endDate),
+    }));
 }
 
 // CHANGED TO ASYNC: This fixes the 'Property then does not exist' error in admin.ts
-export async function updateBookingStatus(id: string, newStatus: PrintBooking['status'], message?: string): Promise<void> {
+export async function updateBookingStatus(id: string, newStatus: Booking['status'], message?: string): Promise<void> {
     const b = MOCK_BOOKING.find(x => x.id === id);
     if (b) {
         b.status = newStatus;
@@ -121,36 +131,108 @@ export async function updateBookingStatus(id: string, newStatus: PrintBooking['s
     // await new Promise(r => setTimeout(r, 100));
 }
 
-export async function createNewBooking(newBooking: NewPrintBooking) {
-    // newBooking.printerId is now a number. getGeraetById expects number.
-    // Casting or direct usage works if NewPrintBooking interface has number type for printerId.
-    // Assuming newBooking.printerId is number based on updated models.
-    const printer = await getDeviceById(newBooking.printerId);
-    
-    const booking: PrintBooking = {
-        id: `book-${Date.now()}`,
-        printerName: printer ? printer.name : 'Unknown',
-        startDate: newBooking.startDate,
-        endDate: newBooking.endDate,
-        notes: newBooking.notes,
-        status: 'pending'
-    };
-    MOCK_BOOKING.push(booking);
-    console.log("Booking created locally (Mock):", booking);
+export async function createNewBooking(newBooking: NewBooking): Promise<Booking | undefined> {
+    const response = await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newBooking)
+    });
+    if (!response.ok) return undefined;
+    return await response.json();
 }
 
-export function getBookingAvailabilityByDeviceId(id: string | number): BookingAvailability {
-    // Static MOCK Data
+export async function getBookingAvailabilityForDevice(device: Device): Promise<BookingAvailability | undefined> {
+    const response = await fetch(`${API_URL}?deviceId=${device.id}&futureOnly=true`);
+    if (!response.ok) return undefined;
+    const rawBookings = await response.json();
+    const bookings: Booking[] = rawBookings.map((b: any) => ({
+        ...b,
+        startDate: new Date(b.startDate),
+        endDate: new Date(b.endDate),
+    }));
+    const congestedDays = calculateDailyCongestion(bookings);
     return {
-        blockedWeekDays: [ 5, 6 ], // Sa, Su
-        fullyBookedDays: [
-            new Date(2025, 11, 16),
-            new Date(2025, 11, 17),
-        ],
-        partialyBookedDays: [
-            new Date(2025, 11, 18),
-            new Date(2025, 11, 22),
-            new Date(2026, 0, 13),
-        ]
+        blockedWeekDays: device.bookingAvailabilityBlockedWeekdays ?? [],
+        fullyBookedDays: congestedDays.over12Hours,
+        partialyBookedDays: congestedDays.under12Hours,
     };
+}
+
+type CongestionResult = {
+    over12Hours: Date[];  // local date objects (midnight)
+    under12Hours: Date[]; // local date objects (midnight)
+};
+
+function calculateDailyCongestion(bookings: Booking[]): CongestionResult {
+    // Map: local-day (ms since epoch at local midnight) -> total milliseconds booked
+    const perDay: Map<number, number> = new Map();
+
+    for (const booking of bookings) {
+        if (!booking.startDate || !booking.endDate) continue;
+
+        let startUtc = new Date(booking.startDate);
+        let endUtc = new Date(booking.endDate);
+
+        // Convert to local time instants (Dates always represent UTC internally;
+        // "local" means how we slice by local calendar days).
+        const startLocal = new Date(startUtc.getTime());
+        const endLocal = new Date(endUtc.getTime());
+
+        // Walk day-by-day in local time
+        let current = new Date(
+            startLocal.getFullYear(),
+            startLocal.getMonth(),
+            startLocal.getDate(),
+            0, 0, 0, 0
+        );
+
+        // Iterate while booking overlaps this day
+        while (current <= endLocal) {
+            const dayStart = new Date(
+                current.getFullYear(),
+                current.getMonth(),
+                current.getDate(),
+                0, 0, 0, 0
+            );
+
+            const dayEnd = new Date(
+                current.getFullYear(),
+                current.getMonth(),
+                current.getDate(),
+                23, 59, 59, 999
+            );
+
+            // overlap within this day
+            const overlapStart = new Date(Math.max(dayStart.getTime(), startLocal.getTime()));
+            const overlapEnd = new Date(Math.min(dayEnd.getTime(), endLocal.getTime()));
+
+            if (overlapEnd > overlapStart) {
+                const ms = overlapEnd.getTime() - overlapStart.getTime();
+                const key = dayStart.getTime(); // local-midnight identifier
+
+                perDay.set(key, (perDay.get(key) ?? 0) + ms);
+            }
+
+            // move to next day
+            current.setDate(current.getDate() + 1);
+        }
+    }
+
+    // Split into ≥ 12h vs < 12h
+    const twelveHoursMs = 12 * 60 * 60 * 1000;
+
+    const over12Hours: Date[] = [];
+    const under12Hours: Date[] = [];
+
+    for (const [midnightMs, totalMs] of perDay.entries()) {
+        const date = new Date(midnightMs); // local midnight date
+        if (totalMs >= twelveHoursMs) over12Hours.push(date);
+        else under12Hours.push(date);
+    }
+
+    // Optional: sort results chronologically
+    over12Hours.sort((a, b) => a.getTime() - b.getTime());
+    under12Hours.sort((a, b) => a.getTime() - b.getTime());
+
+    return { over12Hours, under12Hours };
 }

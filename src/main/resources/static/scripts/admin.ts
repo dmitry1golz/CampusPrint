@@ -1,4 +1,4 @@
-import { PrintBooking } from './models/booking.js';
+import { Booking } from './models/booking.js';
 import { Device, ThreeDOptions, LaserOptions, PaperOptions, DeviceStatus, DeviceTyp, MaterialProfile } from './models/device.js';
 import { getAllBookings, updateBookingStatus } from './services/bookingService.js';
 import { getAllDevices, addDevice, deleteDevice, updateDeviceStatus } from './services/deviceService.js';
@@ -11,7 +11,7 @@ requireAuth();
 document.addEventListener('DOMContentLoaded', () => {
 
     // --- STATE ---
-    let editingDeviceId: number | null = null;
+    let editingDeviceId: string | null = null;
     let currentRejectId: string | null = null;
     
     // Temporäre Speicher für die Listen
@@ -207,7 +207,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const oldModel = old && old.model ? old.model : '';
 
         const base = {
-            id: editingDeviceId || 0,
+            id: editingDeviceId || '',
             name, type, description: desc, status: oldStatus, 
             image: getIn('eq-image').value, model: oldModel
         };
@@ -257,12 +257,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function openEdit(idStr: string) {
-        const id = parseInt(idStr);
         const all = await getAllDevices();
-        const dev = all.find(g => g.id === id);
+        const dev = all.find(g => g.id === idStr);
         if(!dev) return;
 
-        editingDeviceId = id;
+        editingDeviceId = idStr;
         forms.title.textContent = 'Gerät bearbeiten';
         
         // Basisdaten
@@ -330,12 +329,11 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!btn) return;
             const { action, id } = btn.dataset;
             if(!id) return;
-            const numId = parseInt(id);
 
             if (action === 'edit-device') openEdit(id);
-            if (action === 'delete-device') if(confirm('Löschen?')) { await deleteDevice(numId); renderAll(); }
-            if (action === 'set-unavailable') { await updateDeviceStatus(numId, 'Unavailable'); renderAll(); }
-            if (action === 'set-available') { await updateDeviceStatus(numId, 'Available'); renderAll(); }
+            if (action === 'delete-device') if(confirm('Löschen?')) { await deleteDevice(id); renderAll(); }
+            if (action === 'set-unavailable') { await updateDeviceStatus(id, 'Unavailable'); renderAll(); }
+            if (action === 'set-available') { await updateDeviceStatus(id, 'Available'); renderAll(); }
             
             // Buchungs Actions
             if (action === 'confirm') { await updateBookingStatus(id, 'confirmed'); renderAll(); }
@@ -453,11 +451,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    function renderBookingList(viewType: string, allBookings: PrintBooking[], container: HTMLDivElement) {
+    function renderBookingList(viewType: string, allBookings: Booking[], container: HTMLDivElement) {
         if (!container) return;
         container.innerHTML = '';
         
-        let filtered: PrintBooking[] = [];
+        let filtered: Booking[] = [];
         if (viewType === 'pending') filtered = allBookings.filter(b => b.status === 'pending');
         else if (viewType === 'active') filtered = allBookings.filter(b => ['confirmed', 'running'].includes(b.status));
         else if (viewType === 'completed') filtered = allBookings.filter(b => ['completed', 'rejected'].includes(b.status));
@@ -490,7 +488,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function updateCounts(b: PrintBooking[], e: Device[]) {
+    function updateCounts(b: Booking[], e: Device[]) {
         const setTxt = (id: string, txt: string) => { const el = document.getElementById(id); if(el) el.textContent = txt; };
         setTxt('count-pending', `(${b.filter(x => x.status === 'pending').length})`);
         setTxt('count-active', `(${b.filter(x => ['confirmed', 'running'].includes(x.status)).length})`);

@@ -1,5 +1,5 @@
 // Export Bookinginterface
-export interface PrintBooking {
+export interface Booking {
     id: string;
     printerName: string;
     startDate: Date;
@@ -12,8 +12,9 @@ export interface PrintBooking {
     status: 'pending' | 'confirmed' | 'completed' | 'rejected' | 'running';
 }
 
-export interface NewPrintBooking {
-    printerId: number;
+export interface NewBooking {
+    printerId: String;
+    userEmail: string;
     startDate: Date;
     endDate: Date;
     notes?: string;

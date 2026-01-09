@@ -1,5 +1,5 @@
-import { createNewBooking, getBookingAvailabilityByDeviceId } from "./services/bookingService.js";
-import { BookingAvailability, NewPrintBooking } from "./models/booking.js";
+import { createNewBooking, getBookingAvailabilityForDevice } from "./services/bookingService.js";
+import { Booking, BookingAvailability, NewBooking } from "./models/booking.js";
 import { getDeviceById } from "./services/deviceService.js";
 import { setCookie } from "./services/authService.js";
 import { Device } from "./models/device.js";
@@ -29,27 +29,29 @@ document.addEventListener('DOMContentLoaded', async () => {
     const urlParams = new URLSearchParams(window.location.search);
     const deviceIdStr = urlParams.get('device_id');
 
-    // Parse ID to number because DB uses integers
-    const deviceId = parseInt(deviceIdStr || '0');
-
-    if (!deviceIdStr || isNaN(deviceId)) {
+    if (!deviceIdStr) {
         updateState('error');
         return;
     }
 
     // Fetch real device data from Backend via Service
-    const foundDevice = await getDeviceById(deviceId);
+    const foundDevice = await getDeviceById(deviceIdStr);
 
     if (!foundDevice) {
-        console.error(`Device with ID ${deviceId} not found.`);
+        console.error(`Device with ID ${deviceIdStr} not found.`);
         updateState('error');
         return;
     }
 
     device = foundDevice;
     
-    // Mock availability (Backend logic not ready yet)
-    bookingAvailability = getBookingAvailabilityByDeviceId(deviceIdStr!);
+    const foundBookingAvailability = await getBookingAvailabilityForDevice(device);
+    if (!foundBookingAvailability) {
+        console.error(`BookingAvailability not found.`);
+        updateState('error');
+        return;
+    }
+    bookingAvailability = foundBookingAvailability;
 
     // Populate UI
     document.getElementById('printerInfo-Name')!.innerText = device.name;
@@ -79,17 +81,22 @@ async function handleFormSubmit(e: Event) {
     }
 
     // printerId must be number now
-    const booking: NewPrintBooking = {
-        printerId: device.id, 
+    const booking: NewBooking = {
+        printerId: device.id,
+        userEmail: email,
         startDate: createDateTime(currentlySelectedDate, start),
         endDate: createDateTime(currentlySelectedDate, end),
         notes: notes
     };
 
-    await createNewBooking(booking);
+    const createdBooking: Booking | undefined = await createNewBooking(booking);
+    if (createdBooking === undefined) {
+        updateState('error');
+    } else {
+        setCookie('userEmail', email, 30);
+        window.location.href = "myPrints.html";
+    }
     
-    setCookie('userEmail', email, 30);
-    window.location.href = "myPrints.html";
 }
 
 function renderDateSelector(selectedDate: Date | undefined, year: number, month: number) {

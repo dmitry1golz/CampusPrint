@@ -5,9 +5,10 @@ import lombok.Getter;
 import lombok.Setter;
 import thl.campusprint.models.options.DeviceOptions;
 
+import java.util.UUID;
+
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
-import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Entity
@@ -17,9 +18,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class Device {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "iddevice")
-    private Integer id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "iddevice", updatable = false, nullable = false)
+    private UUID id;
 
     @Column(nullable = false, length = 45)
     private String name;
@@ -49,5 +50,10 @@ public class Device {
 
     @Column(length = 255)
     private String image;
+
+    @JsonProperty("booking_availability_blocked_weekdays")
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "booking_availability_blocked_weekdays", columnDefinition = "TEXT")
+    private BlockedWeekdays bookingAvailabilityBlockedWeekdays;
 
 }
