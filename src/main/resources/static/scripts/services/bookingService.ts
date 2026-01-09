@@ -122,13 +122,19 @@ export async function getBookingsForEmail(email: string): Promise<Booking[] | un
 
 // CHANGED TO ASYNC: This fixes the 'Property then does not exist' error in admin.ts
 export async function updateBookingStatus(id: string, newStatus: Booking['status'], message?: string): Promise<void> {
-    const b = MOCK_BOOKING.find(x => x.id === id);
-    if (b) {
-        b.status = newStatus;
-        if(message) b.message = message;
-    }
-    // Simulate network delay if you want
-    // await new Promise(r => setTimeout(r, 100));
+    const body = {
+        bookingId: parseInt(id, 10),
+        status: newStatus,
+        ...(message && { adminMessage: message }) // adminMessage nur, wenn gesetzt
+    };
+
+    const response = await fetch(`${API_URL}/status`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+    });
+    if (!response.ok) throw new Error(`Fehler beim Aktualisieren des Buchungsstatus: ${response.status}`);
+    await response.json();
 }
 
 export async function createNewBooking(newBooking: NewBooking): Promise<Booking | undefined> {
