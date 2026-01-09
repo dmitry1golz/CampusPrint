@@ -17,7 +17,7 @@ INSERT INTO `devices` (`iddevice`, `name`, `description`, `model`, `status`, `ty
  'https://ultimaker.com/wp-content/uploads/2023/05/The_Ultimaker_S5.jpg',
  '{
     "tech_type": "FDM",
-    "dimensions": {"x": 330, "y": 240, "z": 300}, 
+    "work_area": {"x": 330, "y": 240, "z": 300}, 
     "available_materials": [
         {"name": "PLA", "temp_nozzle": 210, "temp_bed": 60, "color_hex": "#FFFFFF"},
         {"name": "Tough PLA", "temp_nozzle": 215, "temp_bed": 60, "color_hex": "#000000"},
@@ -36,7 +36,7 @@ INSERT INTO `devices` (`iddevice`, `name`, `description`, `model`, `status`, `ty
  'assets/prusa.png',
  '{
     "tech_type": "FDM",
-    "dimensions": {"x": 250, "y": 210, "z": 210},
+    "work_area": {"x": 250, "y": 210, "z": 210},
     "available_materials": [
         {"name": "Prusament PLA", "temp_nozzle": 215, "temp_bed": 60, "color_hex": "#FF5733"},
         {"name": "PETG", "temp_nozzle": 240, "temp_bed": 80, "color_hex": "#33FF57"}
@@ -54,7 +54,7 @@ INSERT INTO `devices` (`iddevice`, `name`, `description`, `model`, `status`, `ty
  'https://cdn.idealo.com/folder/Product/202800/9/202800985/s1_produktbild_max_1/bambu-lab-x1-carbon-combo.jpg',
  '{
     "tech_type": "FDM",
-    "dimensions": {"x": 256, "y": 256, "z": 256},
+    "work_area": {"x": 256, "y": 256, "z": 256},
     "available_materials": [
         {"name": "PLA Basic", "temp_nozzle": 220, "temp_bed": 55, "color_hex": "#AAAAAA"},
         {"name": "PAHT-CF", "temp_nozzle": 290, "temp_bed": 100, "color_hex": "#111111"}
@@ -72,7 +72,7 @@ INSERT INTO `devices` (`iddevice`, `name`, `description`, `model`, `status`, `ty
  'https://formlabs-media.formlabs.com/filer_public_thumbnails/filer_public/5c/42/5c423730-a359-4d6d-888e-6c68a0a9926c/form-3-plus-render-front.png__1054x1054_subsampling-2.png',
  '{
     "tech_type": "SLA",
-    "dimensions": {"x": 145, "y": 145, "z": 185},
+    "work_area": {"x": 145, "y": 145, "z": 185},
     "available_materials": [
         {"name": "Standard Grey Resin", "color_hex": "#808080"},
         {"name": "Clear Resin", "color_hex": "#E0E0E0"}
