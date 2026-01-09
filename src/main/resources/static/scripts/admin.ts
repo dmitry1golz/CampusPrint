@@ -81,7 +81,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function renderAll() {
         try {
-            const bookings = getAllBookings();
+            const bookings = await getAllBookings();
             const equipment = await getAllDevices();
             
             renderBookingList('pending', bookings, containers.pending);
