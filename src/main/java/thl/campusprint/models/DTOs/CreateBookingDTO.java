@@ -1,6 +1,7 @@
 package thl.campusprint.models.DTOs;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import lombok.Data;
 import lombok.NonNull;
@@ -9,7 +10,7 @@ import lombok.NonNull;
 public class CreateBookingDTO {
     
     @NonNull
-    private Integer printerId;
+    private UUID printerId;
 
     @NonNull
     private String userEmail;

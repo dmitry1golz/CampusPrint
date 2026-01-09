@@ -2,6 +2,7 @@ package thl.campusprint.controllers;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -35,7 +36,7 @@ public class BookingController {
     @GetMapping
     public List<BookingDTO> getBookings(
         @RequestParam(required = false) String email,   // optional (kann null sein)
-        @RequestParam(required = false) Integer deviceId,   // optional (kann null sein)
+        @RequestParam(required = false) UUID deviceId,   // optional (kann null sein)
         @RequestParam(required = false, defaultValue = "false") boolean futureOnly // optional (nur zukünftige buchungen)
     ) {
         return bookingRepository

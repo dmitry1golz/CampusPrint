@@ -6,6 +6,7 @@ import thl.campusprint.models.Device;
 import thl.campusprint.repositories.DeviceRepository;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/devices")
@@ -26,7 +27,7 @@ public class DeviceController {
 
     // 2. Ein einzelnes Gerät holen
     @GetMapping("/{id}")
-    public ResponseEntity<Device> getDeviceById(@PathVariable Integer id) {
+    public ResponseEntity<Device> getDeviceById(@PathVariable UUID id) {
         return deviceRepository.findById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
@@ -42,7 +43,7 @@ public class DeviceController {
 
     // 4. Gerät löschen
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteDevice(@PathVariable Integer id) {
+    public ResponseEntity<Void> deleteDevice(@PathVariable UUID id) {
         if (deviceRepository.existsById(id)) {
             deviceRepository.deleteById(id);
             return ResponseEntity.ok().build();

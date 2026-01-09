@@ -2,6 +2,7 @@ package thl.campusprint.repositories;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -19,6 +20,6 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
             @Param("email") String email,
             @Param("futureOnly") boolean futureOnly,
             @Param("now") LocalDateTime now,
-            @Param("deviceId") Integer deviceId
+            @Param("deviceId") UUID deviceId
     );
 }

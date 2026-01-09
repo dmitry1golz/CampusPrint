@@ -47,7 +47,7 @@ export interface ThreeDJobSettings {
 // --- Haupt-Interfaces für die Geräte ---
 
 interface BaseDevice {
-    id: number; // Backend sendet Integer
+    id: string; // Backend sendet String
     name: string;
     description: string;
     image: string;
