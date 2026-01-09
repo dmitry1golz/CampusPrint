@@ -25,6 +25,7 @@ export async function getDeviceById(id: string): Promise<Device | undefined> {
 
 // Erstellen ODER Update (da Spring Boot .save() für beides nutzt)
 export async function addDevice(device: Device): Promise<void> {
+    // TODO Auth mit schicken (Admin-User)
     await fetch(API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -33,11 +34,13 @@ export async function addDevice(device: Device): Promise<void> {
 }
 
 export async function deleteDevice(id: string): Promise<void> {
+    // TODO Auth mit schicken (Admin-User)
     await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
 }
 
 // Status ändern: Wir laden das Gerät, ändern den Status, speichern es.
 export async function updateDeviceStatus(id: string, newStatus: DeviceStatus): Promise<void> {
+    // TODO Auth mit schicken (Admin-User)
     const device = await getDeviceById(id);
     if (device) {
         device.status = newStatus;
