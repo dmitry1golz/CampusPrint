@@ -3,23 +3,31 @@ package thl.campusprint.controllers;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import thl.campusprint.models.DTOs.BookingDTO;
+import thl.campusprint.models.DTOs.CreateBookingDTO;
 import thl.campusprint.repositories.BookingRepository;
+import thl.campusprint.service.BookingService;
 
 @RestController
 @RequestMapping("/api/bookings")
 @CrossOrigin(origins = "*") // Erlaubt Zugriff vom Frontend
 public class BookingController {
     
+    private final BookingService bookingService;
+
     private final BookingRepository bookingRepository;
 
-    public BookingController(BookingRepository bookingRepository) {
+    public BookingController(BookingService bookingService, BookingRepository bookingRepository) {
+        this.bookingService = bookingService;
         this.bookingRepository = bookingRepository;
     }
 
@@ -35,6 +43,11 @@ public class BookingController {
             .stream()
             .map(booking -> BookingDTO.fromDBModel(booking))
             .toList();
+    }
+
+    @PostMapping
+    public BookingDTO createOrUpdateDevice(@RequestBody @Validated CreateBookingDTO newBooking) {
+        return BookingDTO.fromDBModel(bookingService.createBooking(newBooking));
     }
 
 }
