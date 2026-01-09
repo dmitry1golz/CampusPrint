@@ -17,6 +17,9 @@
     /* Layout */
     --max-width: 1200px;
     --radius: 8px;
+
+
+    --danger: #dc2626;       /* Fehler/rot */
 }
 
 * { box-sizing: border-box; }
