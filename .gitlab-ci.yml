@@ -1,0 +1,83 @@
+stages:
+  - test
+  - build
+
+# Globale Variablen für Performance (Caching)
+variables:
+  MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
+
+# Cache Konfiguration: Damit Maven und NPM nicht jedes Mal alles neu herunterladen müssen
+cache:
+  paths:
+    - .m2/repository
+    - node_modules/
+
+# ====================================================
+# JOB 1: JAVA DATABASE TESTS (Testcontainers)
+# ====================================================
+java-integration-tests:
+  stage: test
+  image: maven:latest
+  
+  # WICHTIG: Docker-in-Docker Service für Testcontainers
+  services:
+    - name: docker:dind
+      alias: docker # Damit Testcontainers den Host findet
+      
+  variables:
+    # Damit Java weiß, wo der Docker-Daemon läuft
+    DOCKER_HOST: tcp://docker:2375 
+    DOCKER_TLS_CERTDIR: "" # TLS deaktivieren für einfachere CI-Config
+    
+  script:
+    - echo "Starte Java Tests mit Testcontainers (MySQL)..."
+    - mvn test
+    
+  # Sammelt die Testergebnisse für GitLab ein
+  artifacts:
+    when: always
+    reports:
+      junit: target/surefire-reports/TEST-*.xml
+
+  rules:
+    - if: $CI_COMMIT_MESSAGE =~ /\[test\]/        # Nur wenn [test] in der commit message
+      allow_failure: true
+
+# ====================================================
+# JOB 2: FRONTEND LINTING (HTML, CSS, TS)
+# ====================================================
+# frontend-code-quality:
+#   stage: test
+#   image: node:20
+  
+#   script:
+#     - echo "Installiere Frontend-Dependencies..."
+#     - npm ci --cache .npm --prefer-offline
+#     - echo "Führe Linting durch (TS, CSS, HTML)..."
+#     # Dein Befehl aus der package.json, der die XML-Reports erstellt
+#     - npm run lint:all
+    
+#   # Sammelt die Frontend-Reports ein
+#   artifacts:
+#     when: always
+#     reports:
+#       junit: reports/*.xml
+#     paths:
+#       - reports/ # Speichert die Dateien auch zum Download
+
+# # ====================================================
+# # JOB 3: BUILD APPLICATION (Nur wenn Tests grün sind)
+# # ====================================================
+# build-jar:
+#   stage: build
+#   image: maven:3.9-eclipse-temurin-21
+#   needs: ["java-integration-tests", "frontend-code-quality"] # Wartet auf beide Tests
+  
+#   script:
+#     - echo "Baue die Anwendung (Tests überspringen, da oben bereits gelaufen)..."
+#     - mvn package -DskipTests
+    
+#   artifacts:
+#     paths:
+#       - target/*.jar # Das fertige Artefakt (z.B. für Deployment)
+#     expire_in: 1 week
