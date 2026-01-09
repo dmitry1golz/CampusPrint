@@ -533,11 +533,31 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else if (b.status === 'confirmed') actionsHtml = `<button class="btn btn-primary action-btn w-full" data-action="run" data-id="${b.id}">Starten</button>`;
                 else if (b.status === 'running') actionsHtml = `<button class="btn btn-primary action-btn w-full" data-action="complete" data-id="${b.id}">Abschließen</button>`;
 
-                card.innerHTML = `
-                   <div class="card-header"><h3 class="card-title">${b.printerName}</h3><span class="badge ${b.status}">${b.status}</span></div>
-                   <div class="card-body"><p class="text-sm">${b.startDate.toLocaleDateString()}</p></div>
-                   <div class="card-actions">${actionsHtml}</div>
-                `;
+                     // TODO weitere Infos ergänzen
+                     let startDateInfoHTML = b.startDate ? `<p class="text-sm"><strong>Start:</strong> ${new Date(b.startDate).toLocaleDateString()}</p>` : '';
+                     let endDateInfoHTML = b.endDate ? `<p class="text-sm"><strong>Ende:</strong> ${new Date(b.endDate).toLocaleDateString()}</p>` : '';
+                     let noteInfoHTML = b.notes ? `<p class="text-sm"><strong>Notiz:</strong> ${b.notes}</p>` : '';
+                     let adminMsgInfoHTML = b.message ? `<p class="text-sm"><strong class="text-danger">Grund:</strong> ${b.message}</p>` : '';
+
+                     let userEmailHTML = '<p class="text-sm"><strong>E-Mail:</strong> Unbekannt</p>';
+                     let deviceHTML = '<p class="text-sm"><strong>Gerät:</strong> Unbekannt</p>';
+                     let filePathHTML = '<p class="text-sm"><strong>Pfad:</strong> /</p>';
+
+                     // Weitere Settings aus JSON parsen
+
+                     card.innerHTML = `
+                         <div class="card-header"><h3 class="card-title">${b.printerName}</h3><span class="badge ${b.status}">${b.status}</span></div>
+                         <div class="card-body">
+                                ${startDateInfoHTML}
+                                ${endDateInfoHTML}
+                                ${noteInfoHTML}
+                                ${userEmailHTML}
+                                ${deviceHTML}
+                                ${filePathHTML}
+                                ${adminMsgInfoHTML}
+                         </div>
+                         <div class="card-actions">${actionsHtml}</div>
+                     `;
                 container.appendChild(card);
             });
         }
