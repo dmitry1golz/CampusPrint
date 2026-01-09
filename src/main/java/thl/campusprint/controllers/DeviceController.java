@@ -37,6 +37,7 @@ public class DeviceController {
     // WICHTIG: Es darf nur EINE @PostMapping Methode ohne Pfad geben!
     @PostMapping
     public Device createOrUpdateDevice(@RequestBody Device device) {
+        // TODO Authentifizierung und Autorisierung hinzufügen
         // JPA .save() macht automatisch ein INSERT (wenn ID neu) oder UPDATE (wenn ID existiert)
         return deviceRepository.save(device);
     }
@@ -44,6 +45,7 @@ public class DeviceController {
     // 4. Gerät löschen
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteDevice(@PathVariable UUID id) {
+        // TODO Authentifizierung und Autorisierung hinzufügen
         if (deviceRepository.existsById(id)) {
             deviceRepository.deleteById(id);
             return ResponseEntity.ok().build();
