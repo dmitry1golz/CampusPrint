@@ -55,6 +55,18 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Populate UI
     document.getElementById('printerInfo-Name')!.innerText = device.name;
+    switch (device.type) {
+        case "FDM_Printer":
+        case "SLA_Printer":
+            document.getElementById('printerInfo-Dimensions')!.innerText = device.print_options.work_area.x + "cm x " + device.print_options.work_area.y  + "cm x " + device.print_options.work_area.z + "cm";
+            break;
+        case "Laser_Cutter":
+            document.getElementById('printerInfo-Dimensions')!.innerText = device.print_options.work_area.x + "cm x " + device.print_options.work_area.y  + "cm";
+            break;
+        default:
+            document.getElementById('printerInfo-Dimensions')!.classList.add("hidden");
+            break;
+    }
     document.getElementById('printerInfo-Description')!.innerText = device.description;
     switch (device.type) {
         case "FDM_Printer":
