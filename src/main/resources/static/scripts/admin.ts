@@ -226,6 +226,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function handleSave() {
         const name = getIn('eq-name').value;
+        const model = getIn('eq-model').value;
         const type = forms.type.value as DeviceTyp;
         const desc = getArea('eq-desc').value;
         
@@ -234,12 +235,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const all = await getAllDevices();
         const old = editingDeviceId ? all.find(g => g.id === editingDeviceId) : null;
         const oldStatus = old ? old.status : 'Available';
-        const oldModel = old && old.model ? old.model : '';
 
         const base = {
             id: editingDeviceId || '',
             name, type, description: desc, status: oldStatus, 
-            image: getIn('eq-image').value, model: oldModel
+            image: getIn('eq-image').value, model: model || ''
         };
 
         const x = Number(forms.dimX.value)||0; 
@@ -295,6 +295,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Basisdaten
         getIn('eq-name').value = dev.name;
+        getIn('eq-model').value = dev.model || '';
         forms.type.value = dev.type;
         getArea('eq-desc').value = dev.description;
         getIn('eq-image').value = dev.image;
@@ -354,6 +355,7 @@ document.addEventListener('DOMContentLoaded', () => {
         forms.add.classList.add('hidden');
         editingDeviceId = null;
         getIn('eq-name').value = '';
+        getIn('eq-model').value = '';
         getArea('eq-desc').value = '';
         getIn('eq-image').value = '';
         forms.dimX.value=''; forms.dimY.value=''; forms.dimZ.value='';
