@@ -10,5 +10,4 @@ import thl.campusprint.models.PrintJob;
 public interface PrintJobRepository extends JpaRepository<PrintJob, UUID> {
 
     List<PrintJob> findByDeviceId(UUID deviceId);
-    
 }

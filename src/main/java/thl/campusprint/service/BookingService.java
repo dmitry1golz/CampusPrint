@@ -1,10 +1,9 @@
 package thl.campusprint.service;
 
+import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
-
 import org.springframework.stereotype.Service;
-import jakarta.transaction.Transactional;
 import thl.campusprint.models.Booking;
 import thl.campusprint.models.BookingStatus;
 import thl.campusprint.models.DTOs.CreateBookingDTO;

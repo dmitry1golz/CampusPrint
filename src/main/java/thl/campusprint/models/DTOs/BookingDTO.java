@@ -54,7 +54,7 @@ public class BookingDTO {
 
         PrintJob pj = booking.getPrintJob();
         dto.print_options = pj.getSettings();
-        
+
         return dto;
     }
 }
