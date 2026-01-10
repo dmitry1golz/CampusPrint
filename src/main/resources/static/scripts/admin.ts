@@ -550,32 +550,40 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (b.print_options.tech_type === 'FDM') {
                             const opts = b.print_options as SelectedFdmOptions;
                             settingsHTML = `
-                                <p class="text-sm"><strong>Material:</strong> ${opts.selected_material.name}</p>
-                                <p class="text-sm"><strong>Schichthöhe:</strong> ${opts.selected_layer_height}mm</p>
-                                <p class="text-sm"><strong>Düse:</strong> ${opts.selected_nozzle_size}mm</p>
-                                <p class="text-sm"><strong>Füllung:</strong> ${opts.selected_infill_percentage}%</p>
-                                <p class="text-sm"><strong>Support:</strong> ${opts.selected_support_type}</p>
+                                <div class="settings-box">
+                                    <p class="text-sm"><strong>Material:</strong> ${opts.selected_material.name}</p>
+                                    <p class="text-sm"><strong>Schichthöhe:</strong> ${opts.selected_layer_height}mm</p>
+                                    <p class="text-sm"><strong>Düse:</strong> ${opts.selected_nozzle_size}mm</p>
+                                    <p class="text-sm"><strong>Füllung:</strong> ${opts.selected_infill_percentage}%</p>
+                                    <p class="text-sm"><strong>Support:</strong> ${opts.selected_support_type}</p>
+                                </div>
                             `;
                         } else if (b.print_options.tech_type === 'SLA') {
                             const opts = b.print_options as SelectedSlaOptions;
                             settingsHTML = `
-                                <p class="text-sm"><strong>Material:</strong> ${opts.selected_material.name}</p>
-                                <p class="text-sm"><strong>Schichthöhe:</strong> ${opts.selected_layer_height}mm</p>
-                                <p class="text-sm"><strong>Support:</strong> ${opts.selected_support_type}</p>
+                                <div class="settings-box">
+                                    <p class="text-sm"><strong>Material:</strong> ${opts.selected_material.name}</p>
+                                    <p class="text-sm"><strong>Schichthöhe:</strong> ${opts.selected_layer_height}mm</p>
+                                    <p class="text-sm"><strong>Support:</strong> ${opts.selected_support_type}</p>
+                                </div>
                             `;
                         } else if (b.print_options.tech_type === 'LASER') {
                             const opts = b.print_options as SelectedLaserOptions;
                             settingsHTML = `
-                                <p class="text-sm"><strong>Material:</strong> ${opts.selected_preset.material}</p>
-                                <p class="text-sm"><strong>Dicke:</strong> ${opts.selected_preset.thickness}mm</p>
-                                <p class="text-sm"><strong>Leistung:</strong> ${opts.selected_preset.power}%</p>
-                                <p class="text-sm"><strong>Geschw.:</strong> ${opts.selected_preset.speed}%</p>
+                                <div class="settings-box">
+                                    <p class="text-sm"><strong>Material:</strong> ${opts.selected_preset.material}</p>
+                                    <p class="text-sm"><strong>Dicke:</strong> ${opts.selected_preset.thickness}mm</p>
+                                    <p class="text-sm"><strong>Leistung:</strong> ${opts.selected_preset.power}%</p>
+                                    <p class="text-sm"><strong>Geschw.:</strong> ${opts.selected_preset.speed}%</p>
+                                </div>
                             `;
                         } else if (b.print_options.tech_type === 'PAPER') {
                             const opts = b.print_options as SelectedPaperOptions;
                             settingsHTML = `
-                                <p class="text-sm"><strong>Format:</strong> ${opts.selected_format}</p>
-                                <p class="text-sm"><strong>Papiergewicht:</strong> ${opts.selected_paper_weights}g/m²</p>
+                                <div class="settings-box">
+                                    <p class="text-sm"><strong>Format:</strong> ${opts.selected_format}</p>
+                                    <p class="text-sm"><strong>Papiergewicht:</strong> ${opts.selected_paper_weights}g/m²</p>
+                                </div>
                             `;
                         }
                     }

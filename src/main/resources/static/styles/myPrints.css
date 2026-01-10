@@ -47,3 +47,84 @@
     height: 100%;
     object-fit: cover;
 }
+
+.print-settings-section {
+    margin-top: 1.25rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.print-settings-header {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-main);
+    margin-bottom: 0.875rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.print-settings-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 0.75rem;
+}
+
+@media (max-width: 600px) {
+    .print-settings-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.print-setting-item {
+    background: linear-gradient(135deg, #5558dd 0%, #6938a5 100%);
+    border-radius: 6px;
+    padding: 1rem;
+    box-shadow: 0 2px 8px rgba(85, 88, 221, 0.25);
+    transition: all 0.2s ease;
+    border-left: 3px solid rgba(255, 255, 255, 0.3);
+}
+
+.print-setting-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(85, 88, 221, 0.35);
+}
+
+.print-setting-item:nth-child(2) {
+    background: linear-gradient(135deg, #d6619e 0%, #d93654 100%);
+}
+
+.print-setting-item:nth-child(3) {
+    background: linear-gradient(135deg, #2b8fdb 0%, #00c9d4 100%);
+}
+
+.print-setting-item:nth-child(4) {
+    background: linear-gradient(135deg, #2ecc71 0%, #1abc9c 100%);
+}
+
+.print-setting-item:nth-child(5) {
+    background: linear-gradient(135deg, #e74c8c 0%, #f39c12 100%);
+}
+
+.setting-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.setting-label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: rgba(255, 255, 255, 0.85);
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.setting-value {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #ffffff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
