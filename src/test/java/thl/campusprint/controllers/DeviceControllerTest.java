@@ -9,12 +9,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.UUID;
-
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import thl.campusprint.models.Device;
 import thl.campusprint.models.DeviceType; // <--- WICHTIG: Das Enum importieren
@@ -41,7 +40,8 @@ class DeviceControllerTest {
 
     @Autowired private MockMvc mockMvc;
 
-    @MockBean private DeviceRepository deviceRepository;
+    @MockitoBean
+    private DeviceRepository deviceRepository;
 
     @Autowired private ObjectMapper objectMapper;
 
@@ -52,7 +52,7 @@ class DeviceControllerTest {
         d1.setId(UUID.fromString("59fc9c23-5395-4c6c-8c8c-9a1f2c03fcf5"));
         d1.setName("Printer A");
         d1.setType(DeviceType.FDM_Printer); // <--- Enum statt String
-        
+
         Device d2 = new Device();
         d2.setId(UUID.fromString("77475bb1-2a2c-4076-8e79-c05c9a2fa3f4"));
         d2.setName("Printer B");
@@ -76,7 +76,8 @@ class DeviceControllerTest {
         device.setName("My Printer");
         device.setType(DeviceType.FDM_Printer);
 
-        when(deviceRepository.findById(UUID.fromString("59fc9c23-5395-4c6c-8c8c-9a1f2c03fcf5"))).thenReturn(Optional.of(device));
+        when(deviceRepository.findById(UUID.fromString("59fc9c23-5395-4c6c-8c8c-9a1f2c03fcf5")))
+                .thenReturn(Optional.of(device));
 
         mockMvc.perform(get("/api/devices/59fc9c23-5395-4c6c-8c8c-9a1f2c03fcf5"))
                 .andExpect(status().isOk())
@@ -86,9 +87,11 @@ class DeviceControllerTest {
     // --- TEST 3: Einzelnes Gerät NICHT gefunden ---
     @Test
     void shouldReturn404WhenDeviceNotFound() throws Exception {
-        when(deviceRepository.findById(UUID.fromString("59fc9c23-5395-4c6c-8c8c-9a1f2c03fcf5"))).thenReturn(Optional.empty());
+        when(deviceRepository.findById(UUID.fromString("59fc9c23-5395-4c6c-8c8c-9a1f2c03fcf5")))
+                .thenReturn(Optional.empty());
 
-        mockMvc.perform(get("/api/devices/59fc9c23-5395-4c6c-8c8c-9a1f2c03fcf5")).andExpect(status().isNotFound());
+        mockMvc.perform(get("/api/devices/59fc9c23-5395-4c6c-8c8c-9a1f2c03fcf5"))
+                .andExpect(status().isNotFound());
     }
 
     // --- TEST 4: Gerät erstellen (POST) ---
@@ -122,20 +125,27 @@ class DeviceControllerTest {
     // --- TEST 5: Gerät löschen (Erfolg) ---
     @Test
     void shouldDeleteDevice() throws Exception {
-        when(deviceRepository.existsById(UUID.fromString("59fc9c23-5395-4c6c-8c8c-9a1f2c03fcf5"))).thenReturn(true);
-        doNothing().when(deviceRepository).deleteById(UUID.fromString("59fc9c23-5395-4c6c-8c8c-9a1f2c03fcf5"));
+        when(deviceRepository.existsById(UUID.fromString("59fc9c23-5395-4c6c-8c8c-9a1f2c03fcf5")))
+                .thenReturn(true);
+        doNothing()
+                .when(deviceRepository)
+                .deleteById(UUID.fromString("59fc9c23-5395-4c6c-8c8c-9a1f2c03fcf5"));
 
-        mockMvc.perform(delete("/api/devices/59fc9c23-5395-4c6c-8c8c-9a1f2c03fcf5")).andExpect(status().isOk());
+        mockMvc.perform(delete("/api/devices/59fc9c23-5395-4c6c-8c8c-9a1f2c03fcf5"))
+                .andExpect(status().isOk());
 
-        verify(deviceRepository, times(1)).deleteById(UUID.fromString("59fc9c23-5395-4c6c-8c8c-9a1f2c03fcf5"));
+        verify(deviceRepository, times(1))
+                .deleteById(UUID.fromString("59fc9c23-5395-4c6c-8c8c-9a1f2c03fcf5"));
     }
 
     // --- TEST 6: Gerät löschen (Nicht gefunden) ---
     @Test
     void shouldReturn404WhenDeletingNonExistingDevice() throws Exception {
-        when(deviceRepository.existsById(UUID.fromString("59fc9c23-5395-4c6c-8c8c-9a1f2c03fcf5"))).thenReturn(false);
+        when(deviceRepository.existsById(UUID.fromString("59fc9c23-5395-4c6c-8c8c-9a1f2c03fcf5")))
+                .thenReturn(false);
 
-        mockMvc.perform(delete("/api/devices/59fc9c23-5395-4c6c-8c8c-9a1f2c03fcf5")).andExpect(status().isNotFound());
+        mockMvc.perform(delete("/api/devices/59fc9c23-5395-4c6c-8c8c-9a1f2c03fcf5"))
+                .andExpect(status().isNotFound());
 
         verify(deviceRepository, never()).deleteById(any(UUID.class));
     }

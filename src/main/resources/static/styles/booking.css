@@ -72,7 +72,8 @@
     gap: 1rem;
     margin-bottom: 1rem;
 }
-@media (max-width: 480px) {
+
+@media (width <= 480px) {
     .form-row { flex-direction: column; gap: 0; }
 }
 

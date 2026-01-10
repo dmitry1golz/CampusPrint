@@ -3,7 +3,7 @@
     background-color: var(--bg-surface);
     border-radius: var(--radius);
     padding: 2rem;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 4px 10px rgb(0 0 0 / 5%);
 }
 
 .search-form {
@@ -70,7 +70,7 @@
     gap: 0.75rem;
 }
 
-@media (max-width: 600px) {
+@media (width <= 600px) {
     .print-settings-grid {
         grid-template-columns: 1fr;
     }
@@ -80,14 +80,14 @@
     background: linear-gradient(135deg, #5558dd 0%, #6938a5 100%);
     border-radius: 6px;
     padding: 1rem;
-    box-shadow: 0 2px 8px rgba(85, 88, 221, 0.25);
+    box-shadow: 0 2px 8px rgb(85 88 221 / 25%);
     transition: all 0.2s ease;
-    border-left: 3px solid rgba(255, 255, 255, 0.3);
+    border-left: 3px solid rgb(255 255 255 / 30%);
 }
 
 .print-setting-item:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(85, 88, 221, 0.35);
+    box-shadow: 0 4px 12px rgb(85 88 221 / 35%);
 }
 
 .print-setting-item:nth-child(2) {
@@ -115,7 +115,7 @@
     font-size: 0.7rem;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    color: rgba(255, 255, 255, 0.85);
+    color: rgb(255 255 255 / 85%);
     font-weight: 600;
     margin-bottom: 0.25rem;
 }
@@ -123,7 +123,7 @@
 .setting-value {
     font-size: 0.95rem;
     font-weight: 700;
-    color: #ffffff;
+    color: #fff;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
