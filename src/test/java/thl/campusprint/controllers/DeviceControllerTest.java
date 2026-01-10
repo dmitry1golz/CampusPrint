@@ -1,7 +1,6 @@
 package thl.campusprint.controllers;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -9,6 +8,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.UUID;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -38,106 +39,104 @@ import thl.campusprint.repositories.DeviceRepository;
 @WebMvcTest(DeviceController.class)
 class DeviceControllerTest {
 
-  @Autowired private MockMvc mockMvc;
+    @Autowired private MockMvc mockMvc;
 
-  @MockBean private DeviceRepository deviceRepository;
+    @MockBean private DeviceRepository deviceRepository;
 
-  @Autowired private ObjectMapper objectMapper;
+    @Autowired private ObjectMapper objectMapper;
 
-  // --- TEST 1: Alle Geräte holen ---
-  @Test
-  void shouldReturnAllDevices() throws Exception {
-    Device d1 = new Device();
-    d1.setId(1);
-    d1.setName("Printer A");
-    d1.setType(DeviceType.FDM_Printer); // <--- Enum statt String
+    // --- TEST 1: Alle Geräte holen ---
+    @Test
+    void shouldReturnAllDevices() throws Exception {
+        Device d1 = new Device();
+        d1.setId(UUID.fromString("59fc9c23-5395-4c6c-8c8c-9a1f2c03fcf5"));
+        d1.setName("Printer A");
+        d1.setType(DeviceType.FDM_Printer); // <--- Enum statt String
+        
+        Device d2 = new Device();
+        d2.setId(UUID.fromString("77475bb1-2a2c-4076-8e79-c05c9a2fa3f4"));
+        d2.setName("Printer B");
+        d2.setType(DeviceType.SLA_Printer); // <--- Enum statt String
 
-    Device d2 = new Device();
-    d2.setId(2);
-    d2.setName("Printer B");
-    d2.setType(DeviceType.SLA_Printer); // <--- Enum statt String
+        when(deviceRepository.findAll()).thenReturn(Arrays.asList(d1, d2));
 
-    when(deviceRepository.findAll()).thenReturn(Arrays.asList(d1, d2));
+        mockMvc.perform(get("/api/devices"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0].name").value("Printer A"))
+                // Jackson wandelt das Enum automatisch in den String "FDM_Printer" um:
+                .andExpect(jsonPath("$[0].type").value("FDM_Printer"));
+    }
 
-    mockMvc
-        .perform(get("/api/devices"))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.length()").value(2))
-        .andExpect(jsonPath("$[0].name").value("Printer A"))
-        // Jackson wandelt das Enum automatisch in den String "FDM_Printer" um:
-        .andExpect(jsonPath("$[0].type").value("FDM_Printer"));
-  }
+    // --- TEST 2: Einzelnes Gerät gefunden ---
+    @Test
+    void shouldReturnDeviceById() throws Exception {
+        Device device = new Device();
+        device.setId(UUID.fromString("59fc9c23-5395-4c6c-8c8c-9a1f2c03fcf5"));
+        device.setName("My Printer");
+        device.setType(DeviceType.FDM_Printer);
 
-  // --- TEST 2: Einzelnes Gerät gefunden ---
-  @Test
-  void shouldReturnDeviceById() throws Exception {
-    Device device = new Device();
-    device.setId(1);
-    device.setName("My Printer");
-    device.setType(DeviceType.FDM_Printer);
+        when(deviceRepository.findById(UUID.fromString("59fc9c23-5395-4c6c-8c8c-9a1f2c03fcf5"))).thenReturn(Optional.of(device));
 
-    when(deviceRepository.findById(1)).thenReturn(Optional.of(device));
+        mockMvc.perform(get("/api/devices/59fc9c23-5395-4c6c-8c8c-9a1f2c03fcf5"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("My Printer"));
+    }
 
-    mockMvc
-        .perform(get("/api/devices/1"))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.name").value("My Printer"));
-  }
+    // --- TEST 3: Einzelnes Gerät NICHT gefunden ---
+    @Test
+    void shouldReturn404WhenDeviceNotFound() throws Exception {
+        when(deviceRepository.findById(UUID.fromString("59fc9c23-5395-4c6c-8c8c-9a1f2c03fcf5"))).thenReturn(Optional.empty());
 
-  // --- TEST 3: Einzelnes Gerät NICHT gefunden ---
-  @Test
-  void shouldReturn404WhenDeviceNotFound() throws Exception {
-    when(deviceRepository.findById(99)).thenReturn(Optional.empty());
+        mockMvc.perform(get("/api/devices/59fc9c23-5395-4c6c-8c8c-9a1f2c03fcf5")).andExpect(status().isNotFound());
+    }
 
-    mockMvc.perform(get("/api/devices/99")).andExpect(status().isNotFound());
-  }
+    // --- TEST 4: Gerät erstellen (POST) ---
+    @Test
+    void shouldCreateDevice() throws Exception {
+        // Input Objekt (Das schicken wir hin)
+        Device inputDevice = new Device();
+        inputDevice.setName("New Printer");
+        inputDevice.setType(DeviceType.FDM_Printer); // <--- Enum nutzen
 
-  // --- TEST 4: Gerät erstellen (POST) ---
-  @Test
-  void shouldCreateDevice() throws Exception {
-    // Input Objekt (Das schicken wir hin)
-    Device inputDevice = new Device();
-    inputDevice.setName("New Printer");
-    inputDevice.setType(DeviceType.FDM_Printer); // <--- Enum nutzen
+        // Saved Objekt (Das kommt aus der Mock-DB zurück)
+        Device savedDevice = new Device();
+        savedDevice.setId(UUID.fromString("59fc9c23-5395-4c6c-8c8c-9a1f2c03fcf5"));
+        savedDevice.setName("New Printer");
+        savedDevice.setType(DeviceType.FDM_Printer); // <--- Enum nutzen
 
-    // Saved Objekt (Das kommt aus der Mock-DB zurück)
-    Device savedDevice = new Device();
-    savedDevice.setId(10);
-    savedDevice.setName("New Printer");
-    savedDevice.setType(DeviceType.FDM_Printer); // <--- Enum nutzen
+        when(deviceRepository.save(any(Device.class))).thenReturn(savedDevice);
 
-    when(deviceRepository.save(any(Device.class))).thenReturn(savedDevice);
+        mockMvc.perform(
+                        post("/api/devices")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                // ObjectMapper macht aus DeviceType.FDM_Printer automatisch
+                                // "FDM_Printer" im JSON
+                                .content(objectMapper.writeValueAsString(inputDevice)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value("59fc9c23-5395-4c6c-8c8c-9a1f2c03fcf5"))
+                .andExpect(jsonPath("$.name").value("New Printer"))
+                .andExpect(jsonPath("$.type").value("FDM_Printer"));
+    }
 
-    mockMvc
-        .perform(
-            post("/api/devices")
-                .contentType(MediaType.APPLICATION_JSON)
-                // ObjectMapper macht aus DeviceType.FDM_Printer automatisch "FDM_Printer" im JSON
-                .content(objectMapper.writeValueAsString(inputDevice)))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.id").value(10))
-        .andExpect(jsonPath("$.name").value("New Printer"))
-        .andExpect(jsonPath("$.type").value("FDM_Printer"));
-  }
+    // --- TEST 5: Gerät löschen (Erfolg) ---
+    @Test
+    void shouldDeleteDevice() throws Exception {
+        when(deviceRepository.existsById(UUID.fromString("59fc9c23-5395-4c6c-8c8c-9a1f2c03fcf5"))).thenReturn(true);
+        doNothing().when(deviceRepository).deleteById(UUID.fromString("59fc9c23-5395-4c6c-8c8c-9a1f2c03fcf5"));
 
-  // --- TEST 5: Gerät löschen (Erfolg) ---
-  @Test
-  void shouldDeleteDevice() throws Exception {
-    when(deviceRepository.existsById(1)).thenReturn(true);
-    doNothing().when(deviceRepository).deleteById(1);
+        mockMvc.perform(delete("/api/devices/59fc9c23-5395-4c6c-8c8c-9a1f2c03fcf5")).andExpect(status().isOk());
 
-    mockMvc.perform(delete("/api/devices/1")).andExpect(status().isOk());
+        verify(deviceRepository, times(1)).deleteById(UUID.fromString("59fc9c23-5395-4c6c-8c8c-9a1f2c03fcf5"));
+    }
 
-    verify(deviceRepository, times(1)).deleteById(1);
-  }
+    // --- TEST 6: Gerät löschen (Nicht gefunden) ---
+    @Test
+    void shouldReturn404WhenDeletingNonExistingDevice() throws Exception {
+        when(deviceRepository.existsById(UUID.fromString("59fc9c23-5395-4c6c-8c8c-9a1f2c03fcf5"))).thenReturn(false);
 
-  // --- TEST 6: Gerät löschen (Nicht gefunden) ---
-  @Test
-  void shouldReturn404WhenDeletingNonExistingDevice() throws Exception {
-    when(deviceRepository.existsById(99)).thenReturn(false);
+        mockMvc.perform(delete("/api/devices/59fc9c23-5395-4c6c-8c8c-9a1f2c03fcf5")).andExpect(status().isNotFound());
 
-    mockMvc.perform(delete("/api/devices/99")).andExpect(status().isNotFound());
-
-    verify(deviceRepository, never()).deleteById(anyInt());
-  }
+        verify(deviceRepository, never()).deleteById(any(UUID.class));
+    }
 }
