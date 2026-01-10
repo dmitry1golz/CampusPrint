@@ -17,7 +17,7 @@ public class PrintJob {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "idprintjob", updatable = false, nullable = false)
+    @Column(name = "idprintjob", updatable = false, nullable = false, length = 36)
     @JdbcTypeCode(java.sql.Types.VARCHAR)
     private UUID id;
 

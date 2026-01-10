@@ -17,7 +17,7 @@ public class Device {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "iddevice", updatable = false, nullable = false)
+    @Column(name = "iddevice", updatable = false, nullable = false, length = 36)
     private UUID id;
 
     @Column(nullable = false, length = 45)
