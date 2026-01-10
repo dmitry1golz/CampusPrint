@@ -95,10 +95,10 @@ database-integration-tests:
     when: always
     reports:
       # KORREKTUR: Maven Surefire speichert Reports standardmäßig hier:
-      junit: target/Database-*.xml
+      junit: target/surefire-reports/Database-*.xml
     paths:
       # Damit du die HTML/XML Dateien auch im Browser in GitLab anschauen kannst
-      - target/
+      - target/surefire-reports/
   # Deine Regel: Läuft nur, wenn [DatabaseTest] in der Commit-Message steht
   rules:
     - if: $CI_COMMIT_MESSAGE =~ /\[DatabaseTest\]/
@@ -120,11 +120,11 @@ controller-tests:
     when: always
     reports:
       junit: 
-        - reports/Controller-*.xml
+        - target/surefire-reports/Controller-*.xml
     expire_in: 1 week
     paths:
       # Damit du die HTML/XML Dateien auch im Browser in GitLab anschauen kannst
-      - target/
+      - target/surefire-reports/
 
   # Optional: Nur laufen lassen, wenn du es willst (oder Magic Commit)
   rules:
