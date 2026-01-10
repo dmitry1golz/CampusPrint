@@ -47,38 +47,109 @@ function renderDevices(data: Device[]): void {
 
         // --- DETAILS LOGIK (Type Narrowing) ---
         let detailsHtml = '';
+        let deviceTypeLabel = '';
 
         if (g.type === 'FDM_Printer') {
+            deviceTypeLabel = 'FDM 3D-Drucker';
             const opts = g.print_options as FdmOptions;
             
-            // Fallback für Düsen-Größen
             const nozzleStr = opts.nozzle_sizes && opts.nozzle_sizes.length > 0 
-                ? opts.nozzle_sizes.join(', ') 
+                ? opts.nozzle_sizes.map(n => `${n}mm`).join(', ') 
                 : '-';
+            
+            const layerHeightsStr = opts.supported_layer_heights && opts.supported_layer_heights.length > 0
+                ? opts.supported_layer_heights.map(l => `${l}mm`).join(', ')
+                : '-';
+            
+            let materialsHtml = '';
+            if (opts.available_materials && opts.available_materials.length > 0) {
+                materialsHtml = opts.available_materials.map(m => 
+                    `<span class="material-badge" 
+                          style="background:${m.color_hex}20; border-left: 3px solid ${m.color_hex};" 
+                          data-tooltip="Düse: ${m.temp_nozzle}°C | Bett: ${m.temp_bed}°C | Farbe: ${m.color_hex}">
+                        ${m.name}
+                    </span>`
+                ).join('');
+            }
 
             detailsHtml = `
-                <li><span class="text-muted">Bauraum:</span> <span>${opts.work_area.x}x${opts.work_area.y}x${opts.work_area.z} mm</span></li>
-                <li><span class="text-muted">Düse:</span> <span>${nozzleStr}</span></li>
+                <li><span class="detail-label">Bauraum:</span> <span class="detail-value">${opts.work_area.x} × ${opts.work_area.y} × ${opts.work_area.z} mm</span></li>
+                <li><span class="detail-label">Düsengrößen:</span> <span class="detail-value">${nozzleStr}</span></li>
+                <li><span class="detail-label">Schichthöhen:</span> <span class="detail-value">${layerHeightsStr}</span></li>
+                <li class="materials-section">
+                    <span class="detail-label">Verfügbare Materialien:</span>
+                    <div class="materials-grid">${materialsHtml || '<span class="text-muted">Keine</span>'}</div>
+                </li>
             `;
         } 
         else if (g.type === 'SLA_Printer') {
+            deviceTypeLabel = 'SLA 3D-Drucker';
             const opts = g.print_options as SlaOptions;
+            
+            const layerHeightsStr = opts.supported_layer_heights && opts.supported_layer_heights.length > 0
+                ? opts.supported_layer_heights.map(l => `${l}mm`).join(', ')
+                : '-';
+            
+            let materialsHtml = '';
+            if (opts.available_materials && opts.available_materials.length > 0) {
+                materialsHtml = opts.available_materials.map(m => 
+                    `<span class="material-badge" 
+                          style="background:${m.color_hex}20; border-left: 3px solid ${m.color_hex};" 
+                          data-tooltip="Farbe: ${m.color_hex}">
+                        ${m.name}
+                    </span>`
+                ).join('');
+            }
+            
             detailsHtml = `
-                <li><span class="text-muted">Bauraum:</span> <span>${opts.work_area.x}x${opts.work_area.y}x${opts.work_area.z} mm</span></li>
-                <li><span class="text-muted">Materialien:</span> <span>${opts.available_materials ? opts.available_materials.length : 0} Stück</span></li>
+                <li><span class="detail-label">Bauraum:</span> <span class="detail-value">${opts.work_area.x} × ${opts.work_area.y} × ${opts.work_area.z} mm</span></li>
+                <li><span class="detail-label">Schichthöhen:</span> <span class="detail-value">${layerHeightsStr}</span></li>
+                <li class="materials-section">
+                    <span class="detail-label">Verfügbare Harze:</span>
+                    <div class="materials-grid">${materialsHtml || '<span class="text-muted">Keine</span>'}</div>
+                </li>
             `;
         }
         else if (g.type === 'Laser_Cutter') {
+            deviceTypeLabel = 'Laserschneider';
             const opts = g.print_options as LaserOptions;
+            
+            let presetsHtml = '';
+            if (opts.presets && opts.presets.length > 0) {
+                presetsHtml = opts.presets.map(p => 
+                    `<div class="preset-item">
+                        <strong>${p.material}</strong>
+                        <span class="preset-details">${p.thickness}mm · ${p.power}% Power · ${p.speed}% Speed</span>
+                    </div>`
+                ).join('');
+            }
+            
             detailsHtml = `
-                <li><span class="text-muted">Arbeitsfläche:</span> <span>${opts.work_area.x}x${opts.work_area.y} mm</span></li>
-                <li><span class="text-muted">Profile:</span> <span>${opts.presets ? opts.presets.length : 0} Stück</span></li>
+                <li><span class="detail-label">Arbeitsfläche:</span> <span class="detail-value">${opts.work_area.x} × ${opts.work_area.y} mm</span></li>
+                <li class="presets-section">
+                    <span class="detail-label">Material-Presets:</span>
+                    <div class="presets-list">${presetsHtml || '<span class="text-muted">Keine</span>'}</div>
+                </li>
             `;
         } 
         else if (g.type === 'Printer') { // Papierdrucker
+            deviceTypeLabel = 'Papierdrucker';
             const opts = g.print_options as PaperOptions;
+            
+            const formatsHtml = opts.formats.map(f => 
+                `<span class="format-badge">${f}</span>`
+            ).join('');
+            
+            const weightsStr = opts.paper_weights && opts.paper_weights.length > 0
+                ? opts.paper_weights.map(w => `${w}g/m²`).join(', ')
+                : '-';
+            
             detailsHtml = `
-                <li><span class="text-muted">Formate:</span> <span>${opts.formats.join(', ')}</span></li>
+                <li class="formats-section">
+                    <span class="detail-label">Formate:</span>
+                    <div class="formats-grid">${formatsHtml}</div>
+                </li>
+                <li><span class="detail-label">Papiergewichte:</span> <span class="detail-value">${weightsStr}</span></li>
             `;
         }
 
@@ -87,7 +158,10 @@ function renderDevices(data: Device[]): void {
             <img src="${g.image}" alt="${g.name}" loading="lazy" />
             <div class="card-body">
                 <div class="card-header mb-1" style="display:flex; justify-content:space-between; align-items:flex-start;">
-                    <h3 style="margin:0;">${g.name}</h3>
+                    <div>
+                        <h3 style="margin:0;">${g.name}</h3>
+                        <div class="device-type-label">${deviceTypeLabel}</div>
+                    </div>
                     <span class="badge ${statusClass}">${displayStatus}</span>
                 </div>
                 <p class="text-muted text-sm mb-2">${g.description}</p>
