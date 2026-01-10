@@ -14,7 +14,7 @@ cache:
 # ====================================================
 # STAGE 1: QUALITY
 # ====================================================
-lint-backend: # Umbenannt zu "lint-backend" passend zum needs im Build-Job
+lint-backend:
   stage: quality
   image: maven:3.9.9-eclipse-temurin-21
   script:
@@ -57,6 +57,8 @@ lint-frontend:
 database-integration-tests:
   stage: test
   image: maven:3.9.9-eclipse-temurin-21
+  # Verhindert, dass Frontend-Reports hier heruntergeladen und doppelt hochgeladen werden
+  dependencies: [] 
   services:
     - name: docker:27.4.1-dind
       alias: docker
@@ -70,13 +72,11 @@ database-integration-tests:
     - sleep 15 
     - echo "Starte Integrationstests..."
     - mkdir -p reports 
-    # Maven schreibt die Datei als TEST-Klassenname.xml in reports/
     - mvn test -Dtest=CampusPrintDatabaseTests -Dsurefire.reportsDirectory=reports
     
   artifacts:
     when: always
     reports:
-      # KORREKTUR: Wildcard benutzen, da Maven den Dateinamen bestimmt
       junit: reports/*.xml
     paths:
       - reports/
@@ -88,16 +88,16 @@ database-integration-tests:
 controller-tests:
   stage: test
   image: maven:3.9.9-eclipse-temurin-21
+  # Verhindert, dass Frontend-Reports hier heruntergeladen und doppelt hochgeladen werden
+  dependencies: []
   script:
     - echo "Führe schnelle Unit-Tests aus..."
     - mkdir -p reports
-    # Maven schreibt die Datei als TEST-Klassenname.xml in reports/
     - mvn test -Dtest=DeviceControllerTest -Dsurefire.reportsDirectory=reports
   
   artifacts:
     when: always
     reports:
-      # KORREKTUR: Wildcard benutzen!
       junit: reports/*.xml
     expire_in: 1 week
     paths:
@@ -115,7 +115,6 @@ controller-tests:
 build-jar:
   stage: build
   image: maven:3.9.9-eclipse-temurin-21
-  # Hier muss der Name exakt mit dem Job-Namen oben übereinstimmen
   needs: ["lint-backend", "lint-frontend"] 
   script:
     - echo "Baue die Anwendung..."
