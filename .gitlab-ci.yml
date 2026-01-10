@@ -105,7 +105,7 @@ database-integration-tests:
     when: always
     reports:
       # Jetzt liegen die Dateien im reports Ordner
-      junit: reports/*.xml
+      junit: reports/Database.xml
     paths:
       # Wenn du sie runterladen willst, findest du sie jetzt auch hier ordentlich sortiert
       - reports/
@@ -126,7 +126,7 @@ controller-tests:
   artifacts:
     when: always
     reports:
-      junit: reports/*.xml
+      junit: reports/Controller.xml
     expire_in: 1 week
     paths:
       - reports/
