@@ -164,7 +164,9 @@ textarea {
 .btn-primary { background: var(--primary); color: white; }
 .btn-secondary { background: white; border: 1px solid var(--border-color); color: var(--text-main); }
 .btn-danger { background: #dc2626; color: white; }
-
+:root {
+    --danger: #dc2626;
+}
 .hidden { display: none !important; }
 .alert { padding: 1rem; border-radius: var(--radius); margin-bottom: 1rem; border: 1px solid transparent; }
 .alert-danger { background: #fee2e2; color: #991b1b; border-color: #fecaca; text-align: center;}
