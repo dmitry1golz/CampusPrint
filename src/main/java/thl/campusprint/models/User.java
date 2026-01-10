@@ -1,11 +1,10 @@
 package thl.campusprint.models;
 
 import jakarta.persistence.*;
+import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.JdbcTypeCode;
-
-import java.util.UUID;
 
 @Entity
 @Table(name = "users")

@@ -1,16 +1,13 @@
 package thl.campusprint.models;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
+import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
-import thl.campusprint.models.options.PrintJobSlectedOptions;
-
-import java.util.UUID;
-
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
+import thl.campusprint.models.options.PrintJobSlectedOptions;
 
 @Entity
 @Table(name = "print_jobs")

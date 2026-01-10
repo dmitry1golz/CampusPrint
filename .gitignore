@@ -1,5 +1,6 @@
 HELP.md
 target/
+.npm
 .mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
@@ -51,3 +52,6 @@ src/main/resources/static/js/
 *.zip
 *.tar.gz
 *.rar
+
+# Generated Reports:
+reports/

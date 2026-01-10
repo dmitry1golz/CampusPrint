@@ -1,8 +1,8 @@
 package thl.campusprint.models.options;
 
+import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import java.util.List;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
