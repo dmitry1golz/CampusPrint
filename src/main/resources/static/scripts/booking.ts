@@ -80,10 +80,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             fdmOptionsUl.innerHTML = '';
             device.print_options.available_materials.forEach(mat => {
                 const li = document.createElement('li');
-                li.innerHTML = `<span class="color-dot" style="background-color: ${mat.color_hex};"></span>${mat.name} - ${mat.temp_nozzle}/${mat.temp_bed}`;
+                li.innerHTML = `<span class="color-dot" style="background-color: ${mat.color_hex};"></span>${mat.name} - (${mat.temp_nozzle}°C / ${mat.temp_bed}°C)`;
                 li.dataset.value = mat.name;
                 li.addEventListener('click', () => {
-                    fdmValueDiv.innerHTML = `<span class="color-dot" style="background-color: ${mat.color_hex};"></span>${mat.name} - ${mat.temp_nozzle}/${mat.temp_bed}`;
+                    fdmValueDiv.innerHTML = `<span class="color-dot" style="background-color: ${mat.color_hex};"></span>${mat.name} - (${mat.temp_nozzle}°C / ${mat.temp_bed}°C)`;
                     fdmHiddenInput.value = mat.name;
                     fdmOptionsUl.classList.add('hidden');
                 });
