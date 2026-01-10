@@ -3,7 +3,9 @@ package thl.campusprint.controllers;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import thl.campusprint.models.Device;
+import thl.campusprint.models.PrintJob;
 import thl.campusprint.repositories.DeviceRepository;
+import thl.campusprint.repositories.PrintJobRepository;
 
 import java.util.List;
 import java.util.UUID;
@@ -14,9 +16,11 @@ import java.util.UUID;
 public class DeviceController {
 
     private final DeviceRepository deviceRepository;
+    private final PrintJobRepository printJobRepository;
 
-    public DeviceController(DeviceRepository deviceRepository) {
+    public DeviceController(DeviceRepository deviceRepository, PrintJobRepository printJobRepository) {
         this.deviceRepository = deviceRepository;
+        this.printJobRepository = printJobRepository;
     }
 
     // 1. Alle Geräte holen
@@ -46,7 +50,15 @@ public class DeviceController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteDevice(@PathVariable UUID id) {
         // TODO Authentifizierung und Autorisierung hinzufügen
+
         if (deviceRepository.existsById(id)) {
+            List<PrintJob> jobs = printJobRepository.findByDeviceId(id);
+            for (PrintJob job : jobs) {
+                job.setDevice(null);
+            }
+            printJobRepository.saveAll(jobs);
+
+
             deviceRepository.deleteById(id);
             return ResponseEntity.ok().build();
         }

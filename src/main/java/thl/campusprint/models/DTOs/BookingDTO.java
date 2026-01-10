@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Data;
 import thl.campusprint.models.Booking;
+import thl.campusprint.models.Device;
 import thl.campusprint.models.PrintJob;
 import thl.campusprint.models.options.PrintJobSlectedOptions;
 
@@ -33,9 +34,12 @@ public class BookingDTO {
     private BookingDTO() { }
 
     public static BookingDTO fromDBModel(Booking booking) {
+
+        Device device = booking.getPrintJob().getDevice();
+
         BookingDTO dto = new BookingDTO();
         dto.id = booking.getId().toString();
-        dto.printerName = booking.getPrintJob().getDevice().getName();
+        dto.printerName = device != null ? device.getName() : null;
         dto.startDate = booking.getStartTime();
         dto.endDate = booking.getEndTime();
         dto.notes = booking.getNotes();
@@ -45,11 +49,13 @@ public class BookingDTO {
         dto.lastModifiedBy = booking.getLastModifiedBy() != null ? booking.getLastModifiedBy().getEmail() : null;
         dto.lastModifiedAt = booking.getLastModified();
         dto.email = booking.getUser().getEmail();
-        dto.deviveName = booking.getPrintJob().getDevice().getName();
-        dto.deviceId = booking.getPrintJob().getDevice().getId().toString();
+        dto.deviveName = device != null ? device.getName() : null;
+        dto.deviceId = device != null ? device.getId().toString() : null;
         dto.filePath = booking.getPrintJob().getFilePath();
+
         PrintJob pj = booking.getPrintJob();
         dto.print_options = pj.getSettings();
+        
         return dto;
     }
 }

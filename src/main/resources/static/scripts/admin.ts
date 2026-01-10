@@ -537,7 +537,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     let startDateInfoHTML = b.startDate ? `<p class="text-sm"><strong>Start:</strong> ${new Date(b.startDate).toLocaleDateString()}</p>` : '';
                     let endDateInfoHTML = b.endDate ? `<p class="text-sm"><strong>Ende:</strong> ${new Date(b.endDate).toLocaleDateString()}</p>` : '';
                     let noteInfoHTML = b.notes ? `<p class="text-sm"><strong>Notiz:</strong> ${b.notes}</p>` : '';
-                    let deviceHTML = `<p class="text-sm"><strong>Gerät:</strong> ${b.deviveName}</p>`;
+                    let deviceHTML = `<p class="text-sm"><strong>Gerät:</strong> ${b.deviveName ? b.deviveName : 'Gelöscht'}</p>`;
                     let filePathHTML = b.filePath ? `<p class="text-sm"><strong>Pfad:</strong> ${b.filePath}/</p>` : '';
 
                     let adminEmailHTML = b.lastModifiedBy ? `<p class="text-sm"><strong>Admin:</strong> ${b.lastModifiedBy}</p>` : '';

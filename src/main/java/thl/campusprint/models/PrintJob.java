@@ -25,7 +25,7 @@ public class PrintJob {
     private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "device", nullable = false)
+    @JoinColumn(name = "device", nullable = true) // Nullable true, damit Devices gelöscht werden können
     private Device device;
 
     @JsonProperty("settings") // <--- ZWINGEND NOTWENDIG
