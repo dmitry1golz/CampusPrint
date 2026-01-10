@@ -61,7 +61,7 @@ public class BookingService {
 
         PrintJob printJob = new PrintJob();
         printJob.setDevice(device);
-        // TODO settings, filePath, liveStream
+        printJob.setSettings(dto.getPrint_options());
         printJob = printJobRepository.save(printJob);
 
         Booking booking = new Booking();

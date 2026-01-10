@@ -1,5 +1,5 @@
 import { createNewBooking, getBookingAvailabilityForDevice } from "./services/bookingService.js";
-import { Booking, BookingAvailability, NewBooking } from "./models/booking.js";
+import { BaseNewBooking, Booking, BookingAvailability, NewBooking, supportOptions, SupportType } from "./models/booking.js";
 import { getDeviceById } from "./services/deviceService.js";
 import { setCookie } from "./services/authService.js";
 import { Device } from "./models/device.js";
@@ -55,7 +55,261 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Populate UI
     document.getElementById('printerInfo-Name')!.innerText = device.name;
+    switch (device.type) {
+        case "FDM_Printer":
+        case "SLA_Printer":
+            document.getElementById('printerInfo-Dimensions')!.innerText = device.print_options.work_area.x + "cm x " + device.print_options.work_area.y  + "cm x " + device.print_options.work_area.z + "cm";
+            break;
+        case "Laser_Cutter":
+            document.getElementById('printerInfo-Dimensions')!.innerText = device.print_options.work_area.x + "cm x " + device.print_options.work_area.y  + "cm";
+            break;
+        default:
+            document.getElementById('printerInfo-Dimensions')!.classList.add("hidden");
+            break;
+    }
     document.getElementById('printerInfo-Description')!.innerText = device.description;
+    switch (device.type) {
+        case "FDM_Printer":
+            document.getElementById("device-config-fdm")!.classList.remove("hidden");
+
+            const fdmSelectContainer = document.getElementById("fdm-mat-select")!;
+            const fdmOptionsUl = fdmSelectContainer.querySelector('.custom-select-options')! as HTMLUListElement;
+            const fdmValueDiv = fdmSelectContainer.querySelector('.custom-select-value')! as HTMLDivElement;
+            const fdmHiddenInput = document.getElementById("fdm-mat-value")! as HTMLInputElement;
+
+            fdmOptionsUl.innerHTML = '';
+            device.print_options.available_materials.forEach(mat => {
+                const li = document.createElement('li');
+                li.innerHTML = `<span class="color-dot" style="background-color: ${mat.color_hex};"></span>${mat.name} - (${mat.temp_nozzle}°C / ${mat.temp_bed}°C)`;
+                li.dataset.value = mat.name;
+                li.addEventListener('click', () => {
+                    fdmValueDiv.innerHTML = `<span class="color-dot" style="background-color: ${mat.color_hex};"></span>${mat.name} - (${mat.temp_nozzle}°C / ${mat.temp_bed}°C)`;
+                    fdmHiddenInput.value = mat.name;
+                    fdmOptionsUl.classList.add('hidden');
+                });
+                fdmOptionsUl.appendChild(li);
+            });
+
+            fdmValueDiv.addEventListener('click', () => {
+                fdmOptionsUl.classList.toggle('hidden');
+            });
+
+            // Layer
+            const fdmLayerSelectContainer = document.getElementById("fdm-layer-select")!;
+            const fdmLayerOptionsUl = fdmLayerSelectContainer.querySelector('.custom-select-options')! as HTMLUListElement;
+            const fdmLayerValueDiv = fdmLayerSelectContainer.querySelector('.custom-select-value')! as HTMLDivElement;
+            const fdmLayerHiddenInput = document.getElementById("fdm-layer-value")! as HTMLInputElement;
+
+            fdmLayerOptionsUl.innerHTML = '';
+            device.print_options.supported_layer_heights.forEach(layer => {
+                const li = document.createElement('li');
+                li.innerHTML = `${layer}`;
+                li.dataset.value = layer.toString();
+                li.addEventListener('click', () => {
+                    fdmLayerValueDiv.innerHTML = `${layer}`;
+                    fdmLayerHiddenInput.value = layer.toString();
+                    fdmLayerOptionsUl.classList.add('hidden');
+                });
+                fdmLayerOptionsUl.appendChild(li);
+            });
+
+            fdmLayerValueDiv.addEventListener('click', () => {
+                fdmLayerOptionsUl.classList.toggle('hidden');
+            });
+
+            // Nozzle
+            const fdmNozzleSelectContainer = document.getElementById("fdm-nozzle-select")!;
+            const fdmNozzleOptionsUl = fdmNozzleSelectContainer.querySelector('.custom-select-options')! as HTMLUListElement;
+            const fdmNozzleValueDiv = fdmNozzleSelectContainer.querySelector('.custom-select-value')! as HTMLDivElement;
+            const fdmNozzleHiddenInput = document.getElementById("fdm-nozzle-value")! as HTMLInputElement;
+
+            fdmNozzleOptionsUl.innerHTML = '';
+            device.print_options.nozzle_sizes.forEach(nozzle => {
+                const li = document.createElement('li');
+                li.innerHTML = `${nozzle}`;
+                li.dataset.value = nozzle.toString();
+                li.addEventListener('click', () => {
+                    fdmNozzleValueDiv.innerHTML = `${nozzle}`;
+                    fdmNozzleHiddenInput.value = nozzle.toString();
+                    fdmNozzleOptionsUl.classList.add('hidden');
+                });
+                fdmNozzleOptionsUl.appendChild(li);
+            });
+
+            fdmNozzleValueDiv.addEventListener('click', () => {
+                fdmNozzleOptionsUl.classList.toggle('hidden');
+            });
+
+            // Support
+            const fdmSupportSelectContainer = document.getElementById("fdm-support-select")!;
+            const fdmSupportOptionsUl = fdmSupportSelectContainer.querySelector('.custom-select-options')! as HTMLUListElement;
+            const fdmSupportValueDiv = fdmSupportSelectContainer.querySelector('.custom-select-value')! as HTMLDivElement;
+            const fdmSupportHiddenInput = document.getElementById("fdm-support-value")! as HTMLInputElement;
+
+            fdmSupportOptionsUl.innerHTML = '';
+            supportOptions.forEach(support => {
+                const li = document.createElement('li');
+                li.innerHTML = `${support}`;
+                li.dataset.value = support;
+                li.addEventListener('click', () => {
+                    fdmSupportValueDiv.innerHTML = `${support}`;
+                    fdmSupportHiddenInput.value = support;
+                    fdmSupportOptionsUl.classList.add('hidden');
+                });
+                fdmSupportOptionsUl.appendChild(li);
+            });
+
+            fdmSupportValueDiv.addEventListener('click', () => {
+                fdmSupportOptionsUl.classList.toggle('hidden');
+            });
+            break;
+        case "SLA_Printer":
+            document.getElementById("device-config-sla")?.classList.remove("hidden");
+
+            const slaSelectContainer = document.getElementById("sla-mat-select")!;
+            const slaOptionsUl = slaSelectContainer.querySelector('.custom-select-options')! as HTMLUListElement;
+            const slaValueDiv = slaSelectContainer.querySelector('.custom-select-value')! as HTMLDivElement;
+            const slaHiddenInput = document.getElementById("sla-mat-value")! as HTMLInputElement;
+
+            slaOptionsUl.innerHTML = '';
+            device.print_options.available_materials.forEach(mat => {
+                const li = document.createElement('li');
+                li.innerHTML = `<span class="color-dot" style="background-color: ${mat.color_hex};"></span>${mat.name}`;
+                li.dataset.value = mat.name;
+                li.addEventListener('click', () => {
+                    slaValueDiv.innerHTML = `<span class="color-dot" style="background-color: ${mat.color_hex};"></span>${mat.name}`;
+                    slaHiddenInput.value = mat.name;
+                    slaOptionsUl.classList.add('hidden');
+                });
+                slaOptionsUl.appendChild(li);
+            });
+
+            slaValueDiv.addEventListener('click', () => {
+                slaOptionsUl.classList.toggle('hidden');
+            });
+
+            // Layer
+            const slaLayerSelectContainer = document.getElementById("sla-layer-select")!;
+            const slaLayerOptionsUl = slaLayerSelectContainer.querySelector('.custom-select-options')! as HTMLUListElement;
+            const slaLayerValueDiv = slaLayerSelectContainer.querySelector('.custom-select-value')! as HTMLDivElement;
+            const slaLayerHiddenInput = document.getElementById("sla-layer-value")! as HTMLInputElement;
+
+            slaLayerOptionsUl.innerHTML = '';
+            device.print_options.supported_layer_heights.forEach(layer => {
+                const li = document.createElement('li');
+                li.innerHTML = `${layer}`;
+                li.dataset.value = layer.toString();
+                li.addEventListener('click', () => {
+                    slaLayerValueDiv.innerHTML = `${layer}`;
+                    slaLayerHiddenInput.value = layer.toString();
+                    slaLayerOptionsUl.classList.add('hidden');
+                });
+                slaLayerOptionsUl.appendChild(li);
+            });
+
+            slaLayerValueDiv.addEventListener('click', () => {
+                slaLayerOptionsUl.classList.toggle('hidden');
+            });
+
+            // Support
+            const slaSupportSelectContainer = document.getElementById("sla-support-select")!;
+            const slaSupportOptionsUl = slaSupportSelectContainer.querySelector('.custom-select-options')! as HTMLUListElement;
+            const slaSupportValueDiv = slaSupportSelectContainer.querySelector('.custom-select-value')! as HTMLDivElement;
+            const slaSupportHiddenInput = document.getElementById("sla-support-value")! as HTMLInputElement;
+
+            slaSupportOptionsUl.innerHTML = '';
+            
+            supportOptions.forEach(support => {
+                const li = document.createElement('li');
+                li.innerHTML = `${support}`;
+                li.dataset.value = support;
+                li.addEventListener('click', () => {
+                    slaSupportValueDiv.innerHTML = `${support}`;
+                    slaSupportHiddenInput.value = support;
+                    slaSupportOptionsUl.classList.add('hidden');
+                });
+                slaSupportOptionsUl.appendChild(li);
+            });
+
+            slaSupportValueDiv.addEventListener('click', () => {
+                slaSupportOptionsUl.classList.toggle('hidden');
+            });
+            break;
+        case "Laser_Cutter":
+            document.getElementById("device-config-laser")?.classList.remove("hidden");
+
+            const laserSelectContainer = document.getElementById("laser-preset-select")!;
+            const laserOptionsUl = laserSelectContainer.querySelector('.custom-select-options')! as HTMLUListElement;
+            const laserValueDiv = laserSelectContainer.querySelector('.custom-select-value')! as HTMLDivElement;
+            const laserHiddenInput = document.getElementById("laser-preset-value")! as HTMLInputElement;
+
+            laserOptionsUl.innerHTML = '';
+            device.print_options.presets.forEach(preset => {
+                const li = document.createElement('li');
+                li.innerHTML = `${preset.material} - ${preset.thickness}mm - ${preset.power}W - ${preset.speed}mm/min`;
+                li.dataset.value = preset.toString();
+                li.addEventListener('click', () => {
+                    laserValueDiv.innerHTML = `${preset.material} - ${preset.thickness}mm - ${preset.power}W - ${preset.speed}mm/min`;
+                    laserHiddenInput.value = preset.toString();
+                    laserOptionsUl.classList.add('hidden');
+                });
+                laserOptionsUl.appendChild(li);
+            });
+
+            laserValueDiv.addEventListener('click', () => {
+                laserOptionsUl.classList.toggle('hidden');
+            });
+            break;
+        case "Printer":
+            document.getElementById("device-config-paper")?.classList.remove("hidden");
+
+            // Weight
+            const paperWeightSelectContainer = document.getElementById("paper-weight-select")!;
+            const paperWeightOptionsUl = paperWeightSelectContainer.querySelector('.custom-select-options')! as HTMLUListElement;
+            const paperWeightValueDiv = paperWeightSelectContainer.querySelector('.custom-select-value')! as HTMLDivElement;
+            const paperWeightHiddenInput = document.getElementById("paper-weight-value")! as HTMLInputElement;
+
+            paperWeightOptionsUl.innerHTML = '';
+            device.print_options.paper_weights.forEach(weight => {
+                const li = document.createElement('li');
+                li.innerHTML = `${weight}`;
+                li.dataset.value = weight.toString();
+                li.addEventListener('click', () => {
+                    paperWeightValueDiv.innerHTML = `${weight}`;
+                    paperWeightHiddenInput.value = weight.toString();
+                    paperWeightOptionsUl.classList.add('hidden');
+                });
+                paperWeightOptionsUl.appendChild(li);
+            });
+
+            paperWeightValueDiv.addEventListener('click', () => {
+                paperWeightOptionsUl.classList.toggle('hidden');
+            });
+
+            // Format
+            const paperFormatSelectContainer = document.getElementById("paper-format-select")!;
+            const paperFormatOptionsUl = paperFormatSelectContainer.querySelector('.custom-select-options')! as HTMLUListElement;
+            const paperFormatValueDiv = paperFormatSelectContainer.querySelector('.custom-select-value')! as HTMLDivElement;
+            const paperFormatHiddenInput = document.getElementById("paper-format-value")! as HTMLInputElement;
+
+            paperFormatOptionsUl.innerHTML = '';
+            device.print_options.formats.forEach(format => {
+                const li = document.createElement('li');
+                li.innerHTML = `${format}`;
+                li.dataset.value = format;
+                li.addEventListener('click', () => {
+                    paperFormatValueDiv.innerHTML = `${format}`;
+                    paperFormatHiddenInput.value = format;
+                    paperFormatOptionsUl.classList.add('hidden');
+                });
+                paperFormatOptionsUl.appendChild(li);
+            });
+
+            paperFormatValueDiv.addEventListener('click', () => {
+                paperFormatOptionsUl.classList.toggle('hidden');
+            });
+            break;
+    }
 
     const form = document.getElementById('bookingForm') as HTMLFormElement;
     form.addEventListener('submit', handleFormSubmit);
@@ -81,13 +335,65 @@ async function handleFormSubmit(e: Event) {
     }
 
     // printerId must be number now
-    const booking: NewBooking = {
+    const bookingBase: BaseNewBooking = {
         printerId: device.id,
         userEmail: email,
         startDate: createDateTime(currentlySelectedDate, start),
         endDate: createDateTime(currentlySelectedDate, end),
         notes: notes
     };
+
+    var booking: NewBooking;
+    switch (device.type) {
+        case "FDM_Printer":
+            booking = {
+                ...bookingBase,
+                type: "FDM_Printer",
+                print_options: {
+                    tech_type: "FDM",
+                    selected_material: device.print_options.available_materials.find(mat => mat.name === (document.getElementById('fdm-mat-value') as HTMLInputElement).value)!,
+                    selected_layer_height: device.print_options.supported_layer_heights.find(layer => layer.toString() === (document.getElementById('fdm-layer-value') as HTMLInputElement).value)!,
+                    selected_nozzle_size: device.print_options.nozzle_sizes.find(nozzle => nozzle.toString() === (document.getElementById('fdm-nozzle-value') as HTMLInputElement).value)!,
+                    selected_support_type: (document.getElementById('fdm-support-value') as HTMLInputElement).value as SupportType,
+                    selected_infill_percentage: +(document.getElementById('fdm-infill-input') as HTMLInputElement).value!,
+                }
+            };
+            break;
+        case "SLA_Printer":
+            booking = {
+                ...bookingBase,
+                type: "SLA_Printer",
+                print_options: {
+                    tech_type: "SLA",
+                    selected_material: device.print_options.available_materials.find(mat => mat.name === (document.getElementById('sla-mat-value') as HTMLInputElement).value)!,
+                    selected_layer_height: device.print_options.supported_layer_heights.find(layer => layer.toString() === (document.getElementById('sla-layer-value') as HTMLInputElement).value)!,
+                    selected_support_type: (document.getElementById('sla-support-value') as HTMLInputElement).value as SupportType,
+                    selected_infill_percentage: +(document.getElementById('sla-infill-input') as HTMLInputElement).value!,
+                }
+            };
+            break;
+        case "Laser_Cutter":
+            booking = {
+                ...bookingBase,
+                type: "Laser_Cutter",
+                print_options: {
+                    tech_type: "LASER",
+                    selected_preset: device.print_options.presets.find(preset => preset.toString() === (document.getElementById('laser-preset-value') as HTMLInputElement).value)!,
+                }
+            };
+            break;
+        case "Printer":
+            booking = {
+                ...bookingBase,
+                type: "Printer",
+                print_options: {
+                    tech_type: "PAPER",
+                    selected_paper_weights: device.print_options.paper_weights.find(weight => weight.toString() === (document.getElementById('paper-weight-value') as HTMLInputElement).value)!,
+                    selected_format: device.print_options.formats.find(format => format.toString() === (document.getElementById('paper-format-value') as HTMLInputElement).value)!,
+                }
+            };
+            break;
+    }
 
     const createdBooking: Booking | undefined = await createNewBooking(booking);
     if (createdBooking === undefined) {

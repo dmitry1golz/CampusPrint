@@ -17,7 +17,7 @@ INSERT INTO `devices` (`iddevice`, `name`, `description`, `model`, `status`, `ty
  'https://ultimaker.com/wp-content/uploads/2023/05/The_Ultimaker_S5.jpg',
  '{
     "tech_type": "FDM",
-    "dimensions": {"x": 330, "y": 240, "z": 300}, 
+    "work_area": {"x": 330, "y": 240, "z": 300}, 
     "available_materials": [
         {"name": "PLA", "temp_nozzle": 210, "temp_bed": 60, "color_hex": "#FFFFFF"},
         {"name": "Tough PLA", "temp_nozzle": 215, "temp_bed": 60, "color_hex": "#000000"},
@@ -36,7 +36,7 @@ INSERT INTO `devices` (`iddevice`, `name`, `description`, `model`, `status`, `ty
  'assets/prusa.png',
  '{
     "tech_type": "FDM",
-    "dimensions": {"x": 250, "y": 210, "z": 210},
+    "work_area": {"x": 250, "y": 210, "z": 210},
     "available_materials": [
         {"name": "Prusament PLA", "temp_nozzle": 215, "temp_bed": 60, "color_hex": "#FF5733"},
         {"name": "PETG", "temp_nozzle": 240, "temp_bed": 80, "color_hex": "#33FF57"}
@@ -54,7 +54,7 @@ INSERT INTO `devices` (`iddevice`, `name`, `description`, `model`, `status`, `ty
  'https://cdn.idealo.com/folder/Product/202800/9/202800985/s1_produktbild_max_1/bambu-lab-x1-carbon-combo.jpg',
  '{
     "tech_type": "FDM",
-    "dimensions": {"x": 256, "y": 256, "z": 256},
+    "work_area": {"x": 256, "y": 256, "z": 256},
     "available_materials": [
         {"name": "PLA Basic", "temp_nozzle": 220, "temp_bed": 55, "color_hex": "#AAAAAA"},
         {"name": "PAHT-CF", "temp_nozzle": 290, "temp_bed": 100, "color_hex": "#111111"}
@@ -72,7 +72,7 @@ INSERT INTO `devices` (`iddevice`, `name`, `description`, `model`, `status`, `ty
  'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fcdn.mos.cms.futurecdn.net%2F5Pfuvxw3XNgQD4YWjeNc2N-1200-80.jpg&f=1&nofb=1&ipt=da15a618dd64a4127be8cbc71fb63532cf09349b66d1eec02c4436d753e7bdad',
  '{
     "tech_type": "SLA",
-    "dimensions": {"x": 145, "y": 145, "z": 185},
+    "work_area": {"x": 145, "y": 145, "z": 185},
     "available_materials": [
         {"name": "Standard Grey Resin", "color_hex": "#808080"},
         {"name": "Clear Resin", "color_hex": "#E0E0E0"}
@@ -133,7 +133,7 @@ INSERT INTO `devices` (`iddevice`, `name`, `description`, `model`, `status`, `ty
 -- 3. PRINT JOBS & BOOKINGS
 -- ########################################################
 
-INSERT INTO `print_jobs` (`idprintjob`, `device`, `file_path`, `settings`) VALUES ('a9cf03d2-c2f6-4589-b9b5-ebf252c45ee3', '5b526244-e177-4ade-a43b-bc3f976dad4a', 'files/job1.gcode', '{"name": "PLA", "color_hex": "white"}');
+INSERT INTO `print_jobs` (`idprintjob`, `device`, `file_path`) VALUES ('a9cf03d2-c2f6-4589-b9b5-ebf252c45ee3', '5b526244-e177-4ade-a43b-bc3f976dad4a', 'files/job1.gcode');
 INSERT INTO `bookings` (`print_job`, `status`, `start_time`, `end_time`, `user_id`, `user_notes`)
 VALUES ('a9cf03d2-c2f6-4589-b9b5-ebf252c45ee3', 0, '2025-11-25 10:00:00', '2025-11-25 14:00:00', 'a5835e04-c027-4493-b40e-ca3eeff921c7', 'Bachelorarbeit Gehaeuse V3. Bitte weißes PLA nutzen.');
 

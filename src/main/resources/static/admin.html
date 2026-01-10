@@ -50,19 +50,18 @@
                                 <option value="FDM_Printer">FDM Drucker (Filament)</option>
                                 <option value="SLA_Printer">SLA Drucker (Resin)</option>
                                 <option value="Laser_Cutter">Lasercutter</option>
-                                <option value="CNC_Mill">CNC Fräse</option>
                                 <option value="Printer">Papierdrucker</option>
                             </select>
                         </div>
                     </div>
 
-                    <label class="text-muted text-sm mb-1" style="display:block; margin-top:10px;">Bauraum / Arbeitsfläche (in mm)</label>
+                    <label id="group-dim" class="text-muted text-sm mb-1" style="display:block; margin-top:10px;">Bauraum / Arbeitsfläche (in mm)</label>
                     <div class="form-row">
-                        <div class="form-group">
+                        <div class="form-group" id="group-dim-x">
                             <label>Breite (X)</label>
                             <input type="number" id="eq-dim-x" class="form-control" placeholder="250" />
                         </div>
-                        <div class="form-group">
+                        <div class="form-group" id="group-dim-y">
                             <label>Tiefe (Y)</label>
                             <input type="number" id="eq-dim-y" class="form-control" placeholder="210" />
                         </div>
@@ -72,15 +71,25 @@
                         </div>
                     </div>
 
-                    <div id="group-materials" class="hidden manager-section">
-                        <h4>Materialien / Harze</h4>
-                        <div id="material-list" class="item-list"></div>
+                    <div id="group-materials-fdm" class="hidden manager-section">
+                        <h4>Materialien (Filamente)</h4>
+                        <div id="fdm-material-list" class="item-list"></div>
                         <div class="input-row">
-                            <input type="text" id="mat-name" class="form-control" placeholder="Name (z.B. PLA)" style="flex:2;">
-                            <input type="number" id="mat-nozzle" class="form-control temp-input" placeholder="Düse °C" style="flex:1;">
-                            <input type="number" id="mat-bed" class="form-control temp-input" placeholder="Bett °C" style="flex:1;">
-                            <input type="color" id="mat-color" value="#ffffff" title="Farbe" style="width:40px; height:38px; padding:0; border:1px solid #ccc;">
-                            <button type="button" id="btn-add-material" class="btn btn-secondary btn-sm"><i data-lucide="plus"></i></button>
+                            <input type="text" id="fdm-mat-name" class="form-control" placeholder="Name (z.B. PLA)" style="flex:2;">
+                            <input type="number" id="fdm-mat-nozzle" class="form-control temp-input" placeholder="Düse °C" style="flex:1;">
+                            <input type="number" id="fdm-mat-bed" class="form-control temp-input" placeholder="Bett °C" style="flex:1;">
+                            <input type="color" id="fdm-mat-color" value="#ffffff" title="Farbe" style="width:40px; height:38px; padding:0; border:1px solid #ccc;">
+                            <button type="button" id="btn-add-fdm-material" class="btn btn-secondary btn-sm"><i data-lucide="plus"></i></button>
+                        </div>
+                    </div>
+
+                    <div id="group-materials-sla" class="hidden manager-section">
+                        <h4>Harze (Resins)</h4>
+                        <div id="sla-material-list" class="item-list"></div>
+                        <div class="input-row">
+                            <input type="text" id="sla-mat-name" class="form-control" placeholder="Name (z.B. PLA)" style="flex:2;">
+                            <input type="color" id="sla-mat-color" value="#ffffff" title="Farbe" style="width:40px; height:38px; padding:0; border:1px solid #ccc;">
+                            <button type="button" id="btn-add-sla-material" class="btn btn-secondary btn-sm"><i data-lucide="plus"></i></button>
                         </div>
                     </div>
 
