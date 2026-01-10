@@ -1,59 +1,79 @@
-stages:
-  - quality  # Code-Style (Java & Frontend)
-  - test     # Schwere Integrationstests (DB)
-  - build    # Artefakt bauen
+# ========================================================================================
+# CI/CD PIPELINE DOKUMENTATION
+# ========================================================================================
+#
+# ZUSAMMENFASSUNG:
+# Diese Pipeline automatisiert die Qualitätskontrolle, Tests und den Build-Prozess
+# für eine Java-Backend- und Node.js-Frontend-Anwendung.
+#
+# STAGES:
+# 1. quality: Statische Code-Analyse (Linting) für Backend (Spotless) und Frontend.
+# 2. test:    Ausführung von Unit- und Integrationstests (Testcontainers/Docker).
+# 3. build:   Erstellung des JAR-Artefakts (überspringt Tests im Build-Schritt).
+#
+# STEUERUNG ÜBER COMMIT-MESSAGES (TRIGGER):
+# Die Pipeline reagiert auf spezifische Schlagworte in der Commit-Nachricht:
+#
+# - [TESTALL]
+#   Führt die VOLLE Pipeline aus: Backend-Linting, Frontend-Linting,
+#   schwere Datenbank-Tests, Controller-Tests und den Build.
+#
+# - [DatabaseTest]
+#   Aktiviert spezifisch die Job-Gruppe 'database-integration-tests'
+#   (Testcontainers mit Docker-in-Docker).
+#
+# - [controller]
+#   Aktiviert spezifisch die Job-Gruppe 'controller-tests'.
+#
+# Standard-Verhalten (ohne Tags auf 'main'):
+# Führt Quality-Gates (Linting) und den Build aus. Tests werden standardmäßig
+# übersprungen, um Ressourcen zu sparen, sofern sie nicht explizit angefordert werden.
+#
+# ========================================================================================
 
-# Globale Einstellungen
+stages:
+  - quality
+  - test
+  - build
+
 variables:
   MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
 
-# Cache für Speed (Maven & Node)
 cache:
   paths:
     - .m2/repository
     - node_modules/
 
-# ====================================================
-# STAGE 1: QUALITY GATES (Laufen parallel)
-# ====================================================
-
-# 1.1 Java Formatierung prüfen (Spotless)
 lint-backend:
   stage: quality
   image: maven:3.9.9-eclipse-temurin-21
   script:
     - echo "Prüfe Java Code Style mit Spotless..."
     - mvn spotless:check
-
   rules:
     - if: $CI_COMMIT_BRANCH == "main"
       when: always
       allow_failure: true
     - if: $CI_COMMIT_MESSAGE =~ /\[TESTALL\]/
       allow_failure: true
-  # Wenn Spotless meckert, bricht der Job ab -> Du musst lokal 'mvn spotless:apply' machen
 
-# 1.2 Frontend Linting (TS, CSS, HTML)
 lint-frontend:
   stage: quality
-  image: node:22 # Node 22 ist LTS und aktuell
+  image: node:22
   script:
     - echo "Installiere Frontend-Dependencies..."
     - npm ci --cache .npm --prefer-offline
     - echo "Führe Linting durch..."
     - npm run lint:all
-  
   artifacts:
     when: always
     reports:
       junit: 
         - reports/eslint.xml
         - reports/stylelint.xml
-      # HTML Report
       codequality: reports/html.xml
     paths:
       - reports/
-
   rules:
     - if: $CI_COMMIT_BRANCH == "main"
       when: always
@@ -61,50 +81,30 @@ lint-frontend:
     - if: $CI_COMMIT_MESSAGE =~ /\[TESTALL\]/
       allow_failure: true
 
-# ====================================================
-# STAGE 2: DATABASE TESTS (Testcontainers)
-# ====================================================
 database-integration-tests:
   stage: test
-  # Wir bleiben beim funktionierenden Java 21 Image
   image: maven:3.9.9-eclipse-temurin-21
-  
   services:
-    # Wir pinnen eine stabile dind Version und deaktivieren TLS explizit im Command
     - name: docker:27.4.1-dind
       alias: docker
       command: ["--tls=false"]
-      
   variables:
-    # WICHTIG: Testcontainers sagen, wo Docker läuft
     DOCKER_HOST: "tcp://docker:2375"
     DOCKER_TLS_CERTDIR: ""
     DOCKER_DRIVER: overlay2
-    # Optional: Ryuk deaktivieren, falls es Rechteprobleme gibt (meist nicht nötig, aber sicher ist sicher)
-    # TESTCONTAINERS_RYUK_DISABLED: "true"
-    
   script:
     - echo "Warte auf Docker Daemon..."
-    # Hack: Maven startet oft zu schnell. Wir warten kurz, bis dind bereit ist.
-    # Alternativ könnte man auf den Port pollen, aber sleep reicht meistens.
     - sleep 15 
     - echo "Starte Integrationstests..."
     - mvn test -Dtest=CampusPrintDatabaseTests
-    
   artifacts:
     when: always
     reports:
-      # KORREKTUR: Maven Surefire speichert Reports standardmäßig hier:
       junit: target/surefire-reports/Database-*.xml
     paths:
-      # Damit du die HTML/XML Dateien auch im Browser in GitLab anschauen kannst
       - target/surefire-reports/
-  # Deine Regel: Läuft nur, wenn [DatabaseTest] in der Commit-Message steht
   rules:
     - if: $CI_COMMIT_MESSAGE =~ /\[DatabaseTest\]/
-    # Optional: Läuft auch automatisch auf dem main branch (empfohlen)
-    #- if: $CI_COMMIT_BRANCH == "main"
-    #  when: always
     - if: $CI_COMMIT_MESSAGE =~ /\[TESTALL\]/
       allow_failure: false
 
@@ -114,8 +114,6 @@ controller-tests:
   script:
     - echo "Führe schnelle Unit-Tests aus (inkl. Controller Tests)..."
     - mvn test -Dtest=DeviceControllerTest
-    # add other controller tests here
-  
   artifacts:
     when: always
     reports:
@@ -123,36 +121,24 @@ controller-tests:
         - target/surefire-reports/Controller-*.xml
     expire_in: 1 week
     paths:
-      # Damit du die HTML/XML Dateien auch im Browser in GitLab anschauen kannst
       - target/surefire-reports/
-
-  # Optional: Nur laufen lassen, wenn du es willst (oder Magic Commit)
   rules:
     - if: $CI_COMMIT_MESSAGE =~ /\[controller\]/
       allow_failure: false
     - if: $CI_COMMIT_MESSAGE =~ /\[TESTALL\]/
       allow_failure: false
 
-# ====================================================
-# STAGE 3: BUILD
-# ====================================================
 build-jar:
   stage: build
   image: maven:3.9.9-eclipse-temurin-21
-  # Startet erst, wenn Quality OK ist. 
-  # DB-Tests sind optional (wegen der rules oben), daher warten wir nicht zwingend drauf, 
-  # es sei denn sie laufen.
   needs: ["lint-backend", "lint-frontend"] 
-  
   script:
     - echo "Baue die Anwendung..."
     - mvn package -DskipTests
-    
   artifacts:
     paths:
       - target/*.jar
     expire_in: 1 week
-
   rules:
     - if: $CI_COMMIT_BRANCH == "main"
       when: always
