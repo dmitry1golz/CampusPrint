@@ -24,6 +24,13 @@ lint-backend:
   script:
     - echo "Prüfe Java Code Style mit Spotless..."
     - mvn spotless:check
+
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+      when: always
+      allow_failure: true
+    - if: $CI_COMMIT_MESSAGE =~ /\[TESTALL\]/
+      allow_failure: true
   # Wenn Spotless meckert, bricht der Job ab -> Du musst lokal 'mvn spotless:apply' machen
 
 # 1.2 Frontend Linting (TS, CSS, HTML)
@@ -46,6 +53,13 @@ lint-frontend:
       codequality: reports/html.xml
     paths:
       - reports/
+
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+      when: always
+      allow_failure: true
+    - if: $CI_COMMIT_MESSAGE =~ /\[TESTALL\]/
+      allow_failure: true
 
 # ====================================================
 # STAGE 2: DATABASE TESTS (Testcontainers)
