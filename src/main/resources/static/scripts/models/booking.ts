@@ -16,6 +16,8 @@ export interface Booking {
     deviveName: String;
     deviceId : String;
     filePath? : String;
+
+    print_options?: SelectedFdmOptions | SelectedSlaOptions | SelectedLaserOptions | SelectedPaperOptions;
     
     // All status info combined
     status: 'pending' | 'confirmed' | 'completed' | 'rejected' | 'running';

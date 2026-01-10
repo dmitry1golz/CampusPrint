@@ -2,8 +2,12 @@ package thl.campusprint.models.DTOs;
 
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import lombok.Data;
 import thl.campusprint.models.Booking;
+import thl.campusprint.models.PrintJob;
+import thl.campusprint.models.options.PrintJobSlectedOptions;
 
 @Data
 public class BookingDTO {
@@ -22,6 +26,9 @@ public class BookingDTO {
     private String deviveName;
     private String deviceId;
     private String filePath;
+    
+    @JsonProperty("print_options")
+    private PrintJobSlectedOptions print_options;
 
     private BookingDTO() { }
 
@@ -41,6 +48,11 @@ public class BookingDTO {
         dto.deviveName = booking.getPrintJob().getDevice().getName();
         dto.deviceId = booking.getPrintJob().getDevice().getId().toString();
         dto.filePath = booking.getPrintJob().getFilePath();
+        PrintJob pj = booking.getPrintJob();
+        System.out.println("[DEBUG] PrintJob ID: " + pj.getId());
+        System.out.println("[DEBUG] PrintJob settings raw: " + pj.getSettings());
+        dto.print_options = pj.getSettings();
+        System.out.println("[DEBUG] BookingDTO print_options: " + dto.print_options);
         return dto;
     }
 }
