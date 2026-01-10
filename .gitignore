@@ -51,3 +51,6 @@ src/main/resources/static/js/
 *.zip
 *.tar.gz
 *.rar
+
+# Generated Reports:
+reports/

@@ -1,83 +1,101 @@
 stages:
-  - test
-  - build
+  - quality  # Code-Style (Java & Frontend)
+  - test     # Schwere Integrationstests (DB)
+  - build    # Artefakt bauen
 
-# Globale Variablen für Performance (Caching)
+# Globale Einstellungen
 variables:
   MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
 
-# Cache Konfiguration: Damit Maven und NPM nicht jedes Mal alles neu herunterladen müssen
+# Cache für Speed (Maven & Node)
 cache:
   paths:
     - .m2/repository
     - node_modules/
 
 # ====================================================
-# JOB 1: JAVA DATABASE TESTS (Testcontainers)
+# STAGE 1: QUALITY GATES (Laufen parallel)
 # ====================================================
-java-integration-tests:
+
+# 1.1 Java Formatierung prüfen (Spotless)
+lint-backend:
+  stage: quality
+  image: maven:latest
+  script:
+    - echo "Prüfe Java Code Style mit Spotless..."
+    - mvn spotless:check
+  # Wenn Spotless meckert, bricht der Job ab -> Du musst lokal 'mvn spotless:apply' machen
+
+# 1.2 Frontend Linting (TS, CSS, HTML)
+lint-frontend:
+  stage: quality
+  image: node:22 # Node 22 ist LTS und aktuell
+  script:
+    - echo "Installiere Frontend-Dependencies..."
+    - npm ci --cache .npm --prefer-offline
+    - echo "Führe Linting durch..."
+    - npm run lint:all
+  
+  artifacts:
+    when: always
+    reports:
+      junit: 
+        - reports/eslint.xml
+        - reports/stylelint.xml
+      # HTML Report (Code Quality Widget im MR)
+      codequality: reports/html.xml
+    paths:
+      - reports/
+
+# ====================================================
+# STAGE 2: DATABASE TESTS (Testcontainers)
+# ====================================================
+database-integration-tests:
   stage: test
   image: maven:latest
   
-  # WICHTIG: Docker-in-Docker Service für Testcontainers
+  # Docker-in-Docker für Testcontainers
   services:
     - name: docker:dind
-      alias: docker # Damit Testcontainers den Host findet
+      alias: docker
       
   variables:
-    # Damit Java weiß, wo der Docker-Daemon läuft
     DOCKER_HOST: tcp://docker:2375 
-    DOCKER_TLS_CERTDIR: "" # TLS deaktivieren für einfachere CI-Config
+    DOCKER_TLS_CERTDIR: ""
     
   script:
-    - echo "Starte Java Tests mit Testcontainers (MySQL)..."
-    - mvn test
+    - echo "Starte Integrationstests..."
+    # KORREKTUR: "test" Goal hinzugefügt
+    - mvn test -Dtest=CampusPrintDatabaseTests
     
-  # Sammelt die Testergebnisse für GitLab ein
   artifacts:
     when: always
     reports:
       junit: target/surefire-reports/TEST-*.xml
 
+  # Deine Regel: Läuft nur, wenn [DatabaseTest] in der Commit-Message steht
   rules:
-    - if: $CI_COMMIT_MESSAGE =~ /\[test\]/        # Nur wenn [test] in der commit message
-      allow_failure: true
+    - if: $CI_COMMIT_MESSAGE =~ /\[DatabaseTest\]/
+    # Optional: Läuft auch automatisch auf dem main branch (empfohlen)
+    - if: $CI_COMMIT_BRANCH == "main"
+      when: always
 
 # ====================================================
-# JOB 2: FRONTEND LINTING (HTML, CSS, TS)
+# STAGE 3: BUILD
 # ====================================================
-# frontend-code-quality:
-#   stage: test
-#   image: node:20
+build-jar:
+  stage: build
+  image: maven:latest
+  # Startet erst, wenn Quality OK ist. 
+  # DB-Tests sind optional (wegen der rules oben), daher warten wir nicht zwingend drauf, 
+  # es sei denn sie laufen.
+  needs: ["lint-backend", "lint-frontend"] 
   
-#   script:
-#     - echo "Installiere Frontend-Dependencies..."
-#     - npm ci --cache .npm --prefer-offline
-#     - echo "Führe Linting durch (TS, CSS, HTML)..."
-#     # Dein Befehl aus der package.json, der die XML-Reports erstellt
-#     - npm run lint:all
+  script:
+    - echo "Baue die Anwendung..."
+    - mvn package -DskipTests
     
-#   # Sammelt die Frontend-Reports ein
-#   artifacts:
-#     when: always
-#     reports:
-#       junit: reports/*.xml
-#     paths:
-#       - reports/ # Speichert die Dateien auch zum Download
-
-# # ====================================================
-# # JOB 3: BUILD APPLICATION (Nur wenn Tests grün sind)
-# # ====================================================
-# build-jar:
-#   stage: build
-#   image: maven:3.9-eclipse-temurin-21
-#   needs: ["java-integration-tests", "frontend-code-quality"] # Wartet auf beide Tests
-  
-#   script:
-#     - echo "Baue die Anwendung (Tests überspringen, da oben bereits gelaufen)..."
-#     - mvn package -DskipTests
-    
-#   artifacts:
-#     paths:
-#       - target/*.jar # Das fertige Artefakt (z.B. für Deployment)
-#     expire_in: 1 week
+  artifacts:
+    paths:
+      - target/*.jar
+    expire_in: 1 week
