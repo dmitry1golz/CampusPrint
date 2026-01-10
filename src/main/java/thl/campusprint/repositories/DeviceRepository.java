@@ -6,5 +6,5 @@ import thl.campusprint.models.Device;
 
 @Repository
 public interface DeviceRepository extends JpaRepository<Device, Integer> {
-    // this is all thats needed
+  // this is all thats needed
 }
