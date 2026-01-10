@@ -1,15 +1,13 @@
 package thl.campusprint.models;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
+import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
-import thl.campusprint.models.options.DeviceOptions;
-
-import java.util.UUID;
-
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import thl.campusprint.models.options.DeviceOptions;
 
 @Entity
 @Table(name = "devices")
@@ -37,10 +35,9 @@ public class Device {
 
     @Enumerated(EnumType.STRING)
     @Column(
-        nullable = false, 
-        // Füge 'Unavailable' hier wieder ein!
-        columnDefinition = "ENUM('Available', 'Unavailable') DEFAULT 'Unavailable'"
-    )
+            nullable = false,
+            // Füge 'Unavailable' hier wieder ein!
+            columnDefinition = "ENUM('Available', 'Unavailable') DEFAULT 'Unavailable'")
     private DeviceStatus status = DeviceStatus.Unavailable;
 
     @JsonProperty("print_options") // <--- ZWINGEND NOTWENDIG
@@ -55,5 +52,4 @@ public class Device {
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "booking_availability_blocked_weekdays", columnDefinition = "TEXT")
     private BlockedWeekdays bookingAvailabilityBlockedWeekdays;
-
 }

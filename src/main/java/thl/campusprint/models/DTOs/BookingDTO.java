@@ -1,9 +1,7 @@
 package thl.campusprint.models.DTOs;
 
-import java.time.LocalDateTime;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
-
+import java.time.LocalDateTime;
 import lombok.Data;
 import thl.campusprint.models.Booking;
 import thl.campusprint.models.Device;
@@ -27,11 +25,11 @@ public class BookingDTO {
     private String deviveName;
     private String deviceId;
     private String filePath;
-    
+
     @JsonProperty("print_options")
     private PrintJobSlectedOptions print_options;
 
-    private BookingDTO() { }
+    private BookingDTO() {}
 
     public static BookingDTO fromDBModel(Booking booking) {
 
@@ -46,7 +44,8 @@ public class BookingDTO {
         dto.message = booking.getAdminMessage();
         dto.videoUrl = booking.getPrintJob().getLivestream();
         dto.status = booking.getStatus().name();
-        dto.lastModifiedBy = booking.getLastModifiedBy() != null ? booking.getLastModifiedBy().getEmail() : null;
+        dto.lastModifiedBy =
+                booking.getLastModifiedBy() != null ? booking.getLastModifiedBy().getEmail() : null;
         dto.lastModifiedAt = booking.getLastModified();
         dto.email = booking.getUser().getEmail();
         dto.deviveName = device != null ? device.getName() : null;

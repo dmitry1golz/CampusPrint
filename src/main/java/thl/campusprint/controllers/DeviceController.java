@@ -1,14 +1,13 @@
 package thl.campusprint.controllers;
 
+import java.util.List;
+import java.util.UUID;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import thl.campusprint.models.Device;
 import thl.campusprint.models.PrintJob;
 import thl.campusprint.repositories.DeviceRepository;
 import thl.campusprint.repositories.PrintJobRepository;
-
-import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/devices")
@@ -32,11 +31,12 @@ public class DeviceController {
     // 2. Ein einzelnes Gerät holen
     @GetMapping("/{id}")
     public ResponseEntity<Device> getDeviceById(@PathVariable UUID id) {
-        return deviceRepository.findById(id)
+        return deviceRepository
+                .findById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
-    
+
     // 3. Gerät erstellen ODER aktualisieren
     // WICHTIG: Es darf nur EINE @PostMapping Methode ohne Pfad geben!
     @PostMapping
