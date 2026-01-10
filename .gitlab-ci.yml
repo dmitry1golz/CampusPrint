@@ -20,7 +20,7 @@ cache:
 # 1.1 Java Formatierung prüfen (Spotless)
 lint-backend:
   stage: quality
-  image: maven:latest
+  image: maven:3.9.9-eclipse-temurin-21
   script:
     - echo "Prüfe Java Code Style mit Spotless..."
     - mvn spotless:check
@@ -66,7 +66,7 @@ lint-frontend:
 # ====================================================
 database-integration-tests:
   stage: test
-  image: maven:latest
+  image: maven:3.9.9-eclipse-temurin-21
   
   # Docker-in-Docker für Testcontainers
   services:
@@ -98,7 +98,7 @@ database-integration-tests:
 
 controller-tests:
   stage: test
-  image: maven:latest
+  image: maven:3.9.9-eclipse-temurin-21
   script:
     - echo "Führe schnelle Unit-Tests aus (inkl. Controller Tests)..."
     - mvn test -Dtest=DeviceControllerTest
@@ -123,7 +123,7 @@ controller-tests:
 # ====================================================
 build-jar:
   stage: build
-  image: maven:latest
+  image: maven:3.9.9-eclipse-temurin-21
   # Startet erst, wenn Quality OK ist. 
   # DB-Tests sind optional (wegen der rules oben), daher warten wir nicht zwingend drauf, 
   # es sei denn sie laufen.
