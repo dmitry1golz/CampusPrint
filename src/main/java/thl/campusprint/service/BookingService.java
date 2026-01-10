@@ -1,5 +1,6 @@
 package thl.campusprint.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -71,6 +72,7 @@ public class BookingService {
         booking.setEndTime(dto.getEndDate());
         booking.setStatus(BookingStatus.pending);
         booking.setNotes(dto.getNotes());
+        booking.setLastModified(LocalDateTime.now());
 
         return bookingRepository.save(booking);
     }

@@ -50,8 +50,15 @@ public class BookingController {
     }
 
     @PostMapping
-    public BookingDTO createOrUpdateDevice(@RequestBody @Validated CreateBookingDTO newBooking) {
-        return BookingDTO.fromDBModel(bookingService.createBooking(newBooking));
+    public BookingDTO createOrUpdateDevice(@RequestBody @Validated CreateBookingDTO newBookingDTO) {
+        if ( newBookingDTO.getEndDate().isBefore(newBookingDTO.getStartDate())) {
+            throw new IllegalArgumentException("End time must be after start time");
+        }
+        if ( newBookingDTO.getStartDate().isBefore(LocalDateTime.now()) ) {
+            throw new IllegalArgumentException("Start time must be in the future");
+        }
+        
+        return BookingDTO.fromDBModel(bookingService.createBooking(newBookingDTO));
     }
 
     @PostMapping("/status")
