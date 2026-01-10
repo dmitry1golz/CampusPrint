@@ -85,7 +85,7 @@ database-integration-tests:
   artifacts:
     when: always
     reports:
-      junit: target/surefire-reports/TEST-*.xml
+      junit: reports/Database-*.xml
 
   # Deine Regel: Läuft nur, wenn [DatabaseTest] in der Commit-Message steht
   rules:
