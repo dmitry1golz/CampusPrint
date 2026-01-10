@@ -66,27 +66,39 @@ lint-frontend:
 # ====================================================
 database-integration-tests:
   stage: test
+  # Wir bleiben beim funktionierenden Java 21 Image
   image: maven:3.9.9-eclipse-temurin-21
   
-  # Docker-in-Docker für Testcontainers
   services:
-    - name: docker:dind
+    # Wir pinnen eine stabile dind Version und deaktivieren TLS explizit im Command
+    - name: docker:27.4.1-dind
       alias: docker
+      command: ["--tls=false"]
       
   variables:
-    DOCKER_HOST: tcp://docker:2375 
+    # WICHTIG: Testcontainers sagen, wo Docker läuft
+    DOCKER_HOST: "tcp://docker:2375"
     DOCKER_TLS_CERTDIR: ""
+    DOCKER_DRIVER: overlay2
+    # Optional: Ryuk deaktivieren, falls es Rechteprobleme gibt (meist nicht nötig, aber sicher ist sicher)
+    # TESTCONTAINERS_RYUK_DISABLED: "true"
     
   script:
+    - echo "Warte auf Docker Daemon..."
+    # Hack: Maven startet oft zu schnell. Wir warten kurz, bis dind bereit ist.
+    # Alternativ könnte man auf den Port pollen, aber sleep reicht meistens.
+    - sleep 15 
     - echo "Starte Integrationstests..."
-    # KORREKTUR: "test" Goal hinzugefügt
     - mvn test -Dtest=CampusPrintDatabaseTests
     
   artifacts:
     when: always
     reports:
-      junit: reports/Database-*.xml
-
+      # KORREKTUR: Maven Surefire speichert Reports standardmäßig hier:
+      junit: target/Database-*.xml
+    paths:
+      # Damit du die HTML/XML Dateien auch im Browser in GitLab anschauen kannst
+      - target/
   # Deine Regel: Läuft nur, wenn [DatabaseTest] in der Commit-Message steht
   rules:
     - if: $CI_COMMIT_MESSAGE =~ /\[DatabaseTest\]/
@@ -110,6 +122,9 @@ controller-tests:
       junit: 
         - reports/Controller-*.xml
     expire_in: 1 week
+    paths:
+      # Damit du die HTML/XML Dateien auch im Browser in GitLab anschauen kannst
+      - target/
 
   # Optional: Nur laufen lassen, wenn du es willst (oder Magic Commit)
   rules:
