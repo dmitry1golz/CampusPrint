@@ -3,6 +3,7 @@ package thl.campusprint.models;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import thl.campusprint.models.options.PrintJobSlectedOptions;
 
 import java.util.UUID;
 
@@ -30,7 +31,7 @@ public class PrintJob {
     @JsonProperty("settings") // <--- ZWINGEND NOTWENDIG
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "settings", columnDefinition = "TEXT")
-    private PrintJobOptions settings;
+    private PrintJobSlectedOptions settings;
 
     @Column(name = "file_path", length = 45)
     private String filePath;
