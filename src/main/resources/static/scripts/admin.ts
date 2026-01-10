@@ -1,4 +1,4 @@
-import { Booking } from './models/booking.js';
+import { Booking, SelectedFdmOptions, SelectedLaserOptions, SelectedPaperOptions, SelectedSlaOptions } from './models/booking.js';
 import { Device, LaserOptions, PaperOptions, DeviceTyp, FdmOptions, SlaOptions, LaserPreset, FdmMaterial, SlaMaterial } from './models/device.js';
 import { getAllBookings, updateBookingStatus } from './services/bookingService.js';
 import { getAllDevices, addDevice, deleteDevice, updateDeviceStatus } from './services/deviceService.js';
@@ -81,7 +81,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function renderAll() {
         try {
-            const bookings = getAllBookings();
+            const bookings = await getAllBookings();
             const equipment = await getAllDevices();
             
             renderBookingList('pending', bookings, containers.pending);
@@ -226,6 +226,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function handleSave() {
         const name = getIn('eq-name').value;
+        const model = getIn('eq-model').value;
         const type = forms.type.value as DeviceTyp;
         const desc = getArea('eq-desc').value;
         
@@ -234,12 +235,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const all = await getAllDevices();
         const old = editingDeviceId ? all.find(g => g.id === editingDeviceId) : null;
         const oldStatus = old ? old.status : 'Available';
-        const oldModel = old && old.model ? old.model : '';
 
         const base = {
             id: editingDeviceId || '',
             name, type, description: desc, status: oldStatus, 
-            image: getIn('eq-image').value, model: oldModel
+            image: getIn('eq-image').value, model: model || ''
         };
 
         const x = Number(forms.dimX.value)||0; 
@@ -295,6 +295,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Basisdaten
         getIn('eq-name').value = dev.name;
+        getIn('eq-model').value = dev.model || '';
         forms.type.value = dev.type;
         getArea('eq-desc').value = dev.description;
         getIn('eq-image').value = dev.image;
@@ -354,6 +355,7 @@ document.addEventListener('DOMContentLoaded', () => {
         forms.add.classList.add('hidden');
         editingDeviceId = null;
         getIn('eq-name').value = '';
+        getIn('eq-model').value = '';
         getArea('eq-desc').value = '';
         getIn('eq-image').value = '';
         forms.dimX.value=''; forms.dimY.value=''; forms.dimZ.value='';
@@ -531,11 +533,78 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else if (b.status === 'confirmed') actionsHtml = `<button class="btn btn-primary action-btn w-full" data-action="run" data-id="${b.id}">Starten</button>`;
                 else if (b.status === 'running') actionsHtml = `<button class="btn btn-primary action-btn w-full" data-action="complete" data-id="${b.id}">Abschließen</button>`;
 
-                card.innerHTML = `
-                   <div class="card-header"><h3 class="card-title">${b.printerName}</h3><span class="badge ${b.status}">${b.status}</span></div>
-                   <div class="card-body"><p class="text-sm">${b.startDate.toLocaleDateString()}</p></div>
-                   <div class="card-actions">${actionsHtml}</div>
-                `;
+                    let userEmailHTML = `<p class="text-sm"><strong>E-Mail:</strong> ${b.email}</p>`;
+                    let startDateInfoHTML = b.startDate ? `<p class="text-sm"><strong>Start:</strong> ${new Date(b.startDate).toLocaleDateString()}</p>` : '';
+                    let endDateInfoHTML = b.endDate ? `<p class="text-sm"><strong>Ende:</strong> ${new Date(b.endDate).toLocaleDateString()}</p>` : '';
+                    let noteInfoHTML = b.notes ? `<p class="text-sm"><strong>Notiz:</strong> ${b.notes}</p>` : '';
+                    let deviceHTML = `<p class="text-sm"><strong>Gerät:</strong> ${b.deviveName}</p>`;
+                    let filePathHTML = b.filePath ? `<p class="text-sm"><strong>Pfad:</strong> ${b.filePath}/</p>` : '';
+
+                    let adminEmailHTML = b.lastModifiedBy ? `<p class="text-sm"><strong>Admin:</strong> ${b.lastModifiedBy}</p>` : '';
+                    let lastModifiedAtHTML = b.lastModifiedAt ? `<p class="text-sm"><strong>Letzte Änderung:</strong> ${new Date(b.lastModifiedAt).toLocaleString()}</p>` : '';
+                    let adminMsgInfoHTML = b.message ? `<p class="text-sm"><strong class="text-danger">Grund:</strong> ${b.message}</p>` : '';
+
+
+                    let settingsHTML = '';
+                    if (b.print_options) {
+                        if (b.print_options.tech_type === 'FDM') {
+                            const opts = b.print_options as SelectedFdmOptions;
+                            settingsHTML = `
+                                <div class="settings-box">
+                                    <p class="text-sm"><strong>Material:</strong> ${opts.selected_material.name}</p>
+                                    <p class="text-sm"><strong>Schichthöhe:</strong> ${opts.selected_layer_height}mm</p>
+                                    <p class="text-sm"><strong>Düse:</strong> ${opts.selected_nozzle_size}mm</p>
+                                    <p class="text-sm"><strong>Füllung:</strong> ${opts.selected_infill_percentage}%</p>
+                                    <p class="text-sm"><strong>Support:</strong> ${opts.selected_support_type}</p>
+                                </div>
+                            `;
+                        } else if (b.print_options.tech_type === 'SLA') {
+                            const opts = b.print_options as SelectedSlaOptions;
+                            settingsHTML = `
+                                <div class="settings-box">
+                                    <p class="text-sm"><strong>Material:</strong> ${opts.selected_material.name}</p>
+                                    <p class="text-sm"><strong>Schichthöhe:</strong> ${opts.selected_layer_height}mm</p>
+                                    <p class="text-sm"><strong>Support:</strong> ${opts.selected_support_type}</p>
+                                </div>
+                            `;
+                        } else if (b.print_options.tech_type === 'LASER') {
+                            const opts = b.print_options as SelectedLaserOptions;
+                            settingsHTML = `
+                                <div class="settings-box">
+                                    <p class="text-sm"><strong>Material:</strong> ${opts.selected_preset.material}</p>
+                                    <p class="text-sm"><strong>Dicke:</strong> ${opts.selected_preset.thickness}mm</p>
+                                    <p class="text-sm"><strong>Leistung:</strong> ${opts.selected_preset.power}%</p>
+                                    <p class="text-sm"><strong>Geschw.:</strong> ${opts.selected_preset.speed}%</p>
+                                </div>
+                            `;
+                        } else if (b.print_options.tech_type === 'PAPER') {
+                            const opts = b.print_options as SelectedPaperOptions;
+                            settingsHTML = `
+                                <div class="settings-box">
+                                    <p class="text-sm"><strong>Format:</strong> ${opts.selected_format}</p>
+                                    <p class="text-sm"><strong>Papiergewicht:</strong> ${opts.selected_paper_weights}g/m²</p>
+                                </div>
+                            `;
+                        }
+                    }
+
+                    card.innerHTML = `
+                        <div class="card-header"><h3 class="card-title">${b.printerName}</h3><span class="badge ${b.status}">${bookingStatusToString(b.status)}</span></div>
+                        <div class="card-body">
+                            ${userEmailHTML}
+                            ${startDateInfoHTML}
+                            ${endDateInfoHTML}
+                            ${noteInfoHTML}
+                            ${deviceHTML}
+                            ${filePathHTML}
+                            ${settingsHTML}
+                            ${adminEmailHTML}
+                            ${lastModifiedAtHTML}
+                            ${adminMsgInfoHTML}
+                            
+                        </div>
+                        <div class="card-actions">${actionsHtml}</div>
+                    `;
                 container.appendChild(card);
             });
         }
@@ -560,3 +629,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }));
     }
 });
+
+
+function bookingStatusToString(status: string): string {
+    switch (status) {
+        case 'pending': return 'Ausstehend';
+        case 'confirmed': return 'Bestätigt';
+        case 'running': return 'In Bearbeitung';
+        case 'completed': return 'Abgeschlossen';
+        case 'rejected': return 'Abgelehnt';
+        default: return status;
+    }
+}
