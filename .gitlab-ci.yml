@@ -57,7 +57,7 @@ lint-frontend:
 database-integration-tests:
   stage: test
   image: maven:3.9.9-eclipse-temurin-21
-  # Verhindert, dass Frontend-Reports hier heruntergeladen und doppelt hochgeladen werden
+  # Verhindert, dass Frontend-Reports hier landen -> Keine Duplikate
   dependencies: [] 
   services:
     - name: docker:27.4.1-dind
@@ -71,15 +71,16 @@ database-integration-tests:
     - echo "Warte auf Docker Daemon..."
     - sleep 15 
     - echo "Starte Integrationstests..."
-    - mkdir -p reports 
-    - mvn test -Dtest=CampusPrintDatabaseTests -Dsurefire.reportsDirectory=reports
+    # KORREKTUR: Standard Maven Verhalten nutzen (schreibt nach target/surefire-reports)
+    - mvn test -Dtest=CampusPrintDatabaseTests
     
   artifacts:
     when: always
     reports:
-      junit: reports/*.xml
+      # KORREKTUR: GitLab holt sich die XMLs aus dem Standard-Maven-Ordner
+      junit: target/surefire-reports/*.xml
     paths:
-      - reports/
+      - target/surefire-reports/
   rules:
     - if: $CI_COMMIT_MESSAGE =~ /\[DatabaseTest\]/
     - if: $CI_COMMIT_MESSAGE =~ /\[TESTALL\]/
@@ -88,20 +89,21 @@ database-integration-tests:
 controller-tests:
   stage: test
   image: maven:3.9.9-eclipse-temurin-21
-  # Verhindert, dass Frontend-Reports hier heruntergeladen und doppelt hochgeladen werden
+  # Verhindert, dass Frontend-Reports hier landen
   dependencies: []
   script:
     - echo "Führe schnelle Unit-Tests aus..."
-    - mkdir -p reports
-    - mvn test -Dtest=DeviceControllerTest -Dsurefire.reportsDirectory=reports
+    # KORREKTUR: Standard Maven Verhalten
+    - mvn test -Dtest=DeviceControllerTest
   
   artifacts:
     when: always
     reports:
-      junit: reports/*.xml
+      # KORREKTUR: Pfad angepasst
+      junit: target/surefire-reports/*.xml
     expire_in: 1 week
     paths:
-      - reports/
+      - target/surefire-reports/
 
   rules:
     - if: $CI_COMMIT_MESSAGE =~ /\[controller\]/
