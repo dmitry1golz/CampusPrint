@@ -96,13 +96,19 @@ database-integration-tests:
     - echo "Warte auf Docker Daemon..."
     - sleep 15 
     - echo "Starte Integrationstests..."
-    - mvn test -Dtest=CampusPrintDatabaseTests
+    # Verzeichnis erstellen, damit Maven sicher schreiben kann
+    - mkdir -p reports 
+    # WICHTIG: -Dsurefire.reportsDirectory=reports leitet den Output um
+    - mvn test -Dtest=CampusPrintDatabaseTests -Dsurefire.reportsDirectory=reports
+    
   artifacts:
     when: always
     reports:
-      junit: target/surefire-reports/Database-*.xml
+      # Jetzt liegen die Dateien im reports Ordner
+      junit: reports/*.xml
     paths:
-      - target/surefire-reports/
+      # Wenn du sie runterladen willst, findest du sie jetzt auch hier ordentlich sortiert
+      - reports/
   rules:
     - if: $CI_COMMIT_MESSAGE =~ /\[DatabaseTest\]/
     - if: $CI_COMMIT_MESSAGE =~ /\[TESTALL\]/
@@ -112,22 +118,24 @@ controller-tests:
   stage: test
   image: maven:3.9.9-eclipse-temurin-21
   script:
-    - echo "Führe schnelle Unit-Tests aus (inkl. Controller Tests)..."
-    - mvn test -Dtest=DeviceControllerTest
+    - echo "Führe schnelle Unit-Tests aus..."
+    - mkdir -p reports
+    # Auch hier: Output umleiten
+    - mvn test -Dtest=DeviceControllerTest -Dsurefire.reportsDirectory=reports
+  
   artifacts:
     when: always
     reports:
-      junit: 
-        - target/surefire-reports/Controller-*.xml
+      junit: reports/*.xml
     expire_in: 1 week
     paths:
-      - target/surefire-reports/
+      - reports/
+
   rules:
     - if: $CI_COMMIT_MESSAGE =~ /\[controller\]/
       allow_failure: false
     - if: $CI_COMMIT_MESSAGE =~ /\[TESTALL\]/
       allow_failure: false
-
 build-jar:
   stage: build
   image: maven:3.9.9-eclipse-temurin-21
