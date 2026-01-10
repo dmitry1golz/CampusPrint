@@ -17,7 +17,8 @@ public class DeviceController {
     private final DeviceRepository deviceRepository;
     private final PrintJobRepository printJobRepository;
 
-    public DeviceController(DeviceRepository deviceRepository, PrintJobRepository printJobRepository) {
+    public DeviceController(
+            DeviceRepository deviceRepository, PrintJobRepository printJobRepository) {
         this.deviceRepository = deviceRepository;
         this.printJobRepository = printJobRepository;
     }
@@ -57,7 +58,6 @@ public class DeviceController {
                 job.setDevice(null);
             }
             printJobRepository.saveAll(jobs);
-
 
             deviceRepository.deleteById(id);
             return ResponseEntity.ok().build();
