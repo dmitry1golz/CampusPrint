@@ -1,5 +1,5 @@
 import { createNewBooking, getBookingAvailabilityForDevice } from "./services/bookingService.js";
-import { Booking, BookingAvailability, NewBooking } from "./models/booking.js";
+import { BaseNewBooking, Booking, BookingAvailability, NewBooking, SupportType } from "./models/booking.js";
 import { getDeviceById } from "./services/deviceService.js";
 import { setCookie } from "./services/authService.js";
 import { Device } from "./models/device.js";
@@ -76,7 +76,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             device.print_options.available_materials.forEach(mat => {
                 // TODO render color??
                 materialOptions += `
-                    <option value="${mat.name}">${mat.name} - ${mat.temp_nozzle}/${mat.temp_bed}</option>
+                    <option value="${mat}">${mat.name} - ${mat.temp_nozzle}/${mat.temp_bed}</option>
                 `;
             })
             document.getElementById("fdm-mat-select")!.innerHTML = materialOptions;
@@ -104,7 +104,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             device.print_options.available_materials.forEach(mat => {
                 // TODO render color??
                 materialOptions += `
-                    <option value="${mat.name}">${mat.name}</option>
+                    <option value="${mat}">${mat.name}</option>
                 `;
             })
             document.getElementById("sla-mat-select")!.innerHTML = materialOptions;
@@ -123,7 +123,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             var presetOptions = "";
             device.print_options.presets.forEach(preset => {
                 presetOptions += `
-                    <option value="${preset.material}">${preset.material} - ${preset.thickness}   ${preset.power} ${preset.speed}</option>
+                    <option value="${preset}">${preset.material} - ${preset.thickness}   ${preset.power} ${preset.speed}</option>
                 `;
             })
             document.getElementById("laser-preset-select")!.innerHTML = presetOptions;
@@ -173,13 +173,65 @@ async function handleFormSubmit(e: Event) {
     }
 
     // printerId must be number now
-    const booking: NewBooking = {
+    const bookingBase: BaseNewBooking = {
         printerId: device.id,
         userEmail: email,
         startDate: createDateTime(currentlySelectedDate, start),
         endDate: createDateTime(currentlySelectedDate, end),
         notes: notes
     };
+
+    var booking: NewBooking;
+    switch (device.type) {
+        case "FDM_Printer":
+            booking = {
+                ...bookingBase,
+                type: "FDM_Printer",
+                print_options: {
+                    tech_type: "FDM",
+                    selected_material: device.print_options.available_materials.find(mat => mat.toString() === (document.getElementById('fdm-mat-select') as HTMLSelectElement).value)!,
+                    selected_layer_height: device.print_options.supported_layer_heights.find(layer => layer.toString() === (document.getElementById('fdm-layer-select') as HTMLSelectElement).value)!,
+                    selected_nozzle_size: device.print_options.nozzle_sizes.find(nozzle => nozzle.toString() === (document.getElementById('fdm-nozzle-select') as HTMLSelectElement).value)!,
+                    selected_support_type: (document.getElementById('fdm-support-select') as HTMLSelectElement).value as SupportType,
+                    selected_infill_percentage: +(document.getElementById('fdm-infill-input') as HTMLInputElement).value!,
+                }
+            };
+            break;
+        case "SLA_Printer":
+            booking = {
+                ...bookingBase,
+                type: "SLA_Printer",
+                print_options: {
+                    tech_type: "SLA",
+                    selected_material: device.print_options.available_materials.find(mat => mat.toString() === (document.getElementById('sla-mat-select') as HTMLSelectElement).value)!,
+                    selected_layer_height: device.print_options.supported_layer_heights.find(layer => layer.toString() === (document.getElementById('sla-layer-select') as HTMLSelectElement).value)!,
+                    selected_support_type: (document.getElementById('sla-support-select') as HTMLSelectElement).value as SupportType,
+                    selected_infill_percentage: +(document.getElementById('sla-infill-input') as HTMLInputElement).value!,
+                }
+            };
+            break;
+        case "Laser_Cutter":
+            booking = {
+                ...bookingBase,
+                type: "Laser_Cutter",
+                print_options: {
+                    tech_type: "LASER",
+                    selected_preset: device.print_options.presets.find(preset => preset.toString() === (document.getElementById('laser-preset-select') as HTMLSelectElement).value)!,
+                }
+            };
+            break;
+        case "Printer":
+            booking = {
+                ...bookingBase,
+                type: "Printer",
+                print_options: {
+                    tech_type: "PAPER",
+                    selected_paper_weights: device.print_options.paper_weights.find(weight => weight.toString() === (document.getElementById('paper-weight-select') as HTMLSelectElement).value)!,
+                    selected_format: device.print_options.formats.find(format => format.toString() === (document.getElementById('paper-format-select') as HTMLSelectElement).value)!,
+                }
+            };
+            break;
+    }
 
     const createdBooking: Booking | undefined = await createNewBooking(booking);
     if (createdBooking === undefined) {
