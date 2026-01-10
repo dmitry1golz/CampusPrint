@@ -42,9 +42,8 @@ lint-frontend:
       junit: 
         - reports/eslint.xml
         - reports/stylelint.xml
-        - reports/html.xml
-      # HTML Report (Code Quality Widget im MR)
-      #codequality: reports/html.xml
+      # HTML Report
+      codequality: reports/html.xml
     paths:
       - reports/
 
@@ -78,8 +77,32 @@ database-integration-tests:
   rules:
     - if: $CI_COMMIT_MESSAGE =~ /\[DatabaseTest\]/
     # Optional: Läuft auch automatisch auf dem main branch (empfohlen)
-    - if: $CI_COMMIT_BRANCH == "main"
-      when: always
+    #- if: $CI_COMMIT_BRANCH == "main"
+    #  when: always
+    - if: $CI_COMMIT_MESSAGE =~ /\[TESTALL\]/
+      allow_failure: false
+
+controller-tests:
+  stage: test
+  image: maven:latest
+  script:
+    - echo "Führe schnelle Unit-Tests aus (inkl. Controller Tests)..."
+    - mvn test -Dtest=DeviceControllerTest
+    # add other controller tests here
+  
+  artifacts:
+    when: always
+    reports:
+      junit: 
+        - target/surefire-reports/TEST-*.xml
+    expire_in: 1 week
+
+  # Optional: Nur laufen lassen, wenn du es willst (oder Magic Commit)
+  rules:
+    - if: $CI_COMMIT_MESSAGE =~ /\[controller\]/
+      allow_failure: false
+    - if: $CI_COMMIT_MESSAGE =~ /\[TESTALL\]/
+      allow_failure: false
 
 # ====================================================
 # STAGE 3: BUILD
