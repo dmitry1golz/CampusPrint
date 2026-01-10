@@ -120,7 +120,7 @@ class CampusPrintDatabaseTests {
 
             assertThat(rs.getInt("status")).isEqualTo(3); // 3 = Rejected?
             assertThat(rs.getString("admin_message")).contains("Waffen-Repliken");
-            assertThat(rs.getInt("device")).isEqualTo(1); // War für Ultimaker S5 (ID 1)
+            assertThat(rs.getString("device")).isEqualTo("5b526244-e177-4ade-a43b-bc3f976dad4a");
         }
     }
 }
