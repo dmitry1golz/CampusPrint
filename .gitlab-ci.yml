@@ -42,8 +42,9 @@ lint-frontend:
       junit: 
         - reports/eslint.xml
         - reports/stylelint.xml
+        - reports/html.xml
       # HTML Report (Code Quality Widget im MR)
-      codequality: reports/html.xml
+      #codequality: reports/html.xml
     paths:
       - reports/
 
