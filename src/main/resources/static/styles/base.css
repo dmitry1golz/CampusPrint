@@ -17,6 +17,9 @@
     /* Layout */
     --max-width: 1200px;
     --radius: 8px;
+
+
+    --danger: #dc2626;       /* Fehler/rot */
 }
 
 * { box-sizing: border-box; }
@@ -184,6 +187,7 @@ textarea {
 
 .text-muted { color: var(--text-muted); font-size: 0.9rem; }
 .text-sm    { font-size: 0.875rem; }
+.text-danger   { color: var(--danger); }
 
 .mt-1 { margin-top: 0.5rem; }
 .mt-2 { margin-top: 1rem; }

@@ -21,7 +21,7 @@ public class Booking {
   @JoinColumn(name = "user_id", nullable = false)
   private User user;
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne(fetch = FetchType.EAGER)
   @JoinColumn(name = "print_job", nullable = false)
   private PrintJob printJob;
 

@@ -35,6 +35,7 @@
                 <form id="bookingForm" class="card">
                     <div class="printer-preview mb-4 pb-2" style="border-bottom: 1px solid var(--border-color)">
                         <h2 id="printerInfo-Name" class="text-primary"></h2>
+                        <p id="printerInfo-Dimensions" class="text-sm text-muted"></p>
                         <p id="printerInfo-Description" class="text-sm text-muted"></p>
                     </div>
 
@@ -49,40 +50,40 @@
                     </div>
 
                     <div class="form-group">
-    <label>Datum wählen</label>
-    <input type="hidden" id="date" required>
-    <div class="dateSelector">
-        <div class="dateSelectorHeader">
-            <button type="button" id="dateSelectorPreviousMonth" class="cal-nav-btn">&larr;</button>
-            <span id="dateSelectorHeaderValue" class="font-bold"></span>
-            <button type="button" id="dateSelectorNextMonth" class="cal-nav-btn">&rarr;</button>
-        </div>
-        <div id="dateSelectorGrid" class="calendar-grid">
-            <div class="calendar-weekdays">
-                <div>Mo</div><div>Di</div><div>Mi</div><div>Do</div><div>Fr</div><div>Sa</div><div>So</div>
-            </div>
-            </div>
-        
-        <div class="calendar-legend">
-            <div class="legend-item">
-                <span class="legend-color date-availible"></span>
-                <span>Verfügbar</span>
-            </div>
-            <div class="legend-item">
-                <span class="legend-color date-partially"></span>
-                <span>Teilweise belegt</span>
-            </div>
-            <div class="legend-item">
-                <span class="legend-color date-booked"></span>
-                <span>Alle Plätze belegt</span>
-            </div>
-            <div class="legend-item">
-                <span class="legend-color date-unavailible"></span>
-                <span>Nicht verfügbar</span>
-            </div>
-        </div>
-    </div>
-</div>
+                        <label>Datum wählen</label>
+                        <input type="hidden" id="date" required>
+                        <div class="dateSelector">
+                            <div class="dateSelectorHeader">
+                                <button type="button" id="dateSelectorPreviousMonth" class="cal-nav-btn">&larr;</button>
+                                <span id="dateSelectorHeaderValue" class="font-bold"></span>
+                                <button type="button" id="dateSelectorNextMonth" class="cal-nav-btn">&rarr;</button>
+                            </div>
+                            <div id="dateSelectorGrid" class="calendar-grid">
+                                <div class="calendar-weekdays">
+                                    <div>Mo</div><div>Di</div><div>Mi</div><div>Do</div><div>Fr</div><div>Sa</div><div>So</div>
+                                </div>
+                            </div>
+
+                            <div class="calendar-legend">
+                                <div class="legend-item">
+                                    <span class="legend-color date-availible"></span>
+                                    <span>Verfügbar</span>
+                                </div>
+                                <div class="legend-item">
+                                    <span class="legend-color date-partially"></span>
+                                    <span>Teilweise belegt</span>
+                                </div>
+                                <div class="legend-item">
+                                    <span class="legend-color date-booked"></span>
+                                    <span>Alle Plätze belegt</span>
+                                </div>
+                                <div class="legend-item">
+                                    <span class="legend-color date-unavailible"></span>
+                                    <span>Nicht verfügbar</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
                     <div class="form-row">
                         <div class="form-group">
@@ -92,6 +93,128 @@
                         <div class="form-group">
                             <label for="end">Endzeit</label>
                             <input type="time" id="end" required/>
+                        </div>
+                    </div>
+
+                    <div class="form-group card">
+                        <div class="form-row">
+                            <label>Gerätekonfiguration:</label>
+                        </div>
+
+                        <div class="hidden device-config" id="device-config-fdm">
+                            <div class="form-row">
+                                <div>
+                                    <label>Material</label>
+                                    <div class="custom-select form-control" id="fdm-mat-select">
+                                        <div class="custom-select-value">Wähle Material</div>
+                                        <ul class="custom-select-options hidden"></ul>
+                                    </div>
+                                    <input type="hidden" id="fdm-mat-value" name="fdm-mat">
+                                </div>
+                                <div>
+                                    <label>Layer</label>
+                                    <div class="custom-select form-control" id="fdm-layer-select">
+                                        <div class="custom-select-value">Wähle Layer</div>
+                                        <ul class="custom-select-options hidden"></ul>
+                                    </div>
+                                    <input type="hidden" id="fdm-layer-value" name="fdm-layer">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div>
+                                    <label>Nozzle</label>
+                                    <div class="custom-select form-control" id="fdm-nozzle-select">
+                                        <div class="custom-select-value">Wähle Nozzle</div>
+                                        <ul class="custom-select-options hidden"></ul>
+                                    </div>
+                                    <input type="hidden" id="fdm-nozzle-value" name="fdm-nozzle">
+                                </div>
+                                <div>
+                                    <label>Support</label>
+                                    <div class="custom-select form-control" id="fdm-support-select">
+                                        <div class="custom-select-value">Wähle Support</div>
+                                        <ul class="custom-select-options hidden"></ul>
+                                    </div>
+                                    <input type="hidden" id="fdm-support-value" name="fdm-support">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div>
+                                    <label>Infill Prozent</label>
+                                    <input type="number" id="fdm-infill-input" class="form-control" placeholder="50" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="hidden device-config" id="device-config-sla">
+                            <div class="form-row">
+                                <div>
+                                    <label>Harz (Resin)</label>
+                                    <div class="custom-select form-control" id="sla-mat-select">
+                                        <div class="custom-select-value">Wähle Harz</div>
+                                        <ul class="custom-select-options hidden"></ul>
+                                    </div>
+                                    <input type="hidden" id="sla-mat-value" name="sla-mat">
+                                </div>
+                                <div>
+                                    <label>Layer</label>
+                                    <div class="custom-select form-control" id="sla-layer-select">
+                                        <div class="custom-select-value">Wähle Layer</div>
+                                        <ul class="custom-select-options hidden"></ul>
+                                    </div>
+                                    <input type="hidden" id="sla-layer-value" name="sla-layer">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div>
+                                    <label>Support</label>
+                                    <div class="custom-select form-control" id="sla-support-select">
+                                        <div class="custom-select-value">Wähle Support</div>
+                                        <ul class="custom-select-options hidden"></ul>
+                                    </div>
+                                    <input type="hidden" id="sla-support-value" name="sla-support">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div>
+                                    <label>Infill Prozent</label>
+                                    <input type="number" id="sla-infill-input" class="form-control" placeholder="50" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="hidden device-config" id="device-config-laser">
+                            <div class="form-row">
+                                <div>
+                                    <label>Preset</label>
+                                    <div class="custom-select form-control" id="laser-preset-select">
+                                        <div class="custom-select-value">Wähle Preset</div>
+                                        <ul class="custom-select-options hidden"></ul>
+                                    </div>
+                                    <input type="hidden" id="laser-preset-value" name="laser-preset">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="hidden device-config" id="device-config-paper">
+                            <div class="form-row">
+                                <div>
+                                    <label>Papierdicke</label>
+                                    <div class="custom-select form-control" id="paper-weight-select">
+                                        <div class="custom-select-value">Wähle Dicke</div>
+                                        <ul class="custom-select-options hidden"></ul>
+                                    </div>
+                                    <input type="hidden" id="paper-weight-value" name="paper-weight">
+                                </div>
+                                <div>
+                                    <label>Papierformat</label>
+                                    <div class="custom-select form-control" id="paper-format-select">
+                                        <div class="custom-select-value">Wähle Format</div>
+                                        <ul class="custom-select-options hidden"></ul>
+                                    </div>
+                                    <input type="hidden" id="paper-format-value" name="paper-format">
+                                </div>
+                            </div>
                         </div>
                     </div>
                     

@@ -1,8 +1,8 @@
-import { PrintBooking } from "./models/booking.js";
+import { Booking } from "./models/booking.js";
 import { getBookingsForEmail } from './services/bookingService.js';
 import { getCookie, setCookie } from './services/authService.js';
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     const form = document.getElementById('drucke-form') as HTMLFormElement | null;
     const emailInput = document.getElementById('email') as HTMLInputElement | null;
     const container = document.getElementById('drucke-ergebnisse') as HTMLElement | null;
@@ -12,24 +12,29 @@ document.addEventListener('DOMContentLoaded', () => {
     const savedEmail = getCookie('userEmail');
     if (savedEmail) {
         emailInput.value = savedEmail;
-        renderPrintBookings(container, getBookingsForEmail(savedEmail));
+        renderPrintBookings(container, await getBookingsForEmail(savedEmail));
     }
 
-    form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', async (e) => {
         e.preventDefault();
         const email = emailInput.value.trim();
         if (!email) return;
 
         setCookie('userEmail', email, 30);
-        renderPrintBookings(container, getBookingsForEmail(email));
+        var bookings = await getBookingsForEmail(email);
+        renderPrintBookings(container, bookings);
     });
 });
 
-function renderPrintBookings(container: HTMLElement, bookings: PrintBooking[]) {
+function renderPrintBookings(container: HTMLElement, bookings: Booking[] | undefined) {
+    if (bookings === undefined) {
+        container.innerHTML = '<div class="alert w-full text-center"></div><div class="alert alert-danger w-full text-center">Fehler beim Laden der Buchungen. Bitte versuchen Sie es erneut.</div>';
+        return;
+    }
     container.innerHTML = '';
     
     if (bookings.length === 0) {
-        container.innerHTML = '<div class="alert alert-danger w-full text-center">Keine Buchungen gefunden.</div>';
+        container.innerHTML = '<div class="alert w-full text-center"></div><div class="alert alert-danger w-full text-center">Keine Buchungen gefunden.</div>';
         return;
     }
 
@@ -40,12 +45,13 @@ function renderPrintBookings(container: HTMLElement, bookings: PrintBooking[]) {
     }
 }
 
-function createCard(b: PrintBooking): HTMLElement {
+function createCard(b: Booking): HTMLElement {
     const article = document.createElement('article');
     article.className = 'card'; // base.css Klasse
 
     const dateString = formatDate(b.startDate, b.endDate);
     const timeString = formatTime(b.startDate, b.endDate);
+    const settingsHtml = renderPrintSettings(b);
 
     article.innerHTML = `
         <header class="card-header mb-2" style="display:flex; justify-content:space-between; align-items:flex-start;">
@@ -64,6 +70,8 @@ function createCard(b: PrintBooking): HTMLElement {
             ${metaColHtml('Notizen', b.notes || '-')}
             ${b.message ? `<div class="w-full" style="color:var(--danger); font-size:0.85rem; margin-top:0.5rem;"><strong>Grund:</strong> ${b.message}</div>` : ''}
         </div>
+
+        ${settingsHtml}
 
         ${b.videoUrl ? `
             <div class="live-feed-section mt-2 pt-1" style="border-top:1px solid var(--border-color);">
@@ -108,4 +116,123 @@ function formatDate(start: Date, end: Date): string {
 function formatTime(start: Date, end: Date): string {
     const opts: any = { hour: '2-digit', minute: '2-digit' };
     return `${new Date(start).toLocaleTimeString('de-DE', opts)} - ${new Date(end).toLocaleTimeString('de-DE', opts)}`;
+}
+
+function renderPrintSettings(b: Booking): string {
+    if (!b.print_options) return '';
+
+    let settingsContent = '';
+    
+    if (b.print_options.tech_type === 'FDM') {
+        const opts = b.print_options as any;
+        settingsContent = `
+            <div class="print-setting-item">
+                <div class="setting-content">
+                    <div class="setting-label">Material</div>
+                    <div class="setting-value">${opts.selected_material.name}</div>
+                </div>
+            </div>
+            <div class="print-setting-item">
+                <div class="setting-content">
+                    <div class="setting-label">Schichthöhe</div>
+                    <div class="setting-value">${opts.selected_layer_height}mm</div>
+                </div>
+            </div>
+            <div class="print-setting-item">
+                <div class="setting-content">
+                    <div class="setting-label">Düse</div>
+                    <div class="setting-value">${opts.selected_nozzle_size}mm</div>
+                </div>
+            </div>
+            <div class="print-setting-item">
+                <div class="setting-content">
+                    <div class="setting-label">Füllung</div>
+                    <div class="setting-value">${opts.selected_infill_percentage}%</div>
+                </div>
+            </div>
+            <div class="print-setting-item">
+                <div class="setting-content">
+                    <div class="setting-label">Support</div>
+                    <div class="setting-value">${opts.selected_support_type}</div>
+                </div>
+            </div>
+        `;
+    } else if (b.print_options.tech_type === 'SLA') {
+        const opts = b.print_options as any;
+        settingsContent = `
+            <div class="print-setting-item">
+                <div class="setting-content">
+                    <div class="setting-label">Material</div>
+                    <div class="setting-value">${opts.selected_material.name}</div>
+                </div>
+            </div>
+            <div class="print-setting-item">
+                <div class="setting-content">
+                    <div class="setting-label">Schichthöhe</div>
+                    <div class="setting-value">${opts.selected_layer_height}mm</div>
+                </div>
+            </div>
+            <div class="print-setting-item">
+                <div class="setting-content">
+                    <div class="setting-label">Support</div>
+                    <div class="setting-value">${opts.selected_support_type}</div>
+                </div>
+            </div>
+        `;
+    } else if (b.print_options.tech_type === 'LASER') {
+        const opts = b.print_options as any;
+        settingsContent = `
+            <div class="print-setting-item">
+                <div class="setting-content">
+                    <div class="setting-label">Material</div>
+                    <div class="setting-value">${opts.selected_preset.material}</div>
+                </div>
+            </div>
+            <div class="print-setting-item">
+                <div class="setting-content">
+                    <div class="setting-label">Dicke</div>
+                    <div class="setting-value">${opts.selected_preset.thickness}mm</div>
+                </div>
+            </div>
+            <div class="print-setting-item">
+                <div class="setting-content">
+                    <div class="setting-label">Leistung</div>
+                    <div class="setting-value">${opts.selected_preset.power}%</div>
+                </div>
+            </div>
+            <div class="print-setting-item">
+                <div class="setting-content">
+                    <div class="setting-label">Geschwindigkeit</div>
+                    <div class="setting-value">${opts.selected_preset.speed}%</div>
+                </div>
+            </div>
+        `;
+    } else if (b.print_options.tech_type === 'PAPER') {
+        const opts = b.print_options as any;
+        settingsContent = `
+            <div class="print-setting-item">
+                <div class="setting-content">
+                    <div class="setting-label">Format</div>
+                    <div class="setting-value">${opts.selected_format}</div>
+                </div>
+            </div>
+            <div class="print-setting-item">
+                <div class="setting-content">
+                    <div class="setting-label">Papiergewicht</div>
+                    <div class="setting-value">${opts.selected_paper_weights}g/m²</div>
+                </div>
+            </div>
+        `;
+    }
+
+    if (!settingsContent) return '';
+
+    return `
+        <div class="print-settings-section">
+            <div class="print-settings-header">Druckeinstellungen</div>
+            <div class="print-settings-grid">
+                ${settingsContent}
+            </div>
+        </div>
+    `;
 }

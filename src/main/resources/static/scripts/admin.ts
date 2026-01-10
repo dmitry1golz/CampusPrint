@@ -1,5 +1,5 @@
-import { PrintBooking } from './models/booking.js';
-import { Device, ThreeDOptions, LaserOptions, PaperOptions, DeviceStatus, DeviceTyp, MaterialProfile } from './models/device.js';
+import { Booking, SelectedFdmOptions, SelectedLaserOptions, SelectedPaperOptions, SelectedSlaOptions } from './models/booking.js';
+import { Device, LaserOptions, PaperOptions, DeviceTyp, FdmOptions, SlaOptions, LaserPreset, FdmMaterial, SlaMaterial } from './models/device.js';
 import { getAllBookings, updateBookingStatus } from './services/bookingService.js';
 import { getAllDevices, addDevice, deleteDevice, updateDeviceStatus } from './services/deviceService.js';
 import { requireAuth } from './services/authService.js';
@@ -11,12 +11,13 @@ requireAuth();
 document.addEventListener('DOMContentLoaded', () => {
 
     // --- STATE ---
-    let editingDeviceId: number | null = null;
+    let editingDeviceId: string | null = null;
     let currentRejectId: string | null = null;
     
     // Temporäre Speicher für die Listen
-    let tempMaterials: MaterialProfile[] = [];
-    let tempLaserPresets: { material: string; thickness: number; power: number; speed: number }[] = [];
+    let tempFdmMaterials: FdmMaterial[] = [];
+    let tempSlaMaterials: SlaMaterial[] = [];
+    let tempLaserPresets: LaserPreset[] = [];
     let tempPaperFormats: string[] = [];
 
     // --- DOM HELPER ---
@@ -39,19 +40,25 @@ document.addEventListener('DOMContentLoaded', () => {
         dimX: getIn('eq-dim-x'), dimY: getIn('eq-dim-y'), dimZ: getIn('eq-dim-z'),
         
         // Gruppen
+        group: getDiv('group-dim'),
+        groupX: getDiv('group-dim-x'),
+        groupY: getDiv('group-dim-y'),
         groupZ: getDiv('group-dim-z'),
-        groupMaterials: getDiv('group-materials'),
+        groupFdmMaterials: getDiv('group-materials-fdm'),
+        groupSlaMaterials: getDiv('group-materials-sla'),
         groupLaser: getDiv('group-laser-presets'),
         groupPaper: getDiv('group-paper-config'),
 
         // Listen-Container
-        listMat: getDiv('material-list'),
+        listMatFdm: getDiv('fdm-material-list'),
+        listMatSla: getDiv('sla-material-list'),
         listLas: getDiv('laser-list'),
         listPap: getDiv('paper-list')
     };
 
     // Inputs für Hinzufügen
-    const inpMat = { name: getIn('mat-name'), nozzle: getIn('mat-nozzle'), bed: getIn('mat-bed'), color: getIn('mat-color'), btn: document.getElementById('btn-add-material') };
+    const inpFdmMat = { name: getIn('fdm-mat-name'), nozzle: getIn('fdm-mat-nozzle'), bed: getIn('fdm-mat-bed'), color: getIn('fdm-mat-color'), btn: document.getElementById('btn-add-fdm-material') };
+    const inpSlaMat = { name: getIn('sla-mat-name'), color: getIn('sla-mat-color'), btn: document.getElementById('btn-add-sla-material') };
     const inpLas = { mat: getIn('las-mat'), thick: getIn('las-thick'), power: getIn('las-power'), speed: getIn('las-speed'), btn: document.getElementById('btn-add-laser') };
     const inpPap = { fmt: getIn('pap-format'), btn: document.getElementById('btn-add-paper') };
 
@@ -74,7 +81,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function renderAll() {
         try {
-            const bookings = getAllBookings();
+            const bookings = await getAllBookings();
             const equipment = await getAllDevices();
             
             renderBookingList('pending', bookings, containers.pending);
@@ -93,17 +100,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- RENDER LISTEN HELPER ---
 
-    function renderMaterialList() {
-        forms.listMat.innerHTML = '';
-        const isSLA = forms.type.value === 'SLA_Printer';
+    function renderFdmMaterialList() {
+        forms.listMatFdm.innerHTML = '';
         
-        if (tempMaterials.length === 0) {
-            forms.listMat.innerHTML = '<div class="text-muted text-sm text-center">Keine Materialien.</div>';
+        if (tempFdmMaterials.length === 0) {
+            forms.listMatFdm.innerHTML = '<div class="text-muted text-sm text-center">Keine Materialien.</div>';
             return;
         }
 
-        tempMaterials.forEach((m, i) => {
-            const tempInfo = isSLA ? '' : `<span class="text-muted">(${m.temp_nozzle}°C / ${m.temp_bed}°C)</span>`;
+        tempFdmMaterials.forEach((m, i) => {
+            const tempInfo = `<span class="text-muted">(${m.temp_nozzle}°C / ${m.temp_bed}°C)</span>`;
             const row = document.createElement('div');
             row.className = 'item-row';
             row.innerHTML = `
@@ -113,7 +119,29 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
                 <button class="btn-del text-danger" style="background:none; border:none; cursor:pointer;" data-idx="${i}" data-type="mat">✕</button>
             `;
-            forms.listMat.appendChild(row);
+            forms.listMatFdm.appendChild(row);
+        });
+    }
+
+    function renderSlaMaterialList() {
+        forms.listMatSla.innerHTML = '';
+        
+        if (tempSlaMaterials.length === 0) {
+            forms.listMatSla.innerHTML = '<div class="text-muted text-sm text-center">Keine Materialien.</div>';
+            return;
+        }
+
+        tempSlaMaterials.forEach((m, i) => {
+            const row = document.createElement('div');
+            row.className = 'item-row';
+            row.innerHTML = `
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <div style="width:12px; height:12px; background:${m.color_hex}; border-radius:50%; border:1px solid #ccc;"></div>
+                    <strong>${m.name}</strong>
+                </div>
+                <button class="btn-del text-danger" style="background:none; border:none; cursor:pointer;" data-idx="${i}" data-type="mat">✕</button>
+            `;
+            forms.listMatSla.appendChild(row);
         });
     }
 
@@ -157,7 +185,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (target.classList.contains('btn-del')) {
             const idx = parseInt(target.dataset.idx || '0');
             const type = target.dataset.type;
-            if (type === 'mat') { tempMaterials.splice(idx, 1); renderMaterialList(); }
+            if (type === 'fdm') { tempFdmMaterials.splice(idx, 1); renderFdmMaterialList(); }
+            if (type === 'sla') { tempSlaMaterials.splice(idx, 1); renderSlaMaterialList(); }
             if (type === 'las') { tempLaserPresets.splice(idx, 1); renderLaserList(); }
             if (type === 'pap') { tempPaperFormats.splice(idx, 1); renderPaperList(); }
         }
@@ -170,12 +199,16 @@ document.addEventListener('DOMContentLoaded', () => {
         const t = forms.type.value;
         const isFDM = t === 'FDM_Printer';
         const isSLA = t === 'SLA_Printer';
-        const isLaser = t === 'Laser_Cutter' || t === 'CNC_Mill';
+        const isLaser = t === 'Laser_Cutter';
         const isPaper = t === 'Printer';
 
         // Sichtbarkeit der Hauptgruppen
+        if(forms.group) forms.group.classList.toggle('hidden', isPaper);
+        if(forms.groupX) forms.groupX.classList.toggle('hidden', isPaper);
+        if(forms.groupY) forms.groupY.classList.toggle('hidden', isPaper);
         if(forms.groupZ) forms.groupZ.classList.toggle('hidden', !isFDM && !isSLA);
-        if(forms.groupMaterials) forms.groupMaterials.classList.toggle('hidden', !isFDM && !isSLA);
+        if(forms.groupFdmMaterials) forms.groupFdmMaterials.classList.toggle('hidden', !isFDM);
+        if(forms.groupSlaMaterials) forms.groupSlaMaterials.classList.toggle('hidden', !isSLA);
         if(forms.groupLaser) forms.groupLaser.classList.toggle('hidden', !isLaser);
         if(forms.groupPaper) forms.groupPaper.classList.toggle('hidden', !isPaper);
 
@@ -184,18 +217,16 @@ document.addEventListener('DOMContentLoaded', () => {
             (el as HTMLElement).style.display = isSLA ? 'none' : 'block';
         });
         
-        // Überschriften anpassen
-        const matHeader = forms.groupMaterials?.querySelector('h4');
-        if(matHeader) matHeader.textContent = isSLA ? 'Harze (Resins)' : 'Materialien (Filamente)';
-        
         // Listen neu zeichnen (um UI Glitches zu vermeiden)
-        if(isFDM || isSLA) renderMaterialList();
+        if(isFDM) renderFdmMaterialList();
+        if(isSLA) renderSlaMaterialList();
         if(isLaser) renderLaserList();
         if(isPaper) renderPaperList();
     }
 
     async function handleSave() {
         const name = getIn('eq-name').value;
+        const model = getIn('eq-model').value;
         const type = forms.type.value as DeviceTyp;
         const desc = getArea('eq-desc').value;
         
@@ -204,12 +235,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const all = await getAllDevices();
         const old = editingDeviceId ? all.find(g => g.id === editingDeviceId) : null;
         const oldStatus = old ? old.status : 'Available';
-        const oldModel = old && old.model ? old.model : '';
 
         const base = {
-            id: editingDeviceId || 0,
+            id: editingDeviceId || '',
             name, type, description: desc, status: oldStatus, 
-            image: getIn('eq-image').value, model: oldModel
+            image: getIn('eq-image').value, model: model || ''
         };
 
         const x = Number(forms.dimX.value)||0; 
@@ -218,29 +248,28 @@ document.addEventListener('DOMContentLoaded', () => {
         let final: Device;
 
         if (type === 'FDM_Printer') {
-            const opts: ThreeDOptions = {
+            const opts: FdmOptions = {
                 tech_type: 'FDM',
-                dimensions: {x,y,z},
-                available_materials: tempMaterials, 
+                work_area: {x,y,z},
+                available_materials: tempFdmMaterials, 
                 supported_layer_heights: [0.1, 0.2],
                 nozzle_sizes: [0.4]
             };
             final = { ...base, type, print_options: opts } as Device;
         } else if (type === 'SLA_Printer') {
-            const opts: ThreeDOptions = {
+            const opts: SlaOptions = {
                 tech_type: 'SLA',
-                dimensions: {x,y,z},
-                available_materials: tempMaterials, 
+                work_area: {x,y,z},
+                available_materials: tempSlaMaterials, 
                 supported_layer_heights: [0.05]
             };
             final = { ...base, type, print_options: opts } as Device;
-        } else if (type === 'Laser_Cutter' || type === 'CNC_Mill') {
+        } else if (type === 'Laser_Cutter') {
             const opts: LaserOptions = {
                 tech_type: 'LASER',
                 work_area: {x,y},
                 presets: tempLaserPresets
             };
-            // @ts-ignore
             final = { ...base, type, print_options: opts } as Device;
         } else {
             const opts: PaperOptions = {
@@ -257,45 +286,53 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function openEdit(idStr: string) {
-        const id = parseInt(idStr);
         const all = await getAllDevices();
-        const dev = all.find(g => g.id === id);
+        const dev = all.find(g => g.id === idStr);
         if(!dev) return;
 
-        editingDeviceId = id;
+        editingDeviceId = idStr;
         forms.title.textContent = 'Gerät bearbeiten';
         
         // Basisdaten
         getIn('eq-name').value = dev.name;
+        getIn('eq-model').value = dev.model || '';
         forms.type.value = dev.type;
         getArea('eq-desc').value = dev.description;
         getIn('eq-image').value = dev.image;
 
         // Reset Listen
-        tempMaterials = [];
+        tempFdmMaterials = [];
+        tempSlaMaterials = [];
         tempLaserPresets = [];
         tempPaperFormats = [];
 
         // Optionen laden
         if (dev.print_options) {
             const opts = dev.print_options;
-            
-            // Dimensionen laden
-            if('dimensions' in opts) {
-                forms.dimX.value = opts.dimensions.x.toString();
-                forms.dimY.value = opts.dimensions.y.toString();
-                forms.dimZ.value = opts.dimensions.z.toString();
-            } else if ('work_area' in opts) {
-                forms.dimX.value = opts.work_area.x.toString();
-                forms.dimY.value = opts.work_area.y.toString();
-                forms.dimZ.value = '';
-            }
+            switch (opts.tech_type) {
+                case "FDM":
+                case "SLA":
+                    forms.dimX.value = opts.work_area.x.toString();
+                    forms.dimY.value = opts.work_area.y.toString();
+                    forms.dimZ.value = opts.work_area.z.toString();
+                    break;
+                case "LASER":
+                    forms.dimX.value = opts.work_area.x.toString();
+                    forms.dimY.value = opts.work_area.y.toString();
+                    forms.dimZ.value = '';
+                    break;
+                case "PAPER":
+                    break;
+            } 
 
             // Spezifische Listen laden
-            if (dev.type === 'FDM_Printer' || dev.type === 'SLA_Printer') {
-                const o = opts as ThreeDOptions;
-                if(o.available_materials) tempMaterials = [...o.available_materials];
-            } else if (dev.type === 'Laser_Cutter' || dev.type === 'CNC_Mill') {
+            if (dev.type === 'FDM_Printer') {
+                const o = opts as FdmOptions;
+                if(o.available_materials) tempFdmMaterials = [...o.available_materials];
+            } else if (dev.type === 'SLA_Printer' ) {
+                const o = opts as SlaOptions;
+                if(o.available_materials) tempSlaMaterials = [...o.available_materials];
+            } else if (dev.type === 'Laser_Cutter') {
                 const o = opts as LaserOptions;
                 if(o.presets) tempLaserPresets = [...o.presets];
             } else if (dev.type === 'Printer') {
@@ -305,7 +342,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         handleTypeChange();
-        renderMaterialList();
+        renderFdmMaterialList();
+        renderSlaMaterialList();
         renderLaserList();
         renderPaperList();
         
@@ -317,6 +355,7 @@ document.addEventListener('DOMContentLoaded', () => {
         forms.add.classList.add('hidden');
         editingDeviceId = null;
         getIn('eq-name').value = '';
+        getIn('eq-model').value = '';
         getArea('eq-desc').value = '';
         getIn('eq-image').value = '';
         forms.dimX.value=''; forms.dimY.value=''; forms.dimZ.value='';
@@ -330,12 +369,11 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!btn) return;
             const { action, id } = btn.dataset;
             if(!id) return;
-            const numId = parseInt(id);
 
             if (action === 'edit-device') openEdit(id);
-            if (action === 'delete-device') if(confirm('Löschen?')) { await deleteDevice(numId); renderAll(); }
-            if (action === 'set-unavailable') { await updateDeviceStatus(numId, 'Unavailable'); renderAll(); }
-            if (action === 'set-available') { await updateDeviceStatus(numId, 'Available'); renderAll(); }
+            if (action === 'delete-device') if(confirm('Löschen?')) { await deleteDevice(id); renderAll(); }
+            if (action === 'set-unavailable') { await updateDeviceStatus(id, 'Unavailable'); renderAll(); }
+            if (action === 'set-available') { await updateDeviceStatus(id, 'Available'); renderAll(); }
             
             // Buchungs Actions
             if (action === 'confirm') { await updateBookingStatus(id, 'confirmed'); renderAll(); }
@@ -347,17 +385,29 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // Add Material (FDM/SLA)
-        inpMat.btn?.addEventListener('click', () => {
-            if(inpMat.name.value) {
-                tempMaterials.push({
-                    name: inpMat.name.value,
-                    temp_nozzle: Number(inpMat.nozzle.value)||0,
-                    temp_bed: Number(inpMat.bed.value)||0,
-                    color_hex: inpMat.color.value
+        // Add Material FDM
+        inpFdmMat.btn?.addEventListener('click', () => {
+            if(inpFdmMat.name.value) {
+                tempFdmMaterials.push({
+                    name: inpFdmMat.name.value,
+                    temp_nozzle: Number(inpFdmMat.nozzle.value)||0,
+                    temp_bed: Number(inpFdmMat.bed.value)||0,
+                    color_hex: inpFdmMat.color.value
                 });
-                renderMaterialList();
-                inpMat.name.value=''; inpMat.nozzle.value=''; inpMat.bed.value='';
+                renderFdmMaterialList();
+                inpFdmMat.name.value=''; inpFdmMat.nozzle.value=''; inpFdmMat.bed.value='';
+            }
+        });
+
+        // Add Material SLA
+        inpSlaMat.btn?.addEventListener('click', () => {
+            if(inpSlaMat.name.value) {
+                tempSlaMaterials.push({
+                    name: inpSlaMat.name.value,
+                    color_hex: inpSlaMat.color.value
+                });
+                renderSlaMaterialList();
+                inpSlaMat.name.value='';
             }
         });
 
@@ -392,8 +442,11 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('btn-show-add-equipment')?.addEventListener('click', () => {
             closeForm(); // Reset
             forms.title.textContent = 'Neues Gerät';
-            tempMaterials=[]; tempLaserPresets=[]; tempPaperFormats=[];
-            renderMaterialList(); renderLaserList(); renderPaperList();
+            tempFdmMaterials=[];
+            tempSlaMaterials=[];
+            tempLaserPresets=[];
+            tempPaperFormats=[];
+            renderFdmMaterialList(); renderLaserList(); renderPaperList();
             forms.add.classList.remove('hidden');
             handleTypeChange();
         });
@@ -427,9 +480,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (eq.print_options) {
                 // Defensive Prüfung, da Backend-Daten theoretisch fehlen könnten
                 if((eq.type === 'FDM_Printer') && 'available_materials' in eq.print_options) 
-                    info = `${(eq.print_options as ThreeDOptions).available_materials?.length || 0} Filamente`;
+                    info = `${(eq.print_options as FdmOptions).available_materials?.length || 0} Filamente`;
                 else if((eq.type === 'SLA_Printer') && 'available_materials' in eq.print_options) 
-                    info = `${(eq.print_options as ThreeDOptions).available_materials?.length || 0} Harze`;
+                    info = `${(eq.print_options as SlaOptions).available_materials?.length || 0} Harze`;
                 else if((eq.type === 'Laser_Cutter') && 'presets' in eq.print_options) 
                     info = `${(eq.print_options as LaserOptions).presets?.length || 0} Presets`;
                 else if((eq.type === 'Printer') && 'formats' in eq.print_options) 
@@ -453,11 +506,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    function renderBookingList(viewType: string, allBookings: PrintBooking[], container: HTMLDivElement) {
+    function renderBookingList(viewType: string, allBookings: Booking[], container: HTMLDivElement) {
         if (!container) return;
         container.innerHTML = '';
         
-        let filtered: PrintBooking[] = [];
+        let filtered: Booking[] = [];
         if (viewType === 'pending') filtered = allBookings.filter(b => b.status === 'pending');
         else if (viewType === 'active') filtered = allBookings.filter(b => ['confirmed', 'running'].includes(b.status));
         else if (viewType === 'completed') filtered = allBookings.filter(b => ['completed', 'rejected'].includes(b.status));
@@ -480,17 +533,84 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else if (b.status === 'confirmed') actionsHtml = `<button class="btn btn-primary action-btn w-full" data-action="run" data-id="${b.id}">Starten</button>`;
                 else if (b.status === 'running') actionsHtml = `<button class="btn btn-primary action-btn w-full" data-action="complete" data-id="${b.id}">Abschließen</button>`;
 
-                card.innerHTML = `
-                   <div class="card-header"><h3 class="card-title">${b.printerName}</h3><span class="badge ${b.status}">${b.status}</span></div>
-                   <div class="card-body"><p class="text-sm">${b.startDate.toLocaleDateString()}</p></div>
-                   <div class="card-actions">${actionsHtml}</div>
-                `;
+                    let userEmailHTML = `<p class="text-sm"><strong>E-Mail:</strong> ${b.email}</p>`;
+                    let startDateInfoHTML = b.startDate ? `<p class="text-sm"><strong>Start:</strong> ${new Date(b.startDate).toLocaleDateString()}</p>` : '';
+                    let endDateInfoHTML = b.endDate ? `<p class="text-sm"><strong>Ende:</strong> ${new Date(b.endDate).toLocaleDateString()}</p>` : '';
+                    let noteInfoHTML = b.notes ? `<p class="text-sm"><strong>Notiz:</strong> ${b.notes}</p>` : '';
+                    let deviceHTML = `<p class="text-sm"><strong>Gerät:</strong> ${b.deviveName}</p>`;
+                    let filePathHTML = b.filePath ? `<p class="text-sm"><strong>Pfad:</strong> ${b.filePath}/</p>` : '';
+
+                    let adminEmailHTML = b.lastModifiedBy ? `<p class="text-sm"><strong>Admin:</strong> ${b.lastModifiedBy}</p>` : '';
+                    let lastModifiedAtHTML = b.lastModifiedAt ? `<p class="text-sm"><strong>Letzte Änderung:</strong> ${new Date(b.lastModifiedAt).toLocaleString()}</p>` : '';
+                    let adminMsgInfoHTML = b.message ? `<p class="text-sm"><strong class="text-danger">Grund:</strong> ${b.message}</p>` : '';
+
+
+                    let settingsHTML = '';
+                    if (b.print_options) {
+                        if (b.print_options.tech_type === 'FDM') {
+                            const opts = b.print_options as SelectedFdmOptions;
+                            settingsHTML = `
+                                <div class="settings-box">
+                                    <p class="text-sm"><strong>Material:</strong> ${opts.selected_material.name}</p>
+                                    <p class="text-sm"><strong>Schichthöhe:</strong> ${opts.selected_layer_height}mm</p>
+                                    <p class="text-sm"><strong>Düse:</strong> ${opts.selected_nozzle_size}mm</p>
+                                    <p class="text-sm"><strong>Füllung:</strong> ${opts.selected_infill_percentage}%</p>
+                                    <p class="text-sm"><strong>Support:</strong> ${opts.selected_support_type}</p>
+                                </div>
+                            `;
+                        } else if (b.print_options.tech_type === 'SLA') {
+                            const opts = b.print_options as SelectedSlaOptions;
+                            settingsHTML = `
+                                <div class="settings-box">
+                                    <p class="text-sm"><strong>Material:</strong> ${opts.selected_material.name}</p>
+                                    <p class="text-sm"><strong>Schichthöhe:</strong> ${opts.selected_layer_height}mm</p>
+                                    <p class="text-sm"><strong>Support:</strong> ${opts.selected_support_type}</p>
+                                </div>
+                            `;
+                        } else if (b.print_options.tech_type === 'LASER') {
+                            const opts = b.print_options as SelectedLaserOptions;
+                            settingsHTML = `
+                                <div class="settings-box">
+                                    <p class="text-sm"><strong>Material:</strong> ${opts.selected_preset.material}</p>
+                                    <p class="text-sm"><strong>Dicke:</strong> ${opts.selected_preset.thickness}mm</p>
+                                    <p class="text-sm"><strong>Leistung:</strong> ${opts.selected_preset.power}%</p>
+                                    <p class="text-sm"><strong>Geschw.:</strong> ${opts.selected_preset.speed}%</p>
+                                </div>
+                            `;
+                        } else if (b.print_options.tech_type === 'PAPER') {
+                            const opts = b.print_options as SelectedPaperOptions;
+                            settingsHTML = `
+                                <div class="settings-box">
+                                    <p class="text-sm"><strong>Format:</strong> ${opts.selected_format}</p>
+                                    <p class="text-sm"><strong>Papiergewicht:</strong> ${opts.selected_paper_weights}g/m²</p>
+                                </div>
+                            `;
+                        }
+                    }
+
+                    card.innerHTML = `
+                        <div class="card-header"><h3 class="card-title">${b.printerName}</h3><span class="badge ${b.status}">${bookingStatusToString(b.status)}</span></div>
+                        <div class="card-body">
+                            ${userEmailHTML}
+                            ${startDateInfoHTML}
+                            ${endDateInfoHTML}
+                            ${noteInfoHTML}
+                            ${deviceHTML}
+                            ${filePathHTML}
+                            ${settingsHTML}
+                            ${adminEmailHTML}
+                            ${lastModifiedAtHTML}
+                            ${adminMsgInfoHTML}
+                            
+                        </div>
+                        <div class="card-actions">${actionsHtml}</div>
+                    `;
                 container.appendChild(card);
             });
         }
     }
 
-    function updateCounts(b: PrintBooking[], e: Device[]) {
+    function updateCounts(b: Booking[], e: Device[]) {
         const setTxt = (id: string, txt: string) => { const el = document.getElementById(id); if(el) el.textContent = txt; };
         setTxt('count-pending', `(${b.filter(x => x.status === 'pending').length})`);
         setTxt('count-active', `(${b.filter(x => ['confirmed', 'running'].includes(x.status)).length})`);
@@ -509,3 +629,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }));
     }
 });
+
+
+function bookingStatusToString(status: string): string {
+    switch (status) {
+        case 'pending': return 'Ausstehend';
+        case 'confirmed': return 'Bestätigt';
+        case 'running': return 'In Bearbeitung';
+        case 'completed': return 'Abgeschlossen';
+        case 'rejected': return 'Abgelehnt';
+        default: return status;
+    }
+}

@@ -4,9 +4,10 @@ import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import thl.campusprint.models.Device;
+
+import thl.campusprint.models.PrintJob;
 
 @Repository
-public interface DeviceRepository extends JpaRepository<Device, UUID> {
-    // this is all thats needed
+public interface PrintJobRepository extends JpaRepository<PrintJob, UUID> {
+    
 }
