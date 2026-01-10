@@ -15,6 +15,7 @@ export interface Booking {
 }
 
 export type SupportType = 'none' | 'touching_bed' | 'everywhere' | 'auto';
+export const supportOptions = ['none', 'touching_bed', 'everywhere', 'auto'];
 
 export interface SelectedFdmOptions {
     tech_type: 'FDM';

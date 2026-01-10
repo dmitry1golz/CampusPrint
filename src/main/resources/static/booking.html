@@ -105,29 +105,37 @@
                             <div class="form-row">
                                 <div>
                                     <label>Material</label>
-                                    <select id="fdm-mat-select" class="form-control">
-                                    </select>
+                                    <div class="custom-select form-control" id="fdm-mat-select">
+                                        <div class="custom-select-value">Wähle Material</div>
+                                        <ul class="custom-select-options hidden"></ul>
+                                    </div>
+                                    <input type="hidden" id="fdm-mat-value" name="fdm-mat">
                                 </div>
                                 <div>
                                     <label>Layer</label>
-                                    <select id="fdm-layer-select" class="form-control">
-                                    </select>
+                                    <div class="custom-select form-control" id="fdm-layer-select">
+                                        <div class="custom-select-value">Wähle Layer</div>
+                                        <ul class="custom-select-options hidden"></ul>
+                                    </div>
+                                    <input type="hidden" id="fdm-layer-value" name="fdm-layer">
                                 </div>
                             </div>
                             <div class="form-row">
                                 <div>
                                     <label>Nozzle</label>
-                                    <select id="fdm-nozzle-select" class="form-control">
-                                    </select>
+                                    <div class="custom-select form-control" id="fdm-nozzle-select">
+                                        <div class="custom-select-value">Wähle Nozzle</div>
+                                        <ul class="custom-select-options hidden"></ul>
+                                    </div>
+                                    <input type="hidden" id="fdm-nozzle-value" name="fdm-nozzle">
                                 </div>
                                 <div>
                                     <label>Support</label>
-                                    <select id="fdm-support-select" class="form-control">
-                                        <option value="none">none</option>
-                                        <option value="touching_bed">touching_bed</option>
-                                        <option value="everywhere">everywhere</option>
-                                        <option value="auto">auto</option>
-                                    </select>
+                                    <div class="custom-select form-control" id="fdm-support-select">
+                                        <div class="custom-select-value">Wähle Support</div>
+                                        <ul class="custom-select-options hidden"></ul>
+                                    </div>
+                                    <input type="hidden" id="fdm-support-value" name="fdm-support">
                                 </div>
                             </div>
                             <div class="form-row">
@@ -142,24 +150,29 @@
                             <div class="form-row">
                                 <div>
                                     <label>Harz (Resin)</label>
-                                    <select id="sla-mat-select" class="form-control">
-                                    </select>
+                                    <div class="custom-select form-control" id="sla-mat-select">
+                                        <div class="custom-select-value">Wähle Harz</div>
+                                        <ul class="custom-select-options hidden"></ul>
+                                    </div>
+                                    <input type="hidden" id="sla-mat-value" name="sla-mat">
                                 </div>
                                 <div>
                                     <label>Layer</label>
-                                    <select id="sla-layer-select" class="form-control">
-                                    </select>
+                                    <div class="custom-select form-control" id="sla-layer-select">
+                                        <div class="custom-select-value">Wähle Layer</div>
+                                        <ul class="custom-select-options hidden"></ul>
+                                    </div>
+                                    <input type="hidden" id="sla-layer-value" name="sla-layer">
                                 </div>
                             </div>
                             <div class="form-row">
                                 <div>
                                     <label>Support</label>
-                                    <select id="sla-support-select" class="form-control">
-                                        <option value="none">none</option>
-                                        <option value="touching_bed">touching_bed</option>
-                                        <option value="everywhere">everywhere</option>
-                                        <option value="auto">auto</option>
-                                    </select>
+                                    <div class="custom-select form-control" id="sla-support-select">
+                                        <div class="custom-select-value">Wähle Support</div>
+                                        <ul class="custom-select-options hidden"></ul>
+                                    </div>
+                                    <input type="hidden" id="sla-support-value" name="sla-support">
                                 </div>
                             </div>
                             <div class="form-row">
@@ -174,8 +187,11 @@
                             <div class="form-row">
                                 <div>
                                     <label>Preset</label>
-                                    <select id="laser-preset-select" class="form-control">
-                                    </select>
+                                    <div class="custom-select form-control" id="laser-preset-select">
+                                        <div class="custom-select-value">Wähle Preset</div>
+                                        <ul class="custom-select-options hidden"></ul>
+                                    </div>
+                                    <input type="hidden" id="laser-preset-value" name="laser-preset">
                                 </div>
                             </div>
                         </div>
@@ -184,13 +200,19 @@
                             <div class="form-row">
                                 <div>
                                     <label>Papierdicke</label>
-                                    <select id="paper-weight-select" class="form-control">
-                                    </select>
+                                    <div class="custom-select form-control" id="paper-weight-select">
+                                        <div class="custom-select-value">Wähle Dicke</div>
+                                        <ul class="custom-select-options hidden"></ul>
+                                    </div>
+                                    <input type="hidden" id="paper-weight-value" name="paper-weight">
                                 </div>
                                 <div>
                                     <label>Papierformat</label>
-                                    <select id="paper-format-select" class="form-control">
-                                    </select>
+                                    <div class="custom-select form-control" id="paper-format-select">
+                                        <div class="custom-select-value">Wähle Format</div>
+                                        <ul class="custom-select-options hidden"></ul>
+                                    </div>
+                                    <input type="hidden" id="paper-format-value" name="paper-format">
                                 </div>
                             </div>
                         </div>
