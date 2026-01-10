@@ -76,6 +76,18 @@
     .form-row { flex-direction: column; gap: 0; }
 }
 
+.device-config .form-row > div {
+    flex: 1;
+}
+
+.form-control {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    font-size: 1rem;
+}
+
 .calendar-legend {
     display: flex;
     flex-wrap: wrap;
