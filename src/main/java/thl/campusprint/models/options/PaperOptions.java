@@ -7,6 +7,6 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class PaperOptions extends DeviceOptions {
-  private List<Integer> paper_weights;
-  private List<String> formats;
+    private List<Integer> paper_weights;
+    private List<String> formats;
 }

@@ -1,29 +1,28 @@
 package thl.campusprint.controllers;
 
 import java.util.List;
+import java.util.UUID;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import thl.campusprint.models.Device;
 import thl.campusprint.repositories.DeviceRepository;
-
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/devices")
 @CrossOrigin(origins = "*") // Erlaubt Zugriff vom Frontend
 public class DeviceController {
 
-  private final DeviceRepository deviceRepository;
+    private final DeviceRepository deviceRepository;
 
-  public DeviceController(DeviceRepository deviceRepository) {
-    this.deviceRepository = deviceRepository;
-  }
+    public DeviceController(DeviceRepository deviceRepository) {
+        this.deviceRepository = deviceRepository;
+    }
 
-  // 1. Alle Geräte holen
-  @GetMapping
-  public List<Device> getAllDevices() {
-    return deviceRepository.findAll();
-  }
+    // 1. Alle Geräte holen
+    @GetMapping
+    public List<Device> getAllDevices() {
+        return deviceRepository.findAll();
+    }
 
     // 2. Ein einzelnes Gerät holen
     @GetMapping("/{id}")
@@ -33,7 +32,7 @@ public class DeviceController {
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
-    
+
     // 3. Gerät erstellen ODER aktualisieren
     // WICHTIG: Es darf nur EINE @PostMapping Methode ohne Pfad geben!
     @PostMapping
@@ -53,6 +52,4 @@ public class DeviceController {
         }
         return ResponseEntity.notFound().build();
     }
-    return ResponseEntity.notFound().build();
-  }
 }

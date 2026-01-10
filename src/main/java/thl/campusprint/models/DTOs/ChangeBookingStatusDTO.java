@@ -5,13 +5,10 @@ import lombok.Data;
 
 @Data
 public class ChangeBookingStatusDTO {
-    
-    @NonNull
-    private int bookingId;
 
-    @NonNull
-    private String status;
+    @NonNull private int bookingId;
+
+    @NonNull private String status;
 
     private String adminMessage;
-
 }
