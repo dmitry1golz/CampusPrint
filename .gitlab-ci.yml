@@ -1,36 +1,3 @@
-# ========================================================================================
-# CI/CD PIPELINE DOKUMENTATION
-# ========================================================================================
-#
-# ZUSAMMENFASSUNG:
-# Diese Pipeline automatisiert die Qualitätskontrolle, Tests und den Build-Prozess
-# für eine Java-Backend- und Node.js-Frontend-Anwendung.
-#
-# STAGES:
-# 1. quality: Statische Code-Analyse (Linting) für Backend (Spotless) und Frontend.
-# 2. test:    Ausführung von Unit- und Integrationstests (Testcontainers/Docker).
-# 3. build:   Erstellung des JAR-Artefakts (überspringt Tests im Build-Schritt).
-#
-# STEUERUNG ÜBER COMMIT-MESSAGES (TRIGGER):
-# Die Pipeline reagiert auf spezifische Schlagworte in der Commit-Nachricht:
-#
-# - [TESTALL]
-#   Führt die VOLLE Pipeline aus: Backend-Linting, Frontend-Linting,
-#   schwere Datenbank-Tests, Controller-Tests und den Build.
-#
-# - [DatabaseTest]
-#   Aktiviert spezifisch die Job-Gruppe 'database-integration-tests'
-#   (Testcontainers mit Docker-in-Docker).
-#
-# - [controller]
-#   Aktiviert spezifisch die Job-Gruppe 'controller-tests'.
-#
-# Standard-Verhalten (ohne Tags auf 'main'):
-# Führt Quality-Gates (Linting) und den Build aus. Tests werden standardmäßig
-# übersprungen, um Ressourcen zu sparen, sofern sie nicht explizit angefordert werden.
-#
-# ========================================================================================
-
 stages:
   - quality
   - test
@@ -44,7 +11,10 @@ cache:
     - .m2/repository
     - node_modules/
 
-lint-backend:
+# ====================================================
+# STAGE 1: QUALITY
+# ====================================================
+lint-backend: # Umbenannt zu "lint-backend" passend zum needs im Build-Job
   stage: quality
   image: maven:3.9.9-eclipse-temurin-21
   script:
@@ -81,6 +51,9 @@ lint-frontend:
     - if: $CI_COMMIT_MESSAGE =~ /\[TESTALL\]/
       allow_failure: true
 
+# ====================================================
+# STAGE 2: TESTS
+# ====================================================
 database-integration-tests:
   stage: test
   image: maven:3.9.9-eclipse-temurin-21
@@ -96,18 +69,16 @@ database-integration-tests:
     - echo "Warte auf Docker Daemon..."
     - sleep 15 
     - echo "Starte Integrationstests..."
-    # Verzeichnis erstellen, damit Maven sicher schreiben kann
     - mkdir -p reports 
-    # WICHTIG: -Dsurefire.reportsDirectory=reports leitet den Output um
+    # Maven schreibt die Datei als TEST-Klassenname.xml in reports/
     - mvn test -Dtest=CampusPrintDatabaseTests -Dsurefire.reportsDirectory=reports
     
   artifacts:
     when: always
     reports:
-      # Jetzt liegen die Dateien im reports Ordner
-      junit: reports/Database.xml
+      # KORREKTUR: Wildcard benutzen, da Maven den Dateinamen bestimmt
+      junit: reports/*.xml
     paths:
-      # Wenn du sie runterladen willst, findest du sie jetzt auch hier ordentlich sortiert
       - reports/
   rules:
     - if: $CI_COMMIT_MESSAGE =~ /\[DatabaseTest\]/
@@ -120,13 +91,14 @@ controller-tests:
   script:
     - echo "Führe schnelle Unit-Tests aus..."
     - mkdir -p reports
-    # Auch hier: Output umleiten
+    # Maven schreibt die Datei als TEST-Klassenname.xml in reports/
     - mvn test -Dtest=DeviceControllerTest -Dsurefire.reportsDirectory=reports
   
   artifacts:
     when: always
     reports:
-      junit: reports/Controller.xml
+      # KORREKTUR: Wildcard benutzen!
+      junit: reports/*.xml
     expire_in: 1 week
     paths:
       - reports/
@@ -136,9 +108,14 @@ controller-tests:
       allow_failure: false
     - if: $CI_COMMIT_MESSAGE =~ /\[TESTALL\]/
       allow_failure: false
+
+# ====================================================
+# STAGE 3: BUILD
+# ====================================================
 build-jar:
   stage: build
   image: maven:3.9.9-eclipse-temurin-21
+  # Hier muss der Name exakt mit dem Job-Namen oben übereinstimmen
   needs: ["lint-backend", "lint-frontend"] 
   script:
     - echo "Baue die Anwendung..."
