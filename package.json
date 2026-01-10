@@ -11,7 +11,7 @@
     "ts-watch-stop-win": "start taskkill /F /IM node.exe",
     "lint:ts": "eslint 'src/**/*.ts' --format junit --output-file reports/eslint.xml",
     "lint:css": "stylelint 'src/**/*.css' --custom-formatter node_modules/stylelint-junit-formatter/index.js --output-file reports/stylelint.xml",
-    "lint:html": "html-validate 'src/main/resources/static/*.html' --formatter junit > reports/html.xml",
+    "lint:html": "html-validate 'src/main/resources/static/*.html' --formatter checkstyle > reports/html.xml",
     "lint:java": "./mvnw spotless:check",
     "lint:all": "mkdir -p reports && npm run lint:ts ; npm run lint:css ; npm run lint:html"
   },
