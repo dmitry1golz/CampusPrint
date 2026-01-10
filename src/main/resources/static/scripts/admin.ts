@@ -117,7 +117,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div style="width:12px; height:12px; background:${m.color_hex}; border-radius:50%; border:1px solid #ccc;"></div>
                     <strong>${m.name}</strong> ${tempInfo}
                 </div>
-                <button class="btn-del text-danger" style="background:none; border:none; cursor:pointer;" data-idx="${i}" data-type="mat">✕</button>
+                <button class="btn-del text-danger" style="background:none; border:none; cursor:pointer;" data-idx="${i}" data-type="fdm">✕</button>
             `;
             forms.listMatFdm.appendChild(row);
         });
@@ -139,7 +139,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div style="width:12px; height:12px; background:${m.color_hex}; border-radius:50%; border:1px solid #ccc;"></div>
                     <strong>${m.name}</strong>
                 </div>
-                <button class="btn-del text-danger" style="background:none; border:none; cursor:pointer;" data-idx="${i}" data-type="mat">✕</button>
+                <button class="btn-del text-danger" style="background:none; border:none; cursor:pointer;" data-idx="${i}" data-type="sla">✕</button>
             `;
             forms.listMatSla.appendChild(row);
         });
@@ -537,7 +537,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     let startDateInfoHTML = b.startDate ? `<p class="text-sm"><strong>Start:</strong> ${new Date(b.startDate).toLocaleDateString()}</p>` : '';
                     let endDateInfoHTML = b.endDate ? `<p class="text-sm"><strong>Ende:</strong> ${new Date(b.endDate).toLocaleDateString()}</p>` : '';
                     let noteInfoHTML = b.notes ? `<p class="text-sm"><strong>Notiz:</strong> ${b.notes}</p>` : '';
-                    let deviceHTML = `<p class="text-sm"><strong>Gerät:</strong> ${b.deviveName}</p>`;
+                    let deviceHTML = `<p class="text-sm"><strong>Gerät:</strong> ${b.deviveName ? b.deviveName : 'Gelöscht'}</p>`;
                     let filePathHTML = b.filePath ? `<p class="text-sm"><strong>Pfad:</strong> ${b.filePath}/</p>` : '';
 
                     let adminEmailHTML = b.lastModifiedBy ? `<p class="text-sm"><strong>Admin:</strong> ${b.lastModifiedBy}</p>` : '';

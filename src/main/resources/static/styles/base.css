@@ -168,6 +168,15 @@ textarea {
 .btn-secondary { background: white; border: 1px solid var(--border-color); color: var(--text-main); }
 .btn-danger { background: #dc2626; color: white; }
 
+.btn-primary:disabled {
+    background-color: var(--border-color); /* Hellgrauer Hintergrund (#e5e7eb) */
+    color: var(--text-muted);              /* Graue Schrift (#6b7280) */
+    cursor: not-allowed;                   /* "Verboten"-Mauszeiger */
+    pointer-events: none;                  /* Verhindert Klicks (wichtig für <a> Tags) */
+    box-shadow: none;                      /* Entfernt eventuelle Schatten */
+    opacity: 0.8;                          /* Optional: Lässt es noch inaktiver wirken */
+}
+
 .hidden { display: none !important; }
 .alert { padding: 1rem; border-radius: var(--radius); margin-bottom: 1rem; border: 1px solid transparent; }
 .alert-danger { background: #fee2e2; color: #991b1b; border-color: #fecaca; text-align: center;}

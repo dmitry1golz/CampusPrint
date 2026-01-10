@@ -1,8 +1,10 @@
 package thl.campusprint.service;
 
-import jakarta.transaction.Transactional;
+import java.time.LocalDateTime;
 import java.util.List;
+
 import org.springframework.stereotype.Service;
+import jakarta.transaction.Transactional;
 import thl.campusprint.models.Booking;
 import thl.campusprint.models.BookingStatus;
 import thl.campusprint.models.DTOs.CreateBookingDTO;
@@ -73,6 +75,7 @@ public class BookingService {
         booking.setEndTime(dto.getEndDate());
         booking.setStatus(BookingStatus.pending);
         booking.setNotes(dto.getNotes());
+        booking.setLastModified(LocalDateTime.now());
 
         return bookingRepository.save(booking);
     }
