@@ -9,6 +9,13 @@ export interface Booking {
     notes?: string;
     message?: string;   // Admin: reason for rejection
     videoUrl?: string;
+    lastModifiedBy?: string;
+    lastModifiedAt?: Date;
+    email: string;
+
+    deviveName: String;
+    deviceId : String;
+    filePath? : String;
     
     // All status info combined
     status: 'pending' | 'confirmed' | 'completed' | 'rejected' | 'running';

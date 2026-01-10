@@ -533,31 +533,36 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else if (b.status === 'confirmed') actionsHtml = `<button class="btn btn-primary action-btn w-full" data-action="run" data-id="${b.id}">Starten</button>`;
                 else if (b.status === 'running') actionsHtml = `<button class="btn btn-primary action-btn w-full" data-action="complete" data-id="${b.id}">Abschließen</button>`;
 
-                     // TODO weitere Infos ergänzen
-                     let startDateInfoHTML = b.startDate ? `<p class="text-sm"><strong>Start:</strong> ${new Date(b.startDate).toLocaleDateString()}</p>` : '';
-                     let endDateInfoHTML = b.endDate ? `<p class="text-sm"><strong>Ende:</strong> ${new Date(b.endDate).toLocaleDateString()}</p>` : '';
-                     let noteInfoHTML = b.notes ? `<p class="text-sm"><strong>Notiz:</strong> ${b.notes}</p>` : '';
-                     let adminMsgInfoHTML = b.message ? `<p class="text-sm"><strong class="text-danger">Grund:</strong> ${b.message}</p>` : '';
+                    // TODO weitere Infos ergänzen
+                    let userEmailHTML = `<p class="text-sm"><strong>E-Mail:</strong> ${b.email}</p>`;
+                    let startDateInfoHTML = b.startDate ? `<p class="text-sm"><strong>Start:</strong> ${new Date(b.startDate).toLocaleDateString()}</p>` : '';
+                    let endDateInfoHTML = b.endDate ? `<p class="text-sm"><strong>Ende:</strong> ${new Date(b.endDate).toLocaleDateString()}</p>` : '';
+                    let noteInfoHTML = b.notes ? `<p class="text-sm"><strong>Notiz:</strong> ${b.notes}</p>` : '';
+                    let deviceHTML = `<p class="text-sm"><strong>Gerät:</strong> ${b.deviveName}</p>`;
+                    let filePathHTML = b.filePath ? `<p class="text-sm"><strong>Pfad:</strong> ${b.filePath}/</p>` : '';
 
-                     let userEmailHTML = '<p class="text-sm"><strong>E-Mail:</strong> Unbekannt</p>';
-                     let deviceHTML = '<p class="text-sm"><strong>Gerät:</strong> Unbekannt</p>';
-                     let filePathHTML = '<p class="text-sm"><strong>Pfad:</strong> /</p>';
+                    let adminEmailHTML = b.lastModifiedBy ? `<p class="text-sm"><strong>Admin:</strong> ${b.lastModifiedBy}</p>` : '';
+                    let lastModifiedAtHTML = b.lastModifiedAt ? `<p class="text-sm"><strong>Letzte Änderung:</strong> ${new Date(b.lastModifiedAt).toLocaleString()}</p>` : '';
+                    let adminMsgInfoHTML = b.message ? `<p class="text-sm"><strong class="text-danger">Grund:</strong> ${b.message}</p>` : '';
 
-                     // Weitere Settings aus JSON parsen
-
-                     card.innerHTML = `
-                         <div class="card-header"><h3 class="card-title">${b.printerName}</h3><span class="badge ${b.status}">${bookingStatusToString(b.status)}</span></div>
-                         <div class="card-body">
-                                ${startDateInfoHTML}
-                                ${endDateInfoHTML}
-                                ${noteInfoHTML}
-                                ${userEmailHTML}
-                                ${deviceHTML}
-                                ${filePathHTML}
-                                ${adminMsgInfoHTML}
-                         </div>
-                         <div class="card-actions">${actionsHtml}</div>
-                     `;
+                    // Weitere Settings aus JSON parsen
+                    
+                    card.innerHTML = `
+                        <div class="card-header"><h3 class="card-title">${b.printerName}</h3><span class="badge ${b.status}">${bookingStatusToString(b.status)}</span></div>
+                        <div class="card-body">
+                            ${userEmailHTML}
+                            ${startDateInfoHTML}
+                            ${endDateInfoHTML}
+                            ${noteInfoHTML}
+                            ${deviceHTML}
+                            ${filePathHTML}
+                            ${adminEmailHTML}
+                            ${lastModifiedAtHTML}
+                            ${adminMsgInfoHTML}
+                            
+                        </div>
+                        <div class="card-actions">${actionsHtml}</div>
+                    `;
                 container.appendChild(card);
             });
         }

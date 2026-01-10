@@ -16,6 +16,12 @@ public class BookingDTO {
     private String message;
     private String videoUrl;
     private String status;
+    private String lastModifiedBy;
+    private String email;
+    private LocalDateTime lastModifiedAt;
+    private String deviveName;
+    private String deviceId;
+    private String filePath;
 
     private BookingDTO() { }
 
@@ -29,6 +35,12 @@ public class BookingDTO {
         dto.message = booking.getAdminMessage();
         dto.videoUrl = booking.getPrintJob().getLivestream();
         dto.status = booking.getStatus().name();
+        dto.lastModifiedBy = booking.getLastModifiedBy() != null ? booking.getLastModifiedBy().getEmail() : null;
+        dto.lastModifiedAt = booking.getLastModified();
+        dto.email = booking.getUser().getEmail();
+        dto.deviveName = booking.getPrintJob().getDevice().getName();
+        dto.deviceId = booking.getPrintJob().getDevice().getId().toString();
+        dto.filePath = booking.getPrintJob().getFilePath();
         return dto;
     }
 }
