@@ -49,10 +49,7 @@ public class BookingDTO {
         dto.deviceId = booking.getPrintJob().getDevice().getId().toString();
         dto.filePath = booking.getPrintJob().getFilePath();
         PrintJob pj = booking.getPrintJob();
-        System.out.println("[DEBUG] PrintJob ID: " + pj.getId());
-        System.out.println("[DEBUG] PrintJob settings raw: " + pj.getSettings());
         dto.print_options = pj.getSettings();
-        System.out.println("[DEBUG] BookingDTO print_options: " + dto.print_options);
         return dto;
     }
 }
