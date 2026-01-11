@@ -1,7 +1,6 @@
 import { createNewBooking, getBuchungsverfuegbarkeitByGeraetId } from "./services/buchung-service.js";
 import { Buchungsverfuegbarkeit, NewPrintBooking } from "./models/buchung.js";
 import { getGeraetById } from "./services/geraet-service.js";
-import { setCookie } from "./services/auth-service.js";
 import { Geraet } from "./models/geraet.js";
 
 type BuchenPageState = 'loading' | 'error' | 'ready';
@@ -87,8 +86,8 @@ async function handleFormSubmit(e: Event) {
     };
 
     await createNewBooking(booking);
-    
-    setCookie('userEmail', email, 30);
+    // Removed cookie for UI, now stored locally
+    localStorage.setItem('userEmail', email);
     window.location.href = "meine-drucke.html";
 }
 

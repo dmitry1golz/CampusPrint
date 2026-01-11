@@ -1,62 +1,72 @@
+// services/auth-service.ts
 
-const COOKIE_NAME = 'admin_session';
+// cookie name on the backend (in the controller it was "ADMIN_SESSION")
+const BACKEND_COOKIE = "ADMIN_SESSION";
 
-// Mock credentials
-const MOCK_ADMIN = {
-    email: 'admin@campusprint.de',
-    password: '123'
-};
+// if the front distributes Spring on 8090 — leave it blank
+// if the front is separate (vite/5173) — set "http://localhost:8090"
+const API_BASE = "";
+const API = "/api/auth";
 
-export function login(email: string, pass: string): boolean {
-    if (email === MOCK_ADMIN.email && pass === MOCK_ADMIN.password) {
-        setCookie(COOKIE_NAME, 'true', 1);
-        return true;
-    }
-    return false;
+type ApiResponse = { ok: boolean; error?: string | null };
+
+async function api<T>(path: string, options: RequestInit = {}): Promise<{ status: number; data: T | null }> {
+    const res = await fetch(`${API_BASE}${path}`, {
+        ...options,
+        headers: {
+            "Content-Type": "application/json",
+            ...(options.headers || {}),
+        },
+        credentials: "include", // required for cookies
+    });
+
+    // We try to read JSON, but we don't crash if there is no body.
+    const text = await res.text();
+    const data = text ? (JSON.parse(text) as T) : null;
+
+    return {status: res.status, data};
 }
 
-export function logout() {
-    deleteCookie(COOKIE_NAME);
-    // Redirect to login
-    window.location.href = 'admin-login.html';
+export async function login(email: string, pass: string): Promise<boolean> {
+    const res = await fetch(`${API}/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ email, password: pass })
+    });
+    return res.ok;
 }
 
-export function isAuthenticated(): boolean {
-    return getCookie(COOKIE_NAME) === 'true';
+export async function logout(): Promise<void> {
+    await fetch(`${API}/logout`, { method: "POST", credentials: "include" });
+    window.location.href = "admin-login.html";
 }
 
-export function requireAuth() {
-    if (!isAuthenticated()) {
+export async function isAuthenticated(): Promise<boolean> {
+    const res = await fetch(`${API}/me`, { credentials: "include" });
+    return res.ok;
+}
+
+export async function requireAuth(): Promise<void> {
+    if (!(await isAuthenticated())) {
         console.warn("Zugriff verweigert. Redirect zum Login.");
-        window.location.href = 'admin-login.html';
+        window.location.href = "admin-login.html";
     }
 }
 
-export function setCookie(name: string, value: string, days: number) {
-    let expires = "";
-    if (days) {
-        const date = new Date();
-        date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
-        expires = "; expires=" + date.toUTCString();
-    }
-    document.cookie = name + "=" + (value || "") + expires + "; path=/";
+/**
+ * These functions are no longer needed (the cookie is set by the HttpOnly server).
+ * I'm leaving the plugs in so that nothing breaks if they are still being imported somewhere.
+ */
+export function setCookie() { /* noop */
 }
 
 export function getCookie(name: string): string | null {
-    const nameEQ = name + "=";
-    const ca = document.cookie.split(';');
-    for (let i = 0; i < ca.length; i++) {
-        let c = ca[i];
-        while (c.charAt(0) == ' ') c = c.substring(1, c.length);
-        
-        if (c.indexOf(nameEQ) == 0) {
-            // Decodierfunktion required for email
-            return decodeURIComponent(c.substring(nameEQ.length, c.length));
-        }
-    }
+    // HttpOnly cookies cannot be read from JS — this is normal and even safer..
+    // If you need to know whether a user is logged in somewhere, call isAuthenticated()..
+    console.warn(`Cookie ${name} is HttpOnly; use isAuthenticated() instead.`);
     return null;
 }
 
-export function deleteCookie(name: string) {
-    document.cookie = name + '=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+export function deleteCookie() { /* noop */
 }

@@ -9,7 +9,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (!form || !emailInput || !container) return;
 
-    const savedEmail = getCookie('userEmail');
+    const savedEmail = localStorage.getItem('userEmail');
+
     if (savedEmail) {
         emailInput.value = savedEmail;
         renderDrucke(container, getBookingsForEmail(savedEmail));
@@ -20,7 +21,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const email = emailInput.value.trim();
         if (!email) return;
 
-        setCookie('userEmail', email, 30);
+        // Removed cookie for UI, now stored locally
+        // To read emails, we use "const email = localStorage.getItem('userEmail'); "
+        localStorage.setItem('userEmail', email);
+
         renderDrucke(container, getBookingsForEmail(email));
     });
 });
