@@ -3,12 +3,15 @@ package thl.campusprint.admin;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import thl.campusprint.models.User;
 import thl.campusprint.repositories.UserRepository;
 
 import java.security.SecureRandom;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.HexFormat;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -25,10 +28,10 @@ public class AdminAuthService {
     }
 
     public Optional<String> login(String email, String rawPassword) {
-        var userOpt = userRepo.findByEmail(email);
-        if (userOpt.isEmpty()) return Optional.empty();
+        List<User> foundUsers = userRepo.findByEmail(email);
+        if (foundUsers.size() != 1) return Optional.empty();
 
-        var u = userOpt.get();
+        User u = foundUsers.getFirst();
 
         // only admin
         if (u.getRole() == null || !"admin".equalsIgnoreCase(String.valueOf(u.getRole()))) return Optional.empty();

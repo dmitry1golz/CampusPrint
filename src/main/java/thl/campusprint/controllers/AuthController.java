@@ -2,6 +2,9 @@ package thl.campusprint.controllers;
 
 
 import jakarta.servlet.http.HttpServletResponse;
+
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -26,7 +29,8 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest req, HttpServletResponse res) {
-        User u = users.findByEmail(req.email()).orElse(null);
+        List<User> foundUsers = users.findByEmail(req.email());
+        User u = foundUsers.size() != 1 ? null : foundUsers.getFirst();
         if (u == null || u.getPassword() == null) return ResponseEntity.status(401).build();
         if (!encoder.matches(req.password(), u.getPassword())) return ResponseEntity.status(401).build();
 
