@@ -3,10 +3,9 @@ package thl.campusprint.admin;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import thl.campusprint.admin.ApiResponse;
+
 @RestController
 @RequestMapping("/api/admin")
 public class AdminAuthController {
@@ -70,13 +69,4 @@ public class AdminAuthController {
     public record LoginRequest(String email, String password) {
     }
 
-//    public record ApiResponse(boolean ok, String error) {
-//         ApiResponse ok() {
-//            return new ApiResponse(true, null);
-//        }
-//
-//         ApiResponse fail(String code) {
-//            return new ApiResponse(false, code);
-//        }
-//    }
 }

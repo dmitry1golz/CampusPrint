@@ -4,7 +4,7 @@ package thl.campusprint.admin;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer;
 import org.springframework.stereotype.Component;
-import thl.campusprint.common.SecurityRules;
+import thl.campusprint.security.SecurityRules;
 import thl.campusprint.models.UserRole;
 
 @Component

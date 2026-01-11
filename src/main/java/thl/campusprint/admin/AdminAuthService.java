@@ -3,7 +3,7 @@ package thl.campusprint.admin;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import thl.campusprint.users.UsersRepo;
+import thl.campusprint.repositories.UserRepository;
 
 import java.security.SecureRandom;
 import java.sql.Timestamp;
@@ -14,35 +14,35 @@ import java.util.Optional;
 @Service
 public class AdminAuthService {
 
-    private final UsersRepo usersRepo;
+    private final UserRepository userRepo;
     private final JdbcTemplate jdbc;
     private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
     private final SecureRandom rnd = new SecureRandom();
 
-    public AdminAuthService(UsersRepo usersRepo, JdbcTemplate jdbc) {
-        this.usersRepo = usersRepo;
+    public AdminAuthService(UserRepository userRepo, JdbcTemplate jdbc) {
+        this.userRepo = userRepo;
         this.jdbc = jdbc;
     }
 
     public Optional<String> login(String email, String rawPassword) {
-        var userOpt = usersRepo.findByEmail(email);
+        var userOpt = userRepo.findByEmail(email);
         if (userOpt.isEmpty()) return Optional.empty();
 
         var u = userOpt.get();
 
         // only admin
-        if (u.role() == null || !"admin".equalsIgnoreCase(u.role())) return Optional.empty();
+        if (u.getRole() == null || !"admin".equalsIgnoreCase(String.valueOf(u.getRole()))) return Optional.empty();
 
         // password must be not null
-        if (u.passwordHash() == null) return Optional.empty();
+        if (u.getPassword() == null) return Optional.empty();
 
         // BCrypt check
-        if (!encoder.matches(rawPassword, u.passwordHash())) return Optional.empty();
+        if (!encoder.matches(rawPassword, u.getPassword())) return Optional.empty();
 
         String token = generateToken();
         jdbc.update(
                 "insert into ADMIN_SESSION(TOKEN, USER_ID, CREATED_AT) values (?, ?, ?)",
-                token, u.id(), Timestamp.from(Instant.now())
+                token, u.getId(), Timestamp.from(Instant.now())
         );
         return Optional.of(token);
     }
