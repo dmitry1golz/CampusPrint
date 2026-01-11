@@ -1,11 +1,10 @@
 package thl.campusprint.models;
 
 import jakarta.persistence.*;
+import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.UpdateTimestamp;
-
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "bookings")
@@ -22,7 +21,7 @@ public class Booking {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "print_job", nullable = false)
     private PrintJob printJob;
 
@@ -42,9 +41,7 @@ public class Booking {
     @Column(name = "admin_message", length = 300)
     private String adminMessage;
 
-    /**
-     * The admin who last modified this booking.
-     */
+    /** The admin who last modified this booking. */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "lastModifiedBy")
     private User lastModifiedBy;
@@ -52,5 +49,4 @@ public class Booking {
     @UpdateTimestamp
     @Column(name = "last_modified")
     private LocalDateTime lastModified;
-
 }

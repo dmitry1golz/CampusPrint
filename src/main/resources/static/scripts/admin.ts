@@ -1,14 +1,11 @@
-import {PrintBooking} from './models/buchung.js';
-import {Geraet, GeraeteTyp, LaserOptions, PaperOptions, ThreeDOptions} from './models/geraet.js';
-import {getAllBookings, updateBookingStatus} from './services/buchung-service.js';
-import {addGeraet, deleteGeraet, getAllGeraete, updateGeraetStatus} from './services/geraet-service.js';
-import { requireAuth, logout } from "./services/auth-service.js";
+import { Booking, SelectedFdmOptions, SelectedLaserOptions, SelectedPaperOptions, SelectedSlaOptions } from './models/booking.js';
+import { Device, LaserOptions, PaperOptions, DeviceTyp, FdmOptions, SlaOptions, LaserPreset, FdmMaterial, SlaMaterial } from './models/device.js';
+import { getAllBookings, updateBookingStatus } from './services/bookingService.js';
+import { getAllDevices, addDevice, deleteDevice, updateDeviceStatus } from './services/deviceService.js';
+import { requireAuth, logout } from './services/authService.js';
 
-declare global {
-    interface Window {
-        lucide: { createIcons: () => void; };
-    }
-}
+declare global { interface Window { lucide: { createIcons: () => void; }; } }
+
 document.addEventListener('DOMContentLoaded', async () => {
     await requireAuth();
 
@@ -19,150 +16,482 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
 
-    document.addEventListener('DOMContentLoaded', () => {
+    // --- STATE ---
+    let editingDeviceId: string | null = null;
+    let currentRejectId: string | null = null;
+    
+    // Temporäre Speicher für die Listen
+    let tempFdmMaterials: FdmMaterial[] = [];
+    let tempSlaMaterials: SlaMaterial[] = [];
+    let tempLaserPresets: LaserPreset[] = [];
+    let tempPaperFormats: string[] = [];
 
-        let currentRejectId: string | null = null;
-        let editingDeviceId: number | null = null; // ID ist jetzt number!
+    // --- DOM HELPER ---
+    const getIn = (id: string) => document.getElementById(id) as HTMLInputElement;
+    const getSel = (id: string) => document.getElementById(id) as HTMLSelectElement;
+    const getArea = (id: string) => document.getElementById(id) as HTMLTextAreaElement;
+    const getDiv = (id: string) => document.getElementById(id) as HTMLDivElement;
 
-        // Cache für Options, damit beim Editieren keine Arrays verloren gehen
-        let currentEditOptionsCache: any = null;
+    const containers = {
+        equipment: getDiv('equipment-list'),
+        pending: getDiv('pending-list'),
+        active: getDiv('active-list'),
+        completed: getDiv('completed-list')
+    };
 
-        // Helper
-        const getInput = (id: string) => document.getElementById(id) as HTMLInputElement;
-        const getSelect = (id: string) => document.getElementById(id) as HTMLSelectElement;
-        const getTextArea = (id: string) => document.getElementById(id) as HTMLTextAreaElement;
-        const getDiv = (id: string) => document.getElementById(id) as HTMLDivElement;
+    const forms = {
+        add: getDiv('add-equipment-form'),
+        title: document.querySelector('#add-equipment-form h3') as HTMLHeadingElement,
+        type: getSel('eq-type'),
+        dimX: getIn('eq-dim-x'), dimY: getIn('eq-dim-y'), dimZ: getIn('eq-dim-z'),
+        
+        // Gruppen
+        group: getDiv('group-dim'),
+        groupX: getDiv('group-dim-x'),
+        groupY: getDiv('group-dim-y'),
+        groupZ: getDiv('group-dim-z'),
+        groupFdmMaterials: getDiv('group-materials-fdm'),
+        groupSlaMaterials: getDiv('group-materials-sla'),
+        groupLaser: getDiv('group-laser-presets'),
+        groupPaper: getDiv('group-paper-config'),
 
-        const containers = {
-            pending: getDiv('pending-list'),
-            active: getDiv('active-list'),
-            completed: getDiv('completed-list'),
-            equipment: getDiv('equipment-list')
-        };
+        // Listen-Container
+        listMatFdm: getDiv('fdm-material-list'),
+        listMatSla: getDiv('sla-material-list'),
+        listLas: getDiv('laser-list'),
+        listPap: getDiv('paper-list')
+    };
 
-        const forms = {
-            add: getDiv('add-equipment-form'),
-            formTitle: document.querySelector('#add-equipment-form h3') as HTMLHeadingElement,
-            typeSelect: getSelect('eq-type'),
-            dimX: getInput('eq-dim-x'),
-            dimY: getInput('eq-dim-y'),
-            dimZ: getInput('eq-dim-z'),
-            groupZ: getDiv('group-dim-z')
-        };
+    // Inputs für Hinzufügen
+    const inpFdmMat = { name: getIn('fdm-mat-name'), nozzle: getIn('fdm-mat-nozzle'), bed: getIn('fdm-mat-bed'), color: getIn('fdm-mat-color'), btn: document.getElementById('btn-add-fdm-material') };
+    const inpSlaMat = { name: getIn('sla-mat-name'), color: getIn('sla-mat-color'), btn: document.getElementById('btn-add-sla-material') };
+    const inpLas = { mat: getIn('las-mat'), thick: getIn('las-thick'), power: getIn('las-power'), speed: getIn('las-speed'), btn: document.getElementById('btn-add-laser') };
+    const inpPap = { fmt: getIn('pap-format'), btn: document.getElementById('btn-add-paper') };
 
-        const modal = {
-            element: getDiv('reject-modal'),
-            reasonInput: getTextArea('reject-reason')
-        };
+    // Modal
+    const modal = {
+        element: getDiv('reject-modal'),
+        reasonInput: getArea('reject-reason'),
+        btnConfirm: document.getElementById('btn-confirm-reject'),
+        btnCancel: document.getElementById('btn-cancel-reject')
+    };
 
-        init();
-
-        function init() {
-            setupTabs();
-            setupEventListeners();
-            renderAll();
-            handleTypeChange();
-        }
-
-        async function renderAll() {
-            const bookings = getAllBookings();
-            const equipment = await getAllGeraete();
-
+    async function renderAll() {
+        try {
+            const bookings = await getAllBookings();
+            const equipment = await getAllDevices();
+            
             renderBookingList('pending', bookings, containers.pending);
             renderBookingList('active', bookings, containers.active);
             renderBookingList('completed', bookings, containers.completed);
+            
             renderEquipmentList(equipment);
-
+            
             updateCounts(bookings, equipment);
+            
             if (window.lucide) window.lucide.createIcons();
+        } catch(e) { 
+            console.error("Fehler beim Laden:", e); 
+        }
+    }
+
+    // --- RENDER LISTEN HELPER ---
+
+    function renderFdmMaterialList() {
+        forms.listMatFdm.innerHTML = '';
+        
+        if (tempFdmMaterials.length === 0) {
+            forms.listMatFdm.innerHTML = '<div class="text-muted text-sm text-center">Keine Materialien.</div>';
+            return;
         }
 
-        // --- BUCHUNGEN (bleibt weitgehend gleich) ---
-        function renderBookingList(viewType: string, allBookings: PrintBooking[], container: HTMLDivElement) {
-            if (!container) return;
-            container.innerHTML = '';
+        tempFdmMaterials.forEach((m, i) => {
+            const tempInfo = `<span class="text-muted">(${m.temp_nozzle}°C / ${m.temp_bed}°C)</span>`;
+            const row = document.createElement('div');
+            row.className = 'item-row';
+            row.innerHTML = `
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <div style="width:12px; height:12px; background:${m.color_hex}; border-radius:50%; border:1px solid #ccc;"></div>
+                    <strong>${m.name}</strong> ${tempInfo}
+                </div>
+                <button class="btn-del text-danger" style="background:none; border:none; cursor:pointer;" data-idx="${i}" data-type="fdm">✕</button>
+            `;
+            forms.listMatFdm.appendChild(row);
+        });
+    }
 
-            let filtered: PrintBooking[] = [];
-            if (viewType === 'pending') filtered = allBookings.filter(b => b.status === 'pending');
-            else if (viewType === 'active') filtered = allBookings.filter(b => ['confirmed', 'running'].includes(b.status));
-            else if (viewType === 'completed') filtered = allBookings.filter(b => ['completed', 'rejected'].includes(b.status));
+    function renderSlaMaterialList() {
+        forms.listMatSla.innerHTML = '';
+        
+        if (tempSlaMaterials.length === 0) {
+            forms.listMatSla.innerHTML = '<div class="text-muted text-sm text-center">Keine Materialien.</div>';
+            return;
+        }
 
-            const emptyMsg = document.getElementById(`${viewType}-empty`);
-            if (filtered.length === 0) {
-                emptyMsg?.classList.remove('hidden');
-            } else {
-                emptyMsg?.classList.add('hidden');
-                filtered.forEach(b => {
-                    const card = document.createElement('div');
-                    card.className = 'card';
-                    // ... (HTML Aufbau Buchungen - hier keine Änderungen nötig) ...
-                    // Um Platz zu sparen, habe ich den Buchungs-HTML Teil gekürzt,
-                    // da er sich nicht geändert hat. Falls du ihn brauchst, sag Bescheid.
-                    // Er ist identisch zu deiner vorherigen Version.
+        tempSlaMaterials.forEach((m, i) => {
+            const row = document.createElement('div');
+            row.className = 'item-row';
+            row.innerHTML = `
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <div style="width:12px; height:12px; background:${m.color_hex}; border-radius:50%; border:1px solid #ccc;"></div>
+                    <strong>${m.name}</strong>
+                </div>
+                <button class="btn-del text-danger" style="background:none; border:none; cursor:pointer;" data-idx="${i}" data-type="sla">✕</button>
+            `;
+            forms.listMatSla.appendChild(row);
+        });
+    }
 
-                    let actionsHtml = '';
-                    if (b.status === 'pending') {
-                        actionsHtml = `
-                        <button class="btn btn-primary action-btn" data-action="confirm" data-id="${b.id}"><i data-lucide="check"></i></button>
-                        <button class="btn btn-danger action-btn" data-action="reject" data-id="${b.id}"><i data-lucide="x"></i></button>
-                    `;
-                    } else if (b.status === 'confirmed') {
-                        actionsHtml = `<button class="btn btn-primary action-btn w-full" data-action="run" data-id="${b.id}">Starten</button>`;
-                    } else if (b.status === 'running') {
-                        actionsHtml = `<button class="btn btn-primary action-btn w-full" data-action="complete" data-id="${b.id}">Abschließen</button>`;
-                    }
+    function renderLaserList() {
+        forms.listLas.innerHTML = '';
+        if (tempLaserPresets.length === 0) {
+            forms.listLas.innerHTML = '<div class="text-muted text-sm text-center">Keine Presets.</div>';
+            return;
+        }
+        tempLaserPresets.forEach((p, i) => {
+            const row = document.createElement('div');
+            row.className = 'item-row';
+            row.innerHTML = `
+                <div><strong>${p.material}</strong> (${p.thickness}mm) - P:${p.power}% S:${p.speed}%</div>
+                <button class="btn-del text-danger" style="background:none; border:none; cursor:pointer;" data-idx="${i}" data-type="las">✕</button>
+            `;
+            forms.listLas.appendChild(row);
+        });
+    }
 
-                    card.innerHTML = `
-                   <div class="card-header"><h3 class="card-title">${b.printerName}</h3><span class="badge ${b.status}">${b.status}</span></div>
-                   <div class="card-body"><p class="text-sm">${b.startDate}</p></div>
-                   <div class="card-actions">${actionsHtml}</div>
-                `;
-                    container.appendChild(card);
-                });
+    function renderPaperList() {
+        forms.listPap.innerHTML = '';
+        if (tempPaperFormats.length === 0) {
+            forms.listPap.innerHTML = '<div class="text-muted text-sm text-center">Keine Formate.</div>';
+            return;
+        }
+        tempPaperFormats.forEach((f, i) => {
+            const row = document.createElement('div');
+            row.className = 'item-row';
+            row.innerHTML = `
+                <strong>${f}</strong>
+                <button class="btn-del text-danger" style="background:none; border:none; cursor:pointer;" data-idx="${i}" data-type="pap">✕</button>
+            `;
+            forms.listPap.appendChild(row);
+        });
+    }
+
+    // Globale Delete Listener für alle Listen
+    document.addEventListener('click', (e) => {
+        const target = e.target as HTMLElement;
+        if (target.classList.contains('btn-del')) {
+            const idx = parseInt(target.dataset.idx || '0');
+            const type = target.dataset.type;
+            if (type === 'fdm') { tempFdmMaterials.splice(idx, 1); renderFdmMaterialList(); }
+            if (type === 'sla') { tempSlaMaterials.splice(idx, 1); renderSlaMaterialList(); }
+            if (type === 'las') { tempLaserPresets.splice(idx, 1); renderLaserList(); }
+            if (type === 'pap') { tempPaperFormats.splice(idx, 1); renderPaperList(); }
+        }
+    });
+
+    // --- FORM LOGIC ---
+
+    function handleTypeChange() {
+        if(!forms.type) return;
+        const t = forms.type.value;
+        const isFDM = t === 'FDM_Printer';
+        const isSLA = t === 'SLA_Printer';
+        const isLaser = t === 'Laser_Cutter';
+        const isPaper = t === 'Printer';
+
+        // Sichtbarkeit der Hauptgruppen
+        if(forms.group) forms.group.classList.toggle('hidden', isPaper);
+        if(forms.groupX) forms.groupX.classList.toggle('hidden', isPaper);
+        if(forms.groupY) forms.groupY.classList.toggle('hidden', isPaper);
+        if(forms.groupZ) forms.groupZ.classList.toggle('hidden', !isFDM && !isSLA);
+        if(forms.groupFdmMaterials) forms.groupFdmMaterials.classList.toggle('hidden', !isFDM);
+        if(forms.groupSlaMaterials) forms.groupSlaMaterials.classList.toggle('hidden', !isSLA);
+        if(forms.groupLaser) forms.groupLaser.classList.toggle('hidden', !isLaser);
+        if(forms.groupPaper) forms.groupPaper.classList.toggle('hidden', !isPaper);
+
+        // Spezial: Temperatur-Inputs bei SLA ausblenden
+        document.querySelectorAll('.temp-input').forEach(el => {
+            (el as HTMLElement).style.display = isSLA ? 'none' : 'block';
+        });
+        
+        // Listen neu zeichnen (um UI Glitches zu vermeiden)
+        if(isFDM) renderFdmMaterialList();
+        if(isSLA) renderSlaMaterialList();
+        if(isLaser) renderLaserList();
+        if(isPaper) renderPaperList();
+    }
+
+    async function handleSave() {
+        const name = getIn('eq-name').value;
+        const model = getIn('eq-model').value;
+        const type = forms.type.value as DeviceTyp;
+        const desc = getArea('eq-desc').value;
+        
+        if (!name || !desc) { alert('Name & Beschreibung fehlen.'); return; }
+
+        const all = await getAllDevices();
+        const old = editingDeviceId ? all.find(g => g.id === editingDeviceId) : null;
+        const oldStatus = old ? old.status : 'Available';
+
+        const base = {
+            id: editingDeviceId || '',
+            name, type, description: desc, status: oldStatus, 
+            image: getIn('eq-image').value, model: model || ''
+        };
+
+        const x = Number(forms.dimX.value)||0; 
+        const y = Number(forms.dimY.value)||0; 
+        const z = Number(forms.dimZ.value)||0;
+        let final: Device;
+
+        if (type === 'FDM_Printer') {
+            const opts: FdmOptions = {
+                tech_type: 'FDM',
+                work_area: {x,y,z},
+                available_materials: tempFdmMaterials, 
+                supported_layer_heights: [0.1, 0.2],
+                nozzle_sizes: [0.4]
+            };
+            final = { ...base, type, print_options: opts } as Device;
+        } else if (type === 'SLA_Printer') {
+            const opts: SlaOptions = {
+                tech_type: 'SLA',
+                work_area: {x,y,z},
+                available_materials: tempSlaMaterials, 
+                supported_layer_heights: [0.05]
+            };
+            final = { ...base, type, print_options: opts } as Device;
+        } else if (type === 'Laser_Cutter') {
+            const opts: LaserOptions = {
+                tech_type: 'LASER',
+                work_area: {x,y},
+                presets: tempLaserPresets
+            };
+            final = { ...base, type, print_options: opts } as Device;
+        } else {
+            const opts: PaperOptions = {
+                tech_type: 'PAPER',
+                paper_weights: [80], 
+                formats: tempPaperFormats
+            };
+            final = { ...base, type: 'Printer', print_options: opts } as Device;
+        }
+
+        await addDevice(final);
+        closeForm();
+        renderAll();
+    }
+
+    async function openEdit(idStr: string) {
+        const all = await getAllDevices();
+        const dev = all.find(g => g.id === idStr);
+        if(!dev) return;
+
+        editingDeviceId = idStr;
+        forms.title.textContent = 'Gerät bearbeiten';
+        
+        // Basisdaten
+        getIn('eq-name').value = dev.name;
+        getIn('eq-model').value = dev.model || '';
+        forms.type.value = dev.type;
+        getArea('eq-desc').value = dev.description;
+        getIn('eq-image').value = dev.image;
+
+        // Reset Listen
+        tempFdmMaterials = [];
+        tempSlaMaterials = [];
+        tempLaserPresets = [];
+        tempPaperFormats = [];
+
+        // Optionen laden
+        if (dev.print_options) {
+            const opts = dev.print_options;
+            switch (opts.tech_type) {
+                case "FDM":
+                case "SLA":
+                    forms.dimX.value = opts.work_area.x.toString();
+                    forms.dimY.value = opts.work_area.y.toString();
+                    forms.dimZ.value = opts.work_area.z.toString();
+                    break;
+                case "LASER":
+                    forms.dimX.value = opts.work_area.x.toString();
+                    forms.dimY.value = opts.work_area.y.toString();
+                    forms.dimZ.value = '';
+                    break;
+                case "PAPER":
+                    break;
+            } 
+
+            // Spezifische Listen laden
+            if (dev.type === 'FDM_Printer') {
+                const o = opts as FdmOptions;
+                if(o.available_materials) tempFdmMaterials = [...o.available_materials];
+            } else if (dev.type === 'SLA_Printer' ) {
+                const o = opts as SlaOptions;
+                if(o.available_materials) tempSlaMaterials = [...o.available_materials];
+            } else if (dev.type === 'Laser_Cutter') {
+                const o = opts as LaserOptions;
+                if(o.presets) tempLaserPresets = [...o.presets];
+            } else if (dev.type === 'Printer') {
+                const o = opts as PaperOptions;
+                if(o.formats) tempPaperFormats = [...o.formats];
             }
         }
 
-        // --- GERÄTE LISTE (angepasst an neue Typen) ---
-        function renderEquipmentList(equipment: Geraet[]) {
-            if (!containers.equipment) return;
-            containers.equipment.innerHTML = '';
+        handleTypeChange();
+        renderFdmMaterialList();
+        renderSlaMaterialList();
+        renderLaserList();
+        renderPaperList();
+        
+        forms.add.classList.remove('hidden');
+        forms.add.scrollIntoView({behavior:'smooth'});
+    }
 
-            equipment.forEach(eq => {
-                const card = document.createElement('div');
-                card.className = 'card';
+    function closeForm() {
+        forms.add.classList.add('hidden');
+        editingDeviceId = null;
+        getIn('eq-name').value = '';
+        getIn('eq-model').value = '';
+        getArea('eq-desc').value = '';
+        getIn('eq-image').value = '';
+        forms.dimX.value=''; forms.dimY.value=''; forms.dimZ.value='';
+    }
 
-                // Status-Toggle Button Logik
-                let statusBtn = '';
-                if (eq.status === 'Available') {
-                    statusBtn = `<button class="btn btn-secondary btn-sm action-btn" data-action="unavailable" data-id="${eq.id}">Wartung</button>`;
-                } else if (eq.status === 'Unavailable') {
-                    statusBtn = `<button class="btn btn-primary btn-sm action-btn" data-action="available" data-id="${eq.id}">Aktivieren</button>`;
-                } else {
-                    statusBtn = `<span class="text-muted text-sm">Status: ${eq.status}</span>`;
-                }
+    // --- EVENT LISTENERS ---
+    function setupEventListeners() {
+        // Global Actions
+        document.addEventListener('click', async (e) => {
+            const btn = (e.target as HTMLElement).closest('.action-btn') as HTMLElement;
+            if (!btn) return;
+            const { action, id } = btn.dataset;
+            if(!id) return;
 
-                // Info String basierend auf Typ
-                let infoString = '';
-                if (eq.type === 'FDM_Printer' || eq.type === 'SLA_Printer') {
-                    const opts = eq.print_options as ThreeDOptions;
-                    infoString = `Bauraum: ${opts.dimensions.x}x${opts.dimensions.y}x${opts.dimensions.z}mm`;
-                } else if (eq.type === 'Laser_Cutter' || eq.type === 'CNC_Mill') {
-                    const opts = eq.print_options as LaserOptions;
-                    infoString = `Fläche: ${opts.work_area.x}x${opts.work_area.y}mm`;
-                } else if (eq.type === 'Printer') {
-                    const opts = eq.print_options as PaperOptions;
-                    infoString = `Formate: ${opts.formats.join(', ')}`;
-                }
+            if (action === 'edit-device') openEdit(id);
+            if (action === 'delete-device') if(confirm('Löschen?')) { await deleteDevice(id); renderAll(); }
+            if (action === 'set-unavailable') { await updateDeviceStatus(id, 'Unavailable'); renderAll(); }
+            if (action === 'set-available') { await updateDeviceStatus(id, 'Available'); renderAll(); }
+            
+            // Buchungs Actions
+            if (action === 'confirm') { await updateBookingStatus(id, 'confirmed'); renderAll(); }
+            if (action === 'run') { await updateBookingStatus(id, 'running'); renderAll(); }
+            if (action === 'complete') { await updateBookingStatus(id, 'completed'); renderAll(); }
+            if (action === 'reject') { 
+                currentRejectId = id; 
+                if(modal.element) modal.element.classList.remove('hidden'); 
+            }
+        });
 
-                card.innerHTML = `
-                <div class="card-header">
-                    <h3 class="card-title">${eq.name}</h3>
-                    <span class="badge ${eq.status === 'Available' ? 'confirmed' : 'pending'}">${translateStatus(eq.status)}</span>
-                </div>
+        // Add Material FDM
+        inpFdmMat.btn?.addEventListener('click', () => {
+            if(inpFdmMat.name.value) {
+                tempFdmMaterials.push({
+                    name: inpFdmMat.name.value,
+                    temp_nozzle: Number(inpFdmMat.nozzle.value)||0,
+                    temp_bed: Number(inpFdmMat.bed.value)||0,
+                    color_hex: inpFdmMat.color.value
+                });
+                renderFdmMaterialList();
+                inpFdmMat.name.value=''; inpFdmMat.nozzle.value=''; inpFdmMat.bed.value='';
+            }
+        });
+
+        // Add Material SLA
+        inpSlaMat.btn?.addEventListener('click', () => {
+            if(inpSlaMat.name.value) {
+                tempSlaMaterials.push({
+                    name: inpSlaMat.name.value,
+                    color_hex: inpSlaMat.color.value
+                });
+                renderSlaMaterialList();
+                inpSlaMat.name.value='';
+            }
+        });
+
+        // Add Laser Preset
+        inpLas.btn?.addEventListener('click', () => {
+            if(inpLas.mat.value) {
+                tempLaserPresets.push({
+                    material: inpLas.mat.value,
+                    thickness: Number(inpLas.thick.value)||0,
+                    power: Number(inpLas.power.value)||0,
+                    speed: Number(inpLas.speed.value)||0
+                });
+                renderLaserList();
+                inpLas.mat.value=''; inpLas.thick.value='';
+            }
+        });
+
+        // Add Paper Format
+        inpPap.btn?.addEventListener('click', () => {
+            if(inpPap.fmt.value) {
+                tempPaperFormats.push(inpPap.fmt.value);
+                renderPaperList();
+                inpPap.fmt.value = '';
+            }
+        });
+
+        // Save / Cancel / Show Add
+        document.getElementById('btn-save-equipment')?.addEventListener('click', handleSave);
+        document.getElementById('btn-cancel-equipment')?.addEventListener('click', closeForm);
+        forms.type?.addEventListener('change', handleTypeChange);
+        
+        document.getElementById('btn-show-add-equipment')?.addEventListener('click', () => {
+            closeForm(); // Reset
+            forms.title.textContent = 'Neues Gerät';
+            tempFdmMaterials=[];
+            tempSlaMaterials=[];
+            tempLaserPresets=[];
+            tempPaperFormats=[];
+            renderFdmMaterialList(); renderLaserList(); renderPaperList();
+            forms.add.classList.remove('hidden');
+            handleTypeChange();
+        });
+
+        // Reject Modal
+        modal.btnCancel?.addEventListener('click', () => modal.element.classList.add('hidden'));
+        modal.btnConfirm?.addEventListener('click', async () => {
+            if (currentRejectId && modal.reasonInput.value) {
+                await updateBookingStatus(currentRejectId, 'rejected', modal.reasonInput.value);
+                modal.element.classList.add('hidden');
+                modal.reasonInput.value = '';
+                currentRejectId = null;
+                renderAll();
+            }
+        });
+    }
+
+    // --- OTHER HELPERS (WICHTIG: NICHT MEHR LEER LASSEN) ---
+    
+    function renderEquipmentList(equipment: Device[]) {
+        if (!containers.equipment) return;
+        containers.equipment.innerHTML = '';
+        equipment.forEach(eq => {
+            const card = document.createElement('div');
+            card.className = 'card';
+            const statusBtn = eq.status === 'Available' 
+                ? `<button class="btn btn-secondary btn-sm action-btn" data-action="set-unavailable" data-id="${eq.id}">Deaktivieren</button>` 
+                : `<button class="btn btn-primary btn-sm action-btn" data-action="set-available" data-id="${eq.id}">Aktivieren</button>`;
+
+            let info = 'Keine Details';
+            if (eq.print_options) {
+                // Defensive Prüfung, da Backend-Daten theoretisch fehlen könnten
+                if((eq.type === 'FDM_Printer') && 'available_materials' in eq.print_options) 
+                    info = `${(eq.print_options as FdmOptions).available_materials?.length || 0} Filamente`;
+                else if((eq.type === 'SLA_Printer') && 'available_materials' in eq.print_options) 
+                    info = `${(eq.print_options as SlaOptions).available_materials?.length || 0} Harze`;
+                else if((eq.type === 'Laser_Cutter') && 'presets' in eq.print_options) 
+                    info = `${(eq.print_options as LaserOptions).presets?.length || 0} Presets`;
+                else if((eq.type === 'Printer') && 'formats' in eq.print_options) 
+                    info = `${(eq.print_options as PaperOptions).formats?.join(', ')}`;
+            }
+
+            card.innerHTML = `
+                <div class="card-header"><h3 class="card-title">${eq.name}</h3><span class="badge ${eq.status==='Available'?'confirmed':'pending'}">${eq.status === 'Available' ? 'Verfügbar' : 'Nicht Verfügbar'}</span></div>
                 <div class="card-body">
                     ${eq.image ? `<img src="${eq.image}" style="width:100%; height:100px; object-fit:cover; margin-bottom:8px;">` : ''}
-                    <p class="text-sm"><strong>Typ:</strong> ${eq.type}</p>
-                    <p class="text-sm text-muted">${infoString}</p>
+                    <p>Typ: ${eq.type}</p>
+                    <p class="text-muted text-sm">${info}</p>
                 </div>
                 <div class="card-actions">
                     <button class="btn btn-secondary btn-sm action-btn" data-action="edit-device" data-id="${eq.id}">Edit</button>
@@ -170,238 +499,142 @@ document.addEventListener('DOMContentLoaded', async () => {
                     <button class="btn btn-danger btn-sm action-btn" data-action="delete-device" data-id="${eq.id}"><i data-lucide="trash-2"></i></button>
                 </div>
             `;
-                containers.equipment.appendChild(card);
-            });
-        }
+            containers.equipment.appendChild(card);
+        });
+    }
 
-        function handleTypeChange() {
-            if (!forms.typeSelect) return;
-            const type = forms.typeSelect.value;
-            // WICHTIG: Hier müssen die values im HTML Select mit den englischen Typen übereinstimmen!
-            // <option value="FDM_Printer">...
+    function renderBookingList(viewType: string, allBookings: Booking[], container: HTMLDivElement) {
+        if (!container) return;
+        container.innerHTML = '';
+        
+        let filtered: Booking[] = [];
+        if (viewType === 'pending') filtered = allBookings.filter(b => b.status === 'pending');
+        else if (viewType === 'active') filtered = allBookings.filter(b => ['confirmed', 'running'].includes(b.status));
+        else if (viewType === 'completed') filtered = allBookings.filter(b => ['completed', 'rejected'].includes(b.status));
 
-            const is3D = (type === 'FDM_Printer' || type === 'SLA_Printer');
+        const emptyMsg = document.getElementById(`${viewType}-empty`);
+        if (filtered.length === 0) {
+            emptyMsg?.classList.remove('hidden');
+        } else {
+            emptyMsg?.classList.add('hidden');
+            filtered.forEach(b => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                
+                let actionsHtml = '';
+                if (b.status === 'pending') {
+                    actionsHtml = `
+                        <button class="btn btn-primary action-btn" data-action="confirm" data-id="${b.id}"><i data-lucide="check"></i></button>
+                        <button class="btn btn-danger action-btn" data-action="reject" data-id="${b.id}"><i data-lucide="x"></i></button>
+                    `;
+                } else if (b.status === 'confirmed') actionsHtml = `<button class="btn btn-primary action-btn w-full" data-action="run" data-id="${b.id}">Starten</button>`;
+                else if (b.status === 'running') actionsHtml = `<button class="btn btn-primary action-btn w-full" data-action="complete" data-id="${b.id}">Abschließen</button>`;
 
-            if (forms.groupZ) {
-                if (is3D) forms.groupZ.classList.remove('hidden');
-                else forms.groupZ.classList.add('hidden');
-            }
-        }
+                    let userEmailHTML = `<p class="text-sm"><strong>E-Mail:</strong> ${b.email}</p>`;
+                    let startDateInfoHTML = b.startDate ? `<p class="text-sm"><strong>Start:</strong> ${new Date(b.startDate).toLocaleDateString()}</p>` : '';
+                    let endDateInfoHTML = b.endDate ? `<p class="text-sm"><strong>Ende:</strong> ${new Date(b.endDate).toLocaleDateString()}</p>` : '';
+                    let noteInfoHTML = b.notes ? `<p class="text-sm"><strong>Notiz:</strong> ${b.notes}</p>` : '';
+                    let deviceHTML = `<p class="text-sm"><strong>Gerät:</strong> ${b.deviveName ? b.deviveName : 'Gelöscht'}</p>`;
+                    let filePathHTML = b.filePath ? `<p class="text-sm"><strong>Pfad:</strong> ${b.filePath}/</p>` : '';
 
-        async function openEditForm(idStr: string) {
-            const id = parseInt(idStr); // String ID zu Number konvertieren
-            const all = await getAllGeraete();
-            const device = all.find(g => g.id === id);
-            if (!device) return;
+                    let adminEmailHTML = b.lastModifiedBy ? `<p class="text-sm"><strong>Admin:</strong> ${b.lastModifiedBy}</p>` : '';
+                    let lastModifiedAtHTML = b.lastModifiedAt ? `<p class="text-sm"><strong>Letzte Änderung:</strong> ${new Date(b.lastModifiedAt).toLocaleString()}</p>` : '';
+                    let adminMsgInfoHTML = b.message ? `<p class="text-sm"><strong class="text-danger">Grund:</strong> ${b.message}</p>` : '';
 
-            editingDeviceId = id;
-            currentEditOptionsCache = device.print_options;
 
-            if (forms.formTitle) forms.formTitle.textContent = 'Gerät bearbeiten';
-            getInput('eq-name').value = device.name;
-
-            // Typ setzen (muss im HTML Select exakt so vorhanden sein)
-            if (forms.typeSelect) forms.typeSelect.value = device.type;
-
-            getTextArea('eq-desc').value = device.description;
-            getInput('eq-image').value = device.image || '';
-
-            // Werte in Inputs füllen
-            if (device.type === 'FDM_Printer' || device.type === 'SLA_Printer') {
-                const opts = device.print_options as ThreeDOptions;
-                forms.dimX.value = opts.dimensions.x.toString();
-                forms.dimY.value = opts.dimensions.y.toString();
-                forms.dimZ.value = opts.dimensions.z.toString();
-            } else if (device.type === 'Laser_Cutter' || device.type === 'CNC_Mill') {
-                const opts = device.print_options as LaserOptions;
-                forms.dimX.value = opts.work_area.x.toString();
-                forms.dimY.value = opts.work_area.y.toString();
-                forms.dimZ.value = '';
-            }
-
-            handleTypeChange();
-            forms.add.classList.remove('hidden');
-            forms.add.scrollIntoView({behavior: 'smooth'});
-        }
-
-        async function handleSaveEquipment() {
-            const name = getInput('eq-name').value;
-            const type = forms.typeSelect.value as GeraeteTyp;
-            const desc = getTextArea('eq-desc').value;
-
-            if (!name || !desc) {
-                alert('Name und Beschreibung fehlen.');
-                return;
-            }
-
-            const all = await getAllGeraete();
-            const existingDevice = editingDeviceId ? all.find(g => g.id === editingDeviceId) : null;
-            const existingStatus = existingDevice ? existingDevice.status : 'Available';
-
-            // Basis-Objekt
-            const deviceBase = {
-                id: editingDeviceId || 0, // 0 für neu (Backend generiert ID)
-                name,
-                type,
-                description: desc,
-                status: existingStatus,
-                image: getInput('eq-image').value,
-            };
-
-            let finalDevice: Geraet;
-
-            // Maße auslesen
-            const x = Number(forms.dimX.value) || 0;
-            const y = Number(forms.dimY.value) || 0;
-            const z = Number(forms.dimZ.value) || 0;
-
-            // Objekt je nach Typ zusammenbauen
-            if (type === 'FDM_Printer' || type === 'SLA_Printer') {
-                const opts: ThreeDOptions = {
-                    dimensions: {x, y, z},
-                    available_materials: currentEditOptionsCache?.available_materials || [],
-                    supported_layer_heights: currentEditOptionsCache?.supported_layer_heights || [0.1, 0.2],
-                    nozzle_sizes: currentEditOptionsCache?.nozzle_sizes || [0.4]
-                };
-                finalDevice = {...deviceBase, type, print_options: opts} as Geraet;
-            } else if (type === 'Laser_Cutter' || type === 'CNC_Mill') {
-                const opts: LaserOptions = {
-                    work_area: {x, y},
-                    presets: currentEditOptionsCache?.presets || []
-                };
-                // @ts-ignore
-                finalDevice = {...deviceBase, type, print_options: opts} as Geraet;
-            } else {
-                // Paper
-                const opts: PaperOptions = {
-                    paper_weights: currentEditOptionsCache?.paper_weights || [],
-                    formats: currentEditOptionsCache?.formats || ['A4', 'A3']
-                };
-                finalDevice = {...deviceBase, type: 'Printer', print_options: opts} as Geraet;
-            }
-
-            // Senden
-            await addGeraet(finalDevice);
-
-            editingDeviceId = null;
-            currentEditOptionsCache = null;
-            forms.add.classList.add('hidden');
-            resetInputs();
-            renderAll(); // Neu laden
-        }
-
-        function setupEventListeners() {
-            // Wir machen die ganze Funktion async
-            document.addEventListener('click', async (e) => {
-                const target = (e.target as HTMLElement).closest('.action-btn') as HTMLElement;
-                if (!target) return;
-                const {action, id} = target.dataset;
-
-                if (!id) return;
-                const numId = parseInt(id); // Für Geraet-Service (number)
-                // id bleibt string für Buchung-Service (da Mocks oft strings nutzen)
-
-                // --- Buchungen ---
-                if (action === 'confirm') {
-                    // await funktioniert auch bei void, löst aber das .then() Problem
-                    await updateBookingStatus(id, 'confirmed');
-                    renderAll();
-                }
-                if (action === 'run') {
-                    await updateBookingStatus(id, 'running');
-                    renderAll();
-                }
-                if (action === 'complete') {
-                    await updateBookingStatus(id, 'completed');
-                    renderAll();
-                }
-
-                // --- Geräte ---
-                if (action === 'unavailable') {
-                    await updateGeraetStatus(numId, 'Unavailable');
-                    renderAll();
-                }
-                if (action === 'available') {
-                    await updateGeraetStatus(numId, 'Available');
-                    renderAll();
-                }
-
-                if (action === 'edit-device') openEditForm(id); // id als String ok, da openEditForm parst
-
-                if (action === 'delete-device') {
-                    if (confirm('Gerät wirklich löschen?')) {
-                        await deleteGeraet(numId);
-                        renderAll();
+                    let settingsHTML = '';
+                    if (b.print_options) {
+                        if (b.print_options.tech_type === 'FDM') {
+                            const opts = b.print_options as SelectedFdmOptions;
+                            settingsHTML = `
+                                <div class="settings-box">
+                                    <p class="text-sm"><strong>Material:</strong> ${opts.selected_material.name}</p>
+                                    <p class="text-sm"><strong>Schichthöhe:</strong> ${opts.selected_layer_height}mm</p>
+                                    <p class="text-sm"><strong>Düse:</strong> ${opts.selected_nozzle_size}mm</p>
+                                    <p class="text-sm"><strong>Füllung:</strong> ${opts.selected_infill_percentage}%</p>
+                                    <p class="text-sm"><strong>Support:</strong> ${opts.selected_support_type}</p>
+                                </div>
+                            `;
+                        } else if (b.print_options.tech_type === 'SLA') {
+                            const opts = b.print_options as SelectedSlaOptions;
+                            settingsHTML = `
+                                <div class="settings-box">
+                                    <p class="text-sm"><strong>Material:</strong> ${opts.selected_material.name}</p>
+                                    <p class="text-sm"><strong>Schichthöhe:</strong> ${opts.selected_layer_height}mm</p>
+                                    <p class="text-sm"><strong>Support:</strong> ${opts.selected_support_type}</p>
+                                </div>
+                            `;
+                        } else if (b.print_options.tech_type === 'LASER') {
+                            const opts = b.print_options as SelectedLaserOptions;
+                            settingsHTML = `
+                                <div class="settings-box">
+                                    <p class="text-sm"><strong>Material:</strong> ${opts.selected_preset.material}</p>
+                                    <p class="text-sm"><strong>Dicke:</strong> ${opts.selected_preset.thickness}mm</p>
+                                    <p class="text-sm"><strong>Leistung:</strong> ${opts.selected_preset.power}%</p>
+                                    <p class="text-sm"><strong>Geschw.:</strong> ${opts.selected_preset.speed}%</p>
+                                </div>
+                            `;
+                        } else if (b.print_options.tech_type === 'PAPER') {
+                            const opts = b.print_options as SelectedPaperOptions;
+                            settingsHTML = `
+                                <div class="settings-box">
+                                    <p class="text-sm"><strong>Format:</strong> ${opts.selected_format}</p>
+                                    <p class="text-sm"><strong>Papiergewicht:</strong> ${opts.selected_paper_weights}g/m²</p>
+                                </div>
+                            `;
+                        }
                     }
-                }
 
-                // Modal Logik
-                if (action === 'reject') {
-                    currentRejectId = id;
-                    modal.element.classList.remove('hidden');
-                }
-            });
-
-            // ... Rest der Listener (btn-show-add, btn-save etc.) bleibt gleich ...
-            document.getElementById('btn-show-add-equipment')?.addEventListener('click', () => {
-                editingDeviceId = null;
-                currentEditOptionsCache = null;
-                if (forms.formTitle) forms.formTitle.textContent = 'Neues Gerät';
-                resetInputs();
-                forms.add.classList.remove('hidden');
-            });
-
-            document.getElementById('btn-cancel-equipment')?.addEventListener('click', () => {
-                forms.add.classList.add('hidden');
-                currentEditOptionsCache = null;
-            });
-            document.getElementById('btn-save-equipment')?.addEventListener('click', handleSaveEquipment);
-            forms.typeSelect.addEventListener('change', handleTypeChange);
-
-            document.getElementById('btn-cancel-reject')?.addEventListener('click', () => modal.element.classList.add('hidden'));
-
-            // Auch hier async machen
-            document.getElementById('btn-confirm-reject')?.addEventListener('click', async () => {
-                if (currentRejectId && modal.reasonInput.value) {
-                    await updateBookingStatus(currentRejectId, 'rejected', modal.reasonInput.value);
-                    modal.element.classList.add('hidden');
-                    modal.reasonInput.value = '';
-                    currentRejectId = null;
-                    renderAll();
-                }
+                    card.innerHTML = `
+                        <div class="card-header"><h3 class="card-title">${b.printerName}</h3><span class="badge ${b.status}">${bookingStatusToString(b.status)}</span></div>
+                        <div class="card-body">
+                            ${userEmailHTML}
+                            ${startDateInfoHTML}
+                            ${endDateInfoHTML}
+                            ${noteInfoHTML}
+                            ${deviceHTML}
+                            ${filePathHTML}
+                            ${settingsHTML}
+                            ${adminEmailHTML}
+                            ${lastModifiedAtHTML}
+                            ${adminMsgInfoHTML}
+                            
+                        </div>
+                        <div class="card-actions">${actionsHtml}</div>
+                    `;
+                container.appendChild(card);
             });
         }
+    }
 
-        // Anzeige-Übersetzer
-        function translateStatus(s: string) {
-            if (s === 'Available') return 'Verfügbar';
-            if (s === 'Unavailable') return 'Wartung';
-            return s;
-        }
+    function updateCounts(b: Booking[], e: Device[]) {
+        const setTxt = (id: string, txt: string) => { const el = document.getElementById(id); if(el) el.textContent = txt; };
+        setTxt('count-pending', `(${b.filter(x => x.status === 'pending').length})`);
+        setTxt('count-active', `(${b.filter(x => ['confirmed', 'running'].includes(x.status)).length})`);
+        setTxt('count-completed', `(${b.filter(x => ['completed', 'rejected'].includes(x.status)).length})`);
+        setTxt('count-equipment', `(${e.length})`);
+    }
 
-        function updateCounts(b: PrintBooking[], e: Geraet[]) {
-            // ... (unverändert) ...
-        }
-
-        function setupTabs() {
-            // ... (unverändert) ...
-            const tabs = document.querySelectorAll('.tab-btn');
-            tabs.forEach(t => t.addEventListener('click', () => {
-                tabs.forEach(x => x.classList.remove('active'));
-                document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
-                t.classList.add('active');
-                const target = (t as HTMLElement).dataset.target;
-                document.getElementById(`tab-${target}`)?.classList.add('active');
-            }));
-        }
-
-        function resetInputs() {
-            getInput('eq-name').value = '';
-            getTextArea('eq-desc').value = '';
-            getInput('eq-image').value = '';
-            forms.dimX.value = '';
-            forms.dimY.value = '';
-            forms.dimZ.value = '';
-        }
-    });
+    function setupTabs() {
+        const tabs = document.querySelectorAll('.tab-btn');
+        tabs.forEach(t => t.addEventListener('click', () => {
+            tabs.forEach(x => x.classList.remove('active'));
+            document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+            t.classList.add('active');
+            const target = (t as HTMLElement).dataset.target;
+            document.getElementById(`tab-${target}`)?.classList.add('active');
+        }));
+    }
 });
+
+
+function bookingStatusToString(status: string): string {
+    switch (status) {
+        case 'pending': return 'Ausstehend';
+        case 'confirmed': return 'Bestätigt';
+        case 'running': return 'In Bearbeitung';
+        case 'completed': return 'Abgeschlossen';
+        case 'rejected': return 'Abgelehnt';
+        default: return status;
+    }
+}

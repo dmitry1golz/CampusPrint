@@ -1,4 +1,4 @@
-import {isAuthenticated, login} from './services/auth-service.js';
+import { login, isAuthenticated } from './services/authService.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
 

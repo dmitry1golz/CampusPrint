@@ -1,11 +1,13 @@
 package thl.campusprint.controllers;
 
+import java.util.List;
+import java.util.UUID;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import thl.campusprint.models.Device;
+import thl.campusprint.models.PrintJob;
 import thl.campusprint.repositories.DeviceRepository;
-
-import java.util.List;
+import thl.campusprint.repositories.PrintJobRepository;
 
 @RestController
 @RequestMapping("/api/devices")
@@ -13,9 +15,12 @@ import java.util.List;
 public class DeviceController {
 
     private final DeviceRepository deviceRepository;
+    private final PrintJobRepository printJobRepository;
 
-    public DeviceController(DeviceRepository deviceRepository) {
+    public DeviceController(
+            DeviceRepository deviceRepository, PrintJobRepository printJobRepository) {
         this.deviceRepository = deviceRepository;
+        this.printJobRepository = printJobRepository;
     }
 
     // 1. Alle Geräte holen
@@ -26,24 +31,34 @@ public class DeviceController {
 
     // 2. Ein einzelnes Gerät holen
     @GetMapping("/{id}")
-    public ResponseEntity<Device> getDeviceById(@PathVariable Integer id) {
-        return deviceRepository.findById(id)
+    public ResponseEntity<Device> getDeviceById(@PathVariable UUID id) {
+        return deviceRepository
+                .findById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
-    
+
     // 3. Gerät erstellen ODER aktualisieren
     // WICHTIG: Es darf nur EINE @PostMapping Methode ohne Pfad geben!
     @PostMapping
     public Device createOrUpdateDevice(@RequestBody Device device) {
+        // TODO Authentifizierung und Autorisierung hinzufügen
         // JPA .save() macht automatisch ein INSERT (wenn ID neu) oder UPDATE (wenn ID existiert)
         return deviceRepository.save(device);
     }
 
     // 4. Gerät löschen
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteDevice(@PathVariable Integer id) {
+    public ResponseEntity<Void> deleteDevice(@PathVariable UUID id) {
+        // TODO Authentifizierung und Autorisierung hinzufügen
+
         if (deviceRepository.existsById(id)) {
+            List<PrintJob> jobs = printJobRepository.findByDeviceId(id);
+            for (PrintJob job : jobs) {
+                job.setDevice(null);
+            }
+            printJobRepository.saveAll(jobs);
+
             deviceRepository.deleteById(id);
             return ResponseEntity.ok().build();
         }

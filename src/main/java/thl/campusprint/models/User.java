@@ -1,11 +1,10 @@
 package thl.campusprint.models;
 
 import jakarta.persistence.*;
+import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.JdbcTypeCode;
-
-import java.util.UUID;
 
 @Entity
 @Table(name = "users")
@@ -15,7 +14,7 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "idusers", updatable = false, nullable = false)
+    @Column(name = "idusers", updatable = false, nullable = false, length = 36)
     @JdbcTypeCode(java.sql.Types.VARCHAR)
     private UUID id;
 

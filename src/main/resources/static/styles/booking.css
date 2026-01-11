@@ -72,8 +72,21 @@
     gap: 1rem;
     margin-bottom: 1rem;
 }
-@media (max-width: 480px) {
+
+@media (width <= 480px) {
     .form-row { flex-direction: column; gap: 0; }
+}
+
+.device-config .form-row > div {
+    flex: 1;
+}
+
+.form-control {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    font-size: 1rem;
 }
 
 .calendar-legend {
@@ -98,5 +111,61 @@
     width: 12px;
     height: 12px;
     border-radius: 3px;
+    display: inline-block;
+}
+
+.custom-select {
+    position: relative;
+    cursor: pointer;
+}
+
+.custom-select-value {
+    padding: 0.75rem;
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.custom-select-value::after {
+    content: '▼';
+    font-size: 0.8rem;
+    margin-left: 0.5rem;
+}
+
+.custom-select-options {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 10;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.custom-select-options li {
+    padding: 0.5rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.custom-select-options li:hover {
+    background: var(--secondary);
+}
+
+.color-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
     display: inline-block;
 }

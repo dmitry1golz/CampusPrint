@@ -1,7 +1,9 @@
 package thl.campusprint.models;
 
 public enum BookingStatus {
-
-    pending, confirmed, rejected, running
-
+    pending,
+    confirmed,
+    completed,
+    rejected,
+    running
 }

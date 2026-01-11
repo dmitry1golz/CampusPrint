@@ -5,25 +5,26 @@
     --primary-hover: #2563eb;
     --secondary: #f3f4f6;
     --bg-body: #f9fafb;
-    --bg-surface: #ffffff;
+    --bg-surface: #fff;
     --border-color: #e5e7eb;
     --text-main: #111827;
     --text-muted: #6b7280;
     
     /* Footer colors */
-    --footer-bg: #ffffff;
+    --footer-bg: #fff;
     --footer-text: #111827;
 
     /* Layout */
     --max-width: 1200px;
     --radius: 8px;
+    --danger: #dc2626;       /* Fehler/rot */
 }
 
 * { box-sizing: border-box; }
 
 body {
     margin: 0;
-    font-family: 'Inter', sans-serif;
+    font-family: Inter, sans-serif;
     background-color: var(--bg-body);
     color: var(--text-main);
     display: flex;
@@ -136,7 +137,7 @@ header .containerHead {
     border: 1px solid var(--border-color);
     border-radius: var(--radius);
     padding: 1.5rem;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    box-shadow: 0 1px 3px rgb(0 0 0 / 10%);
 }
 
 .form-group { margin-bottom: 1rem; display: flex; flex-direction: column; gap: 0.5rem; }
@@ -150,6 +151,7 @@ input, select, textarea {
     font-family: inherit;
     display: block;
 }
+
 textarea {
     resize: vertical;
     min-height: 80px;
@@ -167,11 +169,22 @@ textarea {
 :root {
     --danger: #dc2626;
 }
+
+.btn-primary:disabled {
+    background-color: var(--border-color); /* Hellgrauer Hintergrund (#e5e7eb) */
+    color: var(--text-muted);              /* Graue Schrift (#6b7280) */
+    cursor: not-allowed;                   /* "Verboten"-Mauszeiger */
+    pointer-events: none;                  /* Verhindert Klicks (wichtig für <a> Tags) */
+    box-shadow: none;                      /* Entfernt eventuelle Schatten */
+    opacity: 0.8;                          /* Optional: Lässt es noch inaktiver wirken */
+}
+
 .hidden { display: none !important; }
 .alert { padding: 1rem; border-radius: var(--radius); margin-bottom: 1rem; border: 1px solid transparent; }
 .alert-danger { background: #fee2e2; color: #991b1b; border-color: #fecaca; text-align: center;}
 
 .shake { animation: shake 0.3s; }
+
 @keyframes shake {
     0%, 100% { transform: translateX(0); }
     25% { transform: translateX(-5px); }
@@ -186,6 +199,7 @@ textarea {
 
 .text-muted { color: var(--text-muted); font-size: 0.9rem; }
 .text-sm    { font-size: 0.875rem; }
+.text-danger   { color: var(--danger); }
 
 .mt-1 { margin-top: 0.5rem; }
 .mt-2 { margin-top: 1rem; }

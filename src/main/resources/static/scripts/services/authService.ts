@@ -50,7 +50,7 @@ export async function isAuthenticated(): Promise<boolean> {
 export async function requireAuth(): Promise<void> {
     if (!(await isAuthenticated())) {
         console.warn("Zugriff verweigert. Redirect zum Login.");
-        window.location.href = "admin-login.html";
+        window.location.href = 'adminLogin.html';
     }
 }
 

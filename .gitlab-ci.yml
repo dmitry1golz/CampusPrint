@@ -1,0 +1,100 @@
+stages:
+  - quality
+  - test
+  - build
+
+variables:
+  MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
+
+cache:
+  paths:
+    - .m2/repository
+    - node_modules/
+
+# ====================================================
+# STAGE 1: QUALITY
+# ====================================================
+lint-backend:
+  stage: quality
+  image: maven:3.9.9-eclipse-temurin-21
+  script:
+    - echo "Prüfe Java Code Style mit Spotless..."
+    - mvn spotless:check
+  allow_failure: true
+
+lint-frontend:
+  stage: quality
+  image: node:22
+  script:
+    - echo "Installiere Frontend-Dependencies..."
+    - npm ci --cache .npm --prefer-offline
+    - echo "Führe Linting durch..."
+    - npm run lint:all
+  artifacts:
+    when: always
+    reports:
+      junit:
+        - reports/eslint.xml
+        - reports/stylelint.xml
+      codequality: reports/html.xml
+    paths:
+      - reports/
+  # 'rules' entfernt -> läuft jetzt immer
+  allow_failure: true
+
+# ====================================================
+# STAGE 2: TESTS
+# ====================================================
+database-integration-tests:
+  stage: test
+  image: maven:3.9.9-eclipse-temurin-21
+  dependencies: []
+  services:
+    - name: docker:27.4.1-dind
+      alias: docker
+      command: ["--tls=false"]
+  variables:
+    DOCKER_HOST: "tcp://docker:2375"
+    DOCKER_TLS_CERTDIR: ""
+    DOCKER_DRIVER: overlay2
+  script:
+    - echo "Warte auf Docker Daemon..."
+    - sleep 15
+    - echo "Starte Integrationstests..."
+    - mvn test -Dtest=CampusPrintDatabaseTests
+  artifacts:
+    when: always
+    reports:
+      junit: target/surefire-reports/*.xml
+    paths:
+      - target/surefire-reports/
+
+controller-tests:
+  stage: test
+  image: maven:3.9.9-eclipse-temurin-21
+  dependencies: []
+  script:
+    - echo "Führe schnelle Unit-Tests aus..."
+    - mvn test -Dtest=DeviceControllerTest
+  artifacts:
+    when: always
+    reports:
+      junit: target/surefire-reports/*.xml
+    expire_in: 1 week
+    paths:
+      - target/surefire-reports/
+
+# ====================================================
+# STAGE 3: BUILD
+# ====================================================
+build-jar:
+  stage: build
+  image: maven:3.9.9-eclipse-temurin-21
+  needs: ["lint-backend", "lint-frontend"]
+  script:
+    - echo "Baue die Anwendung..."
+    - mvn package -DskipTests
+  artifacts:
+    paths:
+      - target/*.jar
+    expire_in: 1 week
