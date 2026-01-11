@@ -137,28 +137,28 @@ INSERT INTO `print_jobs` (`idprintjob`, `device`, `file_path`, `settings`) VALUE
 ('a9cf03d2-c2f6-4589-b9b5-ebf252c45ee3', '5b526244-e177-4ade-a43b-bc3f976dad4a', 'files/job1.gcode',
 '{"tech_type": "FDM", "selected_material": {"name": "PLA", "temp_nozzle": 210, "temp_bed": 60, "color_hex": "#FFFFFF"}, "selected_layer_height": 0.2, "selected_nozzle_size": 0.4, "selected_support_type": "none", "selected_infill_percentage": 20}');
 INSERT INTO `bookings` (`print_job`, `status`, `start_time`, `end_time`, `user_id`, `user_notes`)
-VALUES ('a9cf03d2-c2f6-4589-b9b5-ebf252c45ee3', 0, '2025-11-25 10:00:00', '2025-11-25 14:00:00', 'a5835e04-c027-4493-b40e-ca3eeff921c7', 'Bachelorarbeit Gehaeuse V3. Bitte weißes PLA nutzen.');
+VALUES ('a9cf03d2-c2f6-4589-b9b5-ebf252c45ee3', 'pending', '2025-11-25 10:00:00', '2025-11-25 14:00:00', 'a5835e04-c027-4493-b40e-ca3eeff921c7', 'Bachelorarbeit Gehaeuse V3. Bitte weißes PLA nutzen.');
 
 INSERT INTO `print_jobs` (`idprintjob`, `device`, `file_path`, `settings`) VALUES 
 ('3d9bce52-9202-4383-a838-0a33574fb117', 'd81f12c6-02f3-4e3f-8ac9-f3705473ddbf', 'files/arch.pdf',
 '{"tech_type": "LASER", "selected_preset": {"material": "Sperrholz 4mm", "thickness": 4, "power": 90, "speed": 15}}');
 INSERT INTO `bookings` (`print_job`, `status`, `start_time`, `end_time`, `user_id`, `user_notes`)
-VALUES ('3d9bce52-9202-4383-a838-0a33574fb117', 0, '2025-11-26 09:00:00', '2025-11-26 09:30:00', 'ecb1af1e-0f2b-4882-ab1f-5fee1ffccdf3', 'Architektur-Modell M 1:50, Sperrholz 4mm.');
+VALUES ('3d9bce52-9202-4383-a838-0a33574fb117', 'pending', '2025-11-26 09:00:00', '2025-11-26 09:30:00', 'ecb1af1e-0f2b-4882-ab1f-5fee1ffccdf3', 'Architektur-Modell M 1:50, Sperrholz 4mm.');
 
 INSERT INTO `print_jobs` (`idprintjob`, `device`, `settings`) VALUES 
 ('31ebb7dd-f6d9-4210-8132-c09ab105e4c7', 'f8a3c7b1-9d2e-4f5a-b6c8-1e4d3a7b9c5f',
 '{"tech_type": "PAPER", "selected_format": "A0", "selected_paper_weights": 120}');
 INSERT INTO `bookings` (`print_job`, `status`, `start_time`, `end_time`, `user_id`, `user_notes`)
-VALUES ('31ebb7dd-f6d9-4210-8132-c09ab105e4c7', 0, '2025-11-26 11:00:00', '2025-11-26 11:15:00', 'a5835e04-c027-4493-b40e-ca3eeff921c7', '3x A0 Plaene fuer Praesentation.');
+VALUES ('31ebb7dd-f6d9-4210-8132-c09ab105e4c7', 'pending', '2025-11-26 11:00:00', '2025-11-26 11:15:00', 'a5835e04-c027-4493-b40e-ca3eeff921c7', '3x A0 Plaene fuer Praesentation.');
 
 INSERT INTO `print_jobs` (`idprintjob`, `device`, `livestream`, `settings`) VALUES 
 ('e74ca0d3-ce9d-420c-9fbf-2ad55c677af1', '2bd7b025-4f26-41ee-ae64-7ef57ae79ccd', 'https://images.unsplash.com/...',
 '{"tech_type": "FDM", "selected_material": {"name": "PETG", "temp_nozzle": 240, "temp_bed": 80, "color_hex": "#33FF57"}, "selected_layer_height": 0.2, "selected_nozzle_size": 0.4, "selected_support_type": "touching_bed", "selected_infill_percentage": 30}');
 INSERT INTO `bookings` (`print_job`, `status`, `start_time`, `end_time`, `user_id`, `user_notes`)
-VALUES ('e74ca0d3-ce9d-420c-9fbf-2ad55c677af1', 2, '2025-11-24 08:00:00', '2025-11-24 12:00:00', 'a5835e04-c027-4493-b40e-ca3eeff921c7', 'Ersatzteile fuer Roboter-AG');
+VALUES ('e74ca0d3-ce9d-420c-9fbf-2ad55c677af1', 'completed', '2025-11-24 08:00:00', '2025-11-24 12:00:00', 'a5835e04-c027-4493-b40e-ca3eeff921c7', 'Ersatzteile fuer Roboter-AG');
 
 INSERT INTO `print_jobs` (`idprintjob`, `device`) VALUES ('d0f01f02-184a-4895-b7c3-a9e0735b465b', '5b526244-e177-4ade-a43b-bc3f976dad4a');
 INSERT INTO `bookings` (`print_job`, `status`, `start_time`, `end_time`, `user_id`, `user_notes`, `admin_message`)
-VALUES ('d0f01f02-184a-4895-b7c3-a9e0735b465b', 3, '2025-11-19 14:00:00', '2025-11-19 18:00:00', 'ecb1af1e-0f2b-4882-ab1f-5fee1ffccdf3', 'Privatprojekt', 'Drucken von Waffen-Repliken ist laut Nutzungsordnung untersagt.');
+VALUES ('d0f01f02-184a-4895-b7c3-a9e0735b465b', 'rejected', '2025-11-19 14:00:00', '2025-11-19 18:00:00', 'ecb1af1e-0f2b-4882-ab1f-5fee1ffccdf3', 'Privatprojekt', 'Drucken von Waffen-Repliken ist laut Nutzungsordnung untersagt.');
 
 COMMIT;
