@@ -76,6 +76,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         btnCancel: document.getElementById('btn-cancel-reject')
     };
 
+    init();
+
+    function init() {
+        setupTabs();
+        setupEventListeners();
+        renderAll();
+        handleTypeChange();
+    }
+
     async function renderAll() {
         try {
             const bookings = await getAllBookings();

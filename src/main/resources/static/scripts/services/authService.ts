@@ -39,7 +39,7 @@ export async function login(email: string, pass: string): Promise<boolean> {
 
 export async function logout(): Promise<void> {
     await fetch(`${API}/logout`, { method: "POST", credentials: "include" });
-    window.location.href = "admin-login.html";
+    window.location.href = "adminLogin.html";
 }
 
 export async function isAuthenticated(): Promise<boolean> {
@@ -52,21 +52,4 @@ export async function requireAuth(): Promise<void> {
         console.warn("Zugriff verweigert. Redirect zum Login.");
         window.location.href = 'adminLogin.html';
     }
-}
-
-/**
- * These functions are no longer needed (the cookie is set by the HttpOnly server).
- * I'm leaving the plugs in so that nothing breaks if they are still being imported somewhere.
- */
-export function setCookie() { /* noop */
-}
-
-export function getCookie(name: string): string | null {
-    // HttpOnly cookies cannot be read from JS — this is normal and even safer..
-    // If you need to know whether a user is logged in somewhere, call isAuthenticated()..
-    console.warn(`Cookie ${name} is HttpOnly; use isAuthenticated() instead.`);
-    return null;
-}
-
-export function deleteCookie() { /* noop */
 }
