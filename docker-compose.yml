@@ -19,5 +19,18 @@ services:
       - ./src/main/resources/data.sql:/docker-entrypoint-initdb.d/02-data.sql
     restart: unless-stopped
 
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: phpmyadmin
+    restart: unless-stopped
+    environment:
+      PMA_HOST: mariadb
+      PMA_USER: foo
+      PMA_PASSWORD: bar
+    ports:
+      - "8085:80"
+    depends_on:
+      - mariadb
+
 volumes:
   mariadb_data:
