@@ -1,4 +1,3 @@
-const COOKIE_NAME = 'admin_session';
 const TOKEN_KEY = 'admin_token';
 
 export interface LoginResponse {
@@ -40,7 +39,6 @@ export async function logout() {
     }
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem('admin_email');
-    deleteCookie(COOKIE_NAME);
     window.location.href = 'adminLogin.html';
 }
 
@@ -87,8 +85,4 @@ export function getCookie(name: string): string | null {
         }
     }
     return null;
-}
-
-export function deleteCookie(name: string) {
-    document.cookie = name + '=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
 }
