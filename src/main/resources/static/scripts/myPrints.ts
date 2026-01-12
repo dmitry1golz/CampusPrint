@@ -129,7 +129,7 @@ function renderPrintSettings(b: Booking): string {
             <div class="print-setting-item">
                 <div class="setting-content">
                     <div class="setting-label">Material</div>
-                    <div class="setting-value">${opts.selected_material.name}</div>
+                    <div class="setting-value">${opts.selected_material?.name}</div>
                 </div>
             </div>
             <div class="print-setting-item">
@@ -163,7 +163,7 @@ function renderPrintSettings(b: Booking): string {
             <div class="print-setting-item">
                 <div class="setting-content">
                     <div class="setting-label">Material</div>
-                    <div class="setting-value">${opts.selected_material.name}</div>
+                    <div class="setting-value">${opts.selected_material?.name}</div>
                 </div>
             </div>
             <div class="print-setting-item">
@@ -185,25 +185,25 @@ function renderPrintSettings(b: Booking): string {
             <div class="print-setting-item">
                 <div class="setting-content">
                     <div class="setting-label">Material</div>
-                    <div class="setting-value">${opts.selected_preset.material}</div>
+                    <div class="setting-value">${opts.selected_preset?.material}</div>
                 </div>
             </div>
             <div class="print-setting-item">
                 <div class="setting-content">
                     <div class="setting-label">Dicke</div>
-                    <div class="setting-value">${opts.selected_preset.thickness}mm</div>
+                    <div class="setting-value">${opts.selected_preset?.thickness}mm</div>
                 </div>
             </div>
             <div class="print-setting-item">
                 <div class="setting-content">
                     <div class="setting-label">Leistung</div>
-                    <div class="setting-value">${opts.selected_preset.power}%</div>
+                    <div class="setting-value">${opts.selected_preset?.power}%</div>
                 </div>
             </div>
             <div class="print-setting-item">
                 <div class="setting-content">
                     <div class="setting-label">Geschwindigkeit</div>
-                    <div class="setting-value">${opts.selected_preset.speed}%</div>
+                    <div class="setting-value">${opts.selected_preset?.speed}%</div>
                 </div>
             </div>
         `;

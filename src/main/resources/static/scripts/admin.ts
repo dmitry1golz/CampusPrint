@@ -114,8 +114,8 @@ document.addEventListener('DOMContentLoaded', () => {
             row.className = 'item-row';
             row.innerHTML = `
                 <div style="display:flex; align-items:center; gap:8px;">
-                    <div style="width:12px; height:12px; background:${m.color_hex}; border-radius:50%; border:1px solid #ccc;"></div>
-                    <strong>${m.name}</strong> ${tempInfo}
+                    <div style="width:12px; height:12px; background:${m?.color_hex}; border-radius:50%; border:1px solid #ccc;"></div>
+                    <strong>${m?.name}</strong> ${tempInfo}
                 </div>
                 <button class="btn-del text-danger" style="background:none; border:none; cursor:pointer;" data-idx="${i}" data-type="fdm">✕</button>
             `;
@@ -136,8 +136,8 @@ document.addEventListener('DOMContentLoaded', () => {
             row.className = 'item-row';
             row.innerHTML = `
                 <div style="display:flex; align-items:center; gap:8px;">
-                    <div style="width:12px; height:12px; background:${m.color_hex}; border-radius:50%; border:1px solid #ccc;"></div>
-                    <strong>${m.name}</strong>
+                    <div style="width:12px; height:12px; background:${m?.color_hex}; border-radius:50%; border:1px solid #ccc;"></div>
+                    <strong>${m?.name}</strong>
                 </div>
                 <button class="btn-del text-danger" style="background:none; border:none; cursor:pointer;" data-idx="${i}" data-type="sla">✕</button>
             `;
@@ -155,7 +155,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const row = document.createElement('div');
             row.className = 'item-row';
             row.innerHTML = `
-                <div><strong>${p.material}</strong> (${p.thickness}mm) - P:${p.power}% S:${p.speed}%</div>
+                <div><strong>${p?.material}</strong> (${p?.thickness}mm) - P:${p?.power}% S:${p?.speed}%</div>
                 <button class="btn-del text-danger" style="background:none; border:none; cursor:pointer;" data-idx="${i}" data-type="las">✕</button>
             `;
             forms.listLas.appendChild(row);
@@ -551,7 +551,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             const opts = b.print_options as SelectedFdmOptions;
                             settingsHTML = `
                                 <div class="settings-box">
-                                    <p class="text-sm"><strong>Material:</strong> ${opts.selected_material.name}</p>
+                                    <p class="text-sm"><strong>Material:</strong> ${opts.selected_material?.name}</p>
                                     <p class="text-sm"><strong>Schichthöhe:</strong> ${opts.selected_layer_height}mm</p>
                                     <p class="text-sm"><strong>Düse:</strong> ${opts.selected_nozzle_size}mm</p>
                                     <p class="text-sm"><strong>Füllung:</strong> ${opts.selected_infill_percentage}%</p>
@@ -562,7 +562,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             const opts = b.print_options as SelectedSlaOptions;
                             settingsHTML = `
                                 <div class="settings-box">
-                                    <p class="text-sm"><strong>Material:</strong> ${opts.selected_material.name}</p>
+                                    <p class="text-sm"><strong>Material:</strong> ${opts.selected_material?.name}</p>
                                     <p class="text-sm"><strong>Schichthöhe:</strong> ${opts.selected_layer_height}mm</p>
                                     <p class="text-sm"><strong>Support:</strong> ${opts.selected_support_type}</p>
                                 </div>
@@ -571,10 +571,10 @@ document.addEventListener('DOMContentLoaded', () => {
                             const opts = b.print_options as SelectedLaserOptions;
                             settingsHTML = `
                                 <div class="settings-box">
-                                    <p class="text-sm"><strong>Material:</strong> ${opts.selected_preset.material}</p>
-                                    <p class="text-sm"><strong>Dicke:</strong> ${opts.selected_preset.thickness}mm</p>
-                                    <p class="text-sm"><strong>Leistung:</strong> ${opts.selected_preset.power}%</p>
-                                    <p class="text-sm"><strong>Geschw.:</strong> ${opts.selected_preset.speed}%</p>
+                                    <p class="text-sm"><strong>Material:</strong> ${opts.selected_preset?.material}</p>
+                                    <p class="text-sm"><strong>Dicke:</strong> ${opts.selected_preset?.thickness}mm</p>
+                                    <p class="text-sm"><strong>Leistung:</strong> ${opts.selected_preset?.power}%</p>
+                                    <p class="text-sm"><strong>Geschw.:</strong> ${opts.selected_preset?.speed}%</p>
                                 </div>
                             `;
                         } else if (b.print_options.tech_type === 'PAPER') {
