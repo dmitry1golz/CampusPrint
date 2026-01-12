@@ -47,6 +47,7 @@ public class SecurityConfig {
                                         // 2. PUBLIC HTML PAGES (Added "/admin.html" here)
                                         .requestMatchers(
                                                 "/",
+                                                "/favicon.ico",
                                                 "/index.html",
                                                 "/booking.html",
                                                 "/myPrints.html",
