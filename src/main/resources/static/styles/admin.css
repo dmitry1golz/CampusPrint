@@ -22,7 +22,10 @@
 }
 
 .tab-pane { display: none; }
-.tab-pane.active { display: block; animation: fadeIn 0.2s ease; }
+.tab-pane.active {
+    display: block;
+    animation: fade-in 0.2s ease;
+}
 
 .card-header {
     display: flex;
@@ -66,16 +69,28 @@
     padding: 0;
 }
 
-.form-row { display: flex; gap: 1rem; margin-bottom: 1rem; }
+.form-row {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
 
-@media (width <= 600px) { .form-row { flex-direction: column; gap: 0; } }
+@media (width <= 600px) {
+    .form-row {
+        flex-direction: column;
+        gap: 0;
+    }
+}
 
 .modal-overlay {
     position: fixed; inset: 0; background: rgb(0 0 0 / 60%);
     display: flex; justify-content: center; align-items: center; z-index: 1000;
     backdrop-filter: blur(2px);
 }
-.modal-box { width: 90%; max-width: 450px; }
+.modal-box {
+    width: 90%;
+    max-width: 450px;
+}
 
 .settings-box {
     background: #f8f9fa;
@@ -97,4 +112,13 @@
     margin-bottom: 0;
 }
 
-@keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(5px);
+    } 
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
