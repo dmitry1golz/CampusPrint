@@ -40,8 +40,7 @@ class DeviceControllerTest {
 
     @Autowired private MockMvc mockMvc;
 
-    @MockitoBean
-    private DeviceRepository deviceRepository;
+    @MockitoBean private DeviceRepository deviceRepository;
 
     @Autowired private ObjectMapper objectMapper;
 
