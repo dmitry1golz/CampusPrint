@@ -17,7 +17,6 @@ import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-
 import thl.campusprint.config.JwtUtil;
 import thl.campusprint.models.Device;
 import thl.campusprint.models.DeviceType; // <--- WICHTIG: Das Enum importieren
