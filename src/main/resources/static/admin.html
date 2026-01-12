@@ -1,171 +1,160 @@
 <!DOCTYPE html>
 <html lang="de">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Admin Dashboard - CampusPrint</title>
-    <link rel="stylesheet" href="styles/base.css" /> 
-    <link rel="stylesheet" href="styles/admin.css" /> 
-    <script src="https://unpkg.com/lucide@latest"></script>
-</head>
-<body>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Admin Dashboard - CampusPrint</title>
+        <link rel="stylesheet" href="styles/base.css" />
+        <link rel="stylesheet" href="styles/admin.css" />
+        <script src="https://unpkg.com/lucide@latest"></script>
+    </head>
+    <body>
+        <div class="page-wrapper">
+            <div data-include="header.html"></div>
 
-<div class="page-wrapper">
-    <div data-include="header.html"></div>
+            <main class="main-content">
+                <div class="admin-header mb-4">
+                    <h1>Admin Dashboard</h1>
+                    <p class="text-muted">Verwaltung von Buchungen und Inventar</p>
+                </div>
 
-    <main class="main-content">
-        <div class="admin-header mb-4">
-            <h1>Admin Dashboard</h1>
-            <p class="text-muted">Verwaltung von Buchungen und Inventar</p>
+                <nav class="tabs-nav mb-4">
+                    <button type="button" class="tab-btn active" data-target="pending">Ausstehend <span id="count-pending" class="text-sm">(0)</span></button>
+                    <button type="button" class="tab-btn" data-target="active">Aktiv <span id="count-active" class="text-sm">(0)</span></button>
+                    <button type="button" class="tab-btn" data-target="completed">Historie <span id="count-completed" class="text-sm">(0)</span></button>
+                    <button type="button" class="tab-btn" data-target="equipment">Geräte <span id="count-equipment" class="text-sm">(0)</span></button>
+                </nav>
+
+                <div class="tabs-content">
+                    <div id="tab-pending" class="tab-pane active"><div id="pending-list" class="cards-grid"></div><div id="pending-empty" class="alert alert-danger hidden mt-2 text-center">Keine ausstehenden Anfragen.</div></div>
+                    <div id="tab-active" class="tab-pane"><div id="active-list" class="cards-grid"></div><div id="active-empty" class="alert alert-danger hidden mt-2 text-center">Zurzeit laufen keine Drucke.</div></div>
+                    <div id="tab-completed" class="tab-pane"><div id="completed-list" class="cards-grid"></div><div id="completed-empty" class="alert alert-danger hidden mt-2 text-center">Keine vergangenen Aufträge.</div></div>
+
+                    <div id="tab-equipment" class="tab-pane">
+                        <div class="text-right mb-2">
+                            <button type="button" id="btn-show-add-equipment" class="btn btn-primary"><i data-lucide="plus"></i> Gerät hinzufügen</button>
+                        </div>
+
+                        <div id="add-equipment-form" class="card mb-4 hidden">
+                            <h3 class="mb-2">Gerät konfigurieren</h3>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Name *</label>
+                                    <input type="text" id="eq-name" class="form-control" placeholder="z.B. Prusa 3D Drucker" />
+                                </div>
+                                <br>
+                                <div class="form-group">
+                                    <label>Modell Name</label>
+                                    <input type="text" id="eq-model" class="form-control" placeholder="z.B. Prusa MK4" />
+                                </div>
+                                <div class="form-group">
+                                    <label>Gerätetyp *</label>
+                                    <select id="eq-type" class="form-control">
+                                        <option value="FDM_Printer">FDM Drucker (Filament)</option>
+                                        <option value="SLA_Printer">SLA Drucker (Resin)</option>
+                                        <option value="Laser_Cutter">Lasercutter</option>
+                                        <option value="Printer">Papierdrucker</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <label id="group-dim" class="text-muted text-sm mb-1">Bauraum / Arbeitsfläche (in mm)</label>
+                            <div class="form-row">
+                                <div class="form-group" id="group-dim-x">
+                                    <label>Breite (X)</label>
+                                    <input type="number" id="eq-dim-x" class="form-control" placeholder="250" />
+                                </div>
+                                <div class="form-group" id="group-dim-y">
+                                    <label>Tiefe (Y)</label>
+                                    <input type="number" id="eq-dim-y" class="form-control" placeholder="210" />
+                                </div>
+                                <div class="form-group" id="group-dim-z">
+                                    <label>Höhe (Z)</label>
+                                    <input type="number" id="eq-dim-z" class="form-control" placeholder="200" />
+                                </div>
+                            </div>
+
+                            <div id="group-materials-fdm" class="hidden manager-section">
+                                <h4>Materialien (Filamente)</h4>
+                                <div id="fdm-material-list" class="item-list"></div>
+                                <div class="input-row">
+                                    <input type="text" id="fdm-mat-name" class="form-control double" placeholder="Name (z.B. PLA)">
+                                    <input type="number" id="fdm-mat-nozzle" class="form-control temp-input" placeholder="Düse °C">
+                                    <input type="number" id="fdm-mat-bed" class="form-control temp-input" placeholder="Bett °C">
+                                    <input type="color" id="fdm-mat-color" class="material-color-input" value="#ffffff" title="Farbe">
+                                    <button type="button" id="btn-add-fdm-material" class="btn btn-secondary btn-sm" aria-label="Material hinzufügen"><i data-lucide="plus"></i></button>
+                                </div>
+                            </div>
+
+                            <div id="group-materials-sla" class="hidden manager-section">
+                                <h4>Harze (Resins)</h4>
+                                <div id="sla-material-list" class="item-list"></div>
+                                <div class="input-row">
+                                    <input type="text" id="sla-mat-name" class="form-control double" placeholder="Name (z.B. PLA)">
+                                    <input type="color" id="sla-mat-color" class="material-color-input" value="#ffffff" title="Farbe">
+                                    <button type="button" id="btn-add-sla-material" class="btn btn-secondary btn-sm" aria-label="Harz hinzufügen"><i data-lucide="plus"></i></button>
+                                </div>
+                            </div>
+
+                            <div id="group-laser-presets" class="hidden manager-section">
+                                <h4>Material Presets</h4>
+                                <div id="laser-list" class="item-list"></div>
+                                <div class="input-row">
+                                    <input type="text" id="las-mat" class="form-control double" placeholder="Material (z.B. Holz)">
+                                    <input type="number" id="las-thick" class="form-control" placeholder="Dicke (mm)">
+                                    <input type="number" id="las-power" class="form-control" placeholder="Power %">
+                                    <input type="number" id="las-speed" class="form-control" placeholder="Speed %">
+                                    <button type="button" id="btn-add-laser" class="btn btn-secondary btn-sm" aria-label="Material hinzufügen"><i data-lucide="plus"></i></button>
+                                </div>
+                            </div>
+
+                            <div id="group-paper-config" class="hidden manager-section">
+                                <h4>Papierformate</h4>
+                                <div id="paper-list" class="item-list"></div>
+                                <div class="input-row">
+                                    <input type="text" id="pap-format" class="form-control" placeholder="Format (z.B. A3, Rolle)">
+                                    <button type="button" id="btn-add-paper" class="btn btn-secondary btn-sm" aria-label="Papierformart hinzufügen"><i data-lucide="plus"></i></button>
+                                </div>
+                                <small class="text-muted">Papiergewichte werden aktuell standardmäßig gesetzt.</small>
+                            </div>
+
+                            <div class="form-group mb-2 mt-2">
+                                <label>Bild URL</label>
+                                <input type="text" id="eq-image" class="form-control" placeholder="https://..." />
+                            </div>
+
+                            <div class="form-group mb-2">
+                                <label>Beschreibung *</label>
+                                <textarea id="eq-desc" rows="3" class="form-control"></textarea>
+                            </div>
+
+                            <div class="text-right mt-2">
+                                <button type="button" id="btn-cancel-equipment" class="btn btn-secondary">Abbrechen</button>
+                                <button type="button" id="btn-save-equipment" class="btn btn-primary">Gerät Speichern</button>
+                            </div>
+                        </div>
+
+                        <div id="equipment-list" class="cards-grid"></div>
+                    </div>
+                </div>
+            </main>
+
+            <div data-include="footer.html"></div>
         </div>
 
-        <nav class="tabs-nav mb-4">
-            <button class="tab-btn active" data-target="pending">Ausstehend <span id="count-pending" class="text-sm">(0)</span></button>
-            <button class="tab-btn" data-target="active">Aktiv <span id="count-active" class="text-sm">(0)</span></button>
-            <button class="tab-btn" data-target="completed">Historie <span id="count-completed" class="text-sm">(0)</span></button>
-            <button class="tab-btn" data-target="equipment">Geräte <span id="count-equipment" class="text-sm">(0)</span></button>
-        </nav>
-
-        <div class="tabs-content">
-            <div id="tab-pending" class="tab-pane active"><div id="pending-list" class="cards-grid"></div><div id="pending-empty" class="alert alert-danger hidden mt-2 text-center">Keine ausstehenden Anfragen.</div></div>
-            <div id="tab-active" class="tab-pane"><div id="active-list" class="cards-grid"></div><div id="active-empty" class="alert alert-danger hidden mt-2 text-center">Zurzeit laufen keine Drucke.</div></div>
-            <div id="tab-completed" class="tab-pane"><div id="completed-list" class="cards-grid"></div><div id="completed-empty" class="alert alert-danger hidden mt-2 text-center">Keine vergangenen Aufträge.</div></div>
-
-            <div id="tab-equipment" class="tab-pane">
-                <div class="text-right mb-2">
-                    <button id="btn-show-add-equipment" class="btn btn-primary"><i data-lucide="plus"></i> Gerät hinzufügen</button>
+        <div id="reject-modal" class="modal-overlay hidden">
+            <div class="modal-box card">
+                <h3 class="mb-1">Buchung ablehnen</h3>
+                <textarea id="reject-reason" rows="4" class="form-control w-full mb-2"></textarea>
+                <div class="text-right">
+                    <button type="button" id="btn-cancel-reject" class="btn btn-secondary">Abbrechen</button>
+                    <button type="button" id="btn-confirm-reject" class="btn btn-danger">Ablehnen bestätigen</button>
                 </div>
-                
-                <div id="add-equipment-form" class="card mb-4 hidden">
-                    <h3 class="mb-2">Gerät konfigurieren</h3>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Name *</label>
-                            <input type="text" id="eq-name" class="form-control" placeholder="z.B. Prusa 3D Drucker" />
-                        </div>
-                        <br>
-                        <div class="form-group">
-                            <label>Modell Name</label>
-                            <input type="text" id="eq-model" class="form-control" placeholder="z.B. Prusa MK4" />
-                        </div>
-                        <div class="form-group">
-                            <label>Gerätetyp *</label>
-                            <select id="eq-type" class="form-control">
-                                <option value="FDM_Printer">FDM Drucker (Filament)</option>
-                                <option value="SLA_Printer">SLA Drucker (Resin)</option>
-                                <option value="Laser_Cutter">Lasercutter</option>
-                                <option value="Printer">Papierdrucker</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <label id="group-dim" class="text-muted text-sm mb-1" style="display:block; margin-top:10px;">Bauraum / Arbeitsfläche (in mm)</label>
-                    <div class="form-row">
-                        <div class="form-group" id="group-dim-x">
-                            <label>Breite (X)</label>
-                            <input type="number" id="eq-dim-x" class="form-control" placeholder="250" />
-                        </div>
-                        <div class="form-group" id="group-dim-y">
-                            <label>Tiefe (Y)</label>
-                            <input type="number" id="eq-dim-y" class="form-control" placeholder="210" />
-                        </div>
-                        <div class="form-group" id="group-dim-z">
-                            <label>Höhe (Z)</label>
-                            <input type="number" id="eq-dim-z" class="form-control" placeholder="200" />
-                        </div>
-                    </div>
-
-                    <div id="group-materials-fdm" class="hidden manager-section">
-                        <h4>Materialien (Filamente)</h4>
-                        <div id="fdm-material-list" class="item-list"></div>
-                        <div class="input-row">
-                            <input type="text" id="fdm-mat-name" class="form-control" placeholder="Name (z.B. PLA)" style="flex:2;">
-                            <input type="number" id="fdm-mat-nozzle" class="form-control temp-input" placeholder="Düse °C" style="flex:1;">
-                            <input type="number" id="fdm-mat-bed" class="form-control temp-input" placeholder="Bett °C" style="flex:1;">
-                            <input type="color" id="fdm-mat-color" value="#ffffff" title="Farbe" style="width:40px; height:38px; padding:0; border:1px solid #ccc;">
-                            <button type="button" id="btn-add-fdm-material" class="btn btn-secondary btn-sm"><i data-lucide="plus"></i></button>
-                        </div>
-                    </div>
-
-                    <div id="group-materials-sla" class="hidden manager-section">
-                        <h4>Harze (Resins)</h4>
-                        <div id="sla-material-list" class="item-list"></div>
-                        <div class="input-row">
-                            <input type="text" id="sla-mat-name" class="form-control" placeholder="Name (z.B. PLA)" style="flex:2;">
-                            <input type="color" id="sla-mat-color" value="#ffffff" title="Farbe" style="width:40px; height:38px; padding:0; border:1px solid #ccc;">
-                            <button type="button" id="btn-add-sla-material" class="btn btn-secondary btn-sm"><i data-lucide="plus"></i></button>
-                        </div>
-                    </div>
-
-                    <div id="group-laser-presets" class="hidden manager-section">
-                        <h4>Material Presets</h4>
-                        <div id="laser-list" class="item-list"></div>
-                        <div class="input-row">
-                            <input type="text" id="las-mat" class="form-control" placeholder="Material (z.B. Holz)" style="flex:2;">
-                            <input type="number" id="las-thick" class="form-control" placeholder="Dicke (mm)" style="flex:1;">
-                            <input type="number" id="las-power" class="form-control" placeholder="Power %" style="flex:1;">
-                            <input type="number" id="las-speed" class="form-control" placeholder="Speed %" style="flex:1;">
-                            <button type="button" id="btn-add-laser" class="btn btn-secondary btn-sm"><i data-lucide="plus"></i></button>
-                        </div>
-                    </div>
-
-                    <div id="group-paper-config" class="hidden manager-section">
-                        <h4>Papierformate</h4>
-                        <div id="paper-list" class="item-list"></div>
-                        <div class="input-row">
-                            <input type="text" id="pap-format" class="form-control" placeholder="Format (z.B. A3, Rolle)" style="flex:1;">
-                            <button type="button" id="btn-add-paper" class="btn btn-secondary btn-sm"><i data-lucide="plus"></i></button>
-                        </div>
-                        <small class="text-muted">Papiergewichte werden aktuell standardmäßig gesetzt.</small>
-                    </div>
-
-                    <div class="form-group mb-2" style="margin-top: 15px;">
-                        <label>Bild URL</label>
-                        <input type="text" id="eq-image" class="form-control" placeholder="https://..." />
-                    </div>
-
-                    <div class="form-group mb-2">
-                        <label>Beschreibung *</label>
-                        <textarea id="eq-desc" rows="3" class="form-control"></textarea>
-                    </div>
-
-                    <div class="text-right" style="margin-top: 20px;">
-                        <button id="btn-cancel-equipment" class="btn btn-secondary">Abbrechen</button>
-                        <button id="btn-save-equipment" class="btn btn-primary">Gerät Speichern</button>
-                    </div>
-                </div>
-
-                <div id="equipment-list" class="cards-grid"></div>
             </div>
         </div>
-    </main>
 
-    <div data-include="footer.html"></div>
-</div>
-
-<div id="reject-modal" class="modal-overlay hidden">
-    <div class="modal-box card">
-        <h3 class="mb-1">Buchung ablehnen</h3>
-        <textarea id="reject-reason" rows="4" class="form-control w-full mb-2"></textarea>
-        <div class="text-right">
-            <button id="btn-cancel-reject" class="btn btn-secondary">Abbrechen</button>
-            <button id="btn-confirm-reject" class="btn btn-danger">Ablehnen bestätigen</button>
-        </div>
-    </div>
-</div>
-
-<style>
-    /* Kleines Inline-CSS für die neuen Manager-Bereiche */
-    .manager-section { margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px; }
-    .manager-section h4 { font-size: 1rem; margin-bottom: 10px; }
-    .item-list { margin-bottom: 15px; border: 1px solid #eee; border-radius: 4px; max-height: 150px; overflow-y: auto; background: #fff; }
-    .item-row { display: flex; align-items: center; justify-content: space-between; padding: 6px 10px; border-bottom: 1px solid #eee; font-size: 0.9rem; }
-    .input-row { display: flex; gap: 5px; align-items: center; background: #f8f9fa; padding: 10px; border-radius: 6px; }
-    .input-row .form-control { margin-bottom: 0; }
-</style>
-
-<script src="js/include.js"></script>
-<script type="module" src="js/admin.js"></script> 
-</body>
+        <script src="js/include.js"></script>
+        <script type="module" src="js/admin.js"></script>
+    </body>
 </html>

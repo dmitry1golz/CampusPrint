@@ -125,3 +125,52 @@
         transform: translateY(0);
     }
 }
+
+/* Neues Gerät */
+.item-list {
+    margin-bottom: 15px;
+    border: 1px solid #eee;
+    border-radius: 4px;
+    max-height: 150px;
+    overflow-y: auto;
+    background: #fff;
+}
+
+.item-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 10px;
+    border-bottom: 1px solid #eee;
+    font-size: 0.9rem;
+}
+
+.input-row {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+    background: #f8f9fa;
+    padding: 10px;
+    border-radius: 6px;
+}
+
+.input-row .form-control {
+    margin-bottom: 0;
+    flex: 1;
+}
+
+.input-row .double {
+    flex: 2;
+}
+
+.material-color-input {
+    width: 40px;
+    height: 38px;
+    padding: 0;
+    border: 1px solid #ccc;
+}
+
+#group-dim {
+    display: block;
+    margin-top: 10px;
+}
