@@ -65,18 +65,13 @@ public class BookingController {
     @PostMapping("/status")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> changeBookingStatus(
-            @RequestBody ChangeBookingStatusDTO dto,
-            Authentication authentication) {
+            @RequestBody ChangeBookingStatusDTO dto, Authentication authentication) {
         try {
             String adminEmail = authentication.getName();
             BookingStatus bookingStatus = BookingStatus.valueOf(dto.getStatus());
-            thl.campusprint.models.User adminUser =
-                    bookingService.getAdminUser(adminEmail);
+            thl.campusprint.models.User adminUser = bookingService.getAdminUser(adminEmail);
             if (!bookingService.changeBookingStatus(
-                    dto.getBookingId(),
-                    bookingStatus,
-                    adminUser,
-                    dto.getAdminMessage()))
+                    dto.getBookingId(), bookingStatus, adminUser, dto.getAdminMessage()))
                 return ResponseEntity.status(404)
                         .body("{ \"status\": 404, \"message\": \"Booking not Found\"}");
             return ResponseEntity.ok(

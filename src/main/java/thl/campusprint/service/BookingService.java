@@ -42,10 +42,7 @@ public class BookingService {
         Device device =
                 deviceRepository
                         .findById(dto.getPrinterId())
-                        .orElseThrow(
-                                () ->
-                                        new IllegalArgumentException(
-                                                "Device not found"));
+                        .orElseThrow(() -> new IllegalArgumentException("Device not found"));
 
         User user;
         if (userOpt.isEmpty()) {
@@ -86,13 +83,12 @@ public class BookingService {
                 .map(
                         booking -> {
                             booking.setStatus(status);
-                            
+
                             // FIX: Using LocalDateTime.now() instead of email string
                             // The field is a timestamp, so we record WHEN it changed.
                             booking.setLastModified(LocalDateTime.now());
-                            
-                            if (adminMessage != null)
-                                booking.setAdminMessage(adminMessage);
+
+                            if (adminMessage != null) booking.setAdminMessage(adminMessage);
                             bookingRepository.save(booking);
                             return true;
                         })

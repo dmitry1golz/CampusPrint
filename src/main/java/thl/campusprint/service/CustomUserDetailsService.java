@@ -19,15 +19,14 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        thl.campusprint.models.User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + email));
+        thl.campusprint.models.User user =
+                userRepository
+                        .findByEmail(email)
+                        .orElseThrow(
+                                () -> new UsernameNotFoundException("User not found: " + email));
 
         String role = user.getRole() == UserRole.admin ? "ADMIN" : "USER";
 
-        return User.builder()
-                .username(email)
-                .password(user.getPassword())
-                .roles(role)
-                .build();
+        return User.builder().username(email).password(user.getPassword()).roles(role).build();
     }
 }
