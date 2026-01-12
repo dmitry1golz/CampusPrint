@@ -160,5 +160,3 @@ VALUES ('e74ca0d3-ce9d-420c-9fbf-2ad55c677af1', 2, '2025-11-24 08:00:00', '2025-
 INSERT INTO `print_jobs` (`idprintjob`, `device`) VALUES ('d0f01f02-184a-4895-b7c3-a9e0735b465b', '5b526244-e177-4ade-a43b-bc3f976dad4a');
 INSERT INTO `bookings` (`print_job`, `status`, `start_time`, `end_time`, `user_id`, `user_notes`, `admin_message`)
 VALUES ('d0f01f02-184a-4895-b7c3-a9e0735b465b', 3, '2025-11-19 14:00:00', '2025-11-19 18:00:00', 'ecb1af1e-0f2b-4882-ab1f-5fee1ffccdf3', 'Privatprojekt', 'Drucken von Waffen-Repliken ist laut Nutzungsordnung untersagt.');
-
-COMMIT;

@@ -1,94 +1,152 @@
--- ########################################################
--- CAMPUSPRINT DATABASE SCHEMA (MariaDB)
--- ########################################################
+-- phpMyAdmin SQL Dump
+-- version 5.2.1
+-- https://www.phpmyadmin.net/
+--
+-- Host: mariadb
+-- Erstellungszeit: 12. Jan 2026 um 18:03
+-- Server-Version: 11.5.2-MariaDB-ubu2404
+-- PHP-Version: 8.2.8
 
--- Set engine and charset
-SET default_storage_engine=InnoDB;
-SET NAMES utf8mb4;
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+START TRANSACTION;
+SET time_zone = "+00:00";
 
--- ########################################################
--- 1. USERS TABLE
--- ########################################################
-CREATE TABLE IF NOT EXISTS `users` (
-  `idusers` VARCHAR(36) NOT NULL,
-  `email` VARCHAR(60) NOT NULL,
-  `password` VARCHAR(100) DEFAULT NULL,
-  `role` ENUM('user', 'admin') NOT NULL DEFAULT 'user',
-  PRIMARY KEY (`idusers`),
-  UNIQUE KEY `email` (`email`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- ########################################################
--- 2. DEVICES TABLE
--- ########################################################
-CREATE TABLE IF NOT EXISTS `devices` (
-  `iddevice` VARCHAR(36) NOT NULL,
-  `name` VARCHAR(45) NOT NULL,
-  `description` VARCHAR(300) DEFAULT NULL,
-  `model` VARCHAR(60) DEFAULT NULL,
-  `type` ENUM('FDM_Printer', 'SLA_Printer', 'Laser_Cutter', 'Printer') DEFAULT NULL,
-  `status` ENUM('Available', 'Unavailable') NOT NULL DEFAULT 'Unavailable',
-  `print_options` TEXT DEFAULT NULL COMMENT 'JSON data: DeviceOptions',
-  `image` VARCHAR(255) DEFAULT NULL,
-  `booking_availability_blocked_weekdays` TEXT DEFAULT NULL COMMENT 'JSON data: BlockedWeekdays',
-  PRIMARY KEY (`iddevice`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8mb4 */;
 
--- ########################################################
--- 3. PRINT JOBS TABLE
--- ########################################################
-CREATE TABLE IF NOT EXISTS `print_jobs` (
-  `idprintjob` VARCHAR(36) NOT NULL,
-  `device` VARCHAR(36) DEFAULT NULL,
-  `settings` TEXT DEFAULT NULL COMMENT 'JSON data: PrintJobSelectedOptions',
-  `file_path` VARCHAR(45) DEFAULT NULL,
-  `livestream` VARCHAR(60) DEFAULT NULL,
-  PRIMARY KEY (`idprintjob`),
-  CONSTRAINT `fk_print_jobs_device`
-    FOREIGN KEY (`device`) REFERENCES `devices` (`iddevice`)
-    ON DELETE SET NULL
-    ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+--
+-- Datenbank: `CampusPrint`
+--
 
--- Create index for faster device lookups
-CREATE INDEX IF NOT EXISTS `idx_print_jobs_device` ON `print_jobs` (`device`);
+-- --------------------------------------------------------
 
--- ########################################################
--- 4. BOOKINGS TABLE
--- ########################################################
-CREATE TABLE IF NOT EXISTS `bookings` (
-  `idbooking` INT AUTO_INCREMENT,
-  `user_id` VARCHAR(36) NOT NULL,
-  `print_job` VARCHAR(36) NOT NULL,
-  `start_time` DATETIME NOT NULL,
-  `end_time` DATETIME NOT NULL,
-  `status` ENUM('pending', 'confirmed', 'completed', 'rejected', 'running') NOT NULL,
-  `user_notes` VARCHAR(300) DEFAULT NULL,
-  `admin_message` VARCHAR(300) DEFAULT NULL,
-  `lastModifiedBy` VARCHAR(36) DEFAULT NULL,
-  `last_modified` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`idbooking`),
-  CONSTRAINT `fk_bookings_user`
-    FOREIGN KEY (`user_id`) REFERENCES `users` (`idusers`)
-    ON DELETE CASCADE
-    ON UPDATE CASCADE,
-  CONSTRAINT `fk_bookings_print_job`
-    FOREIGN KEY (`print_job`) REFERENCES `print_jobs` (`idprintjob`)
-    ON DELETE CASCADE
-    ON UPDATE CASCADE,
-  CONSTRAINT `fk_bookings_last_modified_by`
-    FOREIGN KEY (`lastModifiedBy`) REFERENCES `users` (`idusers`)
-    ON DELETE SET NULL
-    ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+--
+-- Tabellenstruktur für Tabelle `bookings`
+--
 
--- Create indexes for frequently queried columns
-CREATE INDEX IF NOT EXISTS `idx_bookings_user` ON `bookings` (`user_id`);
-CREATE INDEX IF NOT EXISTS `idx_bookings_print_job` ON `bookings` (`print_job`);
-CREATE INDEX IF NOT EXISTS `idx_bookings_status` ON `bookings` (`status`);
-CREATE INDEX IF NOT EXISTS `idx_bookings_start_time` ON `bookings` (`start_time`);
-CREATE INDEX IF NOT EXISTS `idx_bookings_end_time` ON `bookings` (`end_time`);
+CREATE TABLE `bookings` (
+  `idbooking` int(11) NOT NULL,
+  `status` tinyint(4) NOT NULL CHECK (`status` between 0 and 4),
+  `end_time` datetime(6) NOT NULL,
+  `last_modified` datetime(6) DEFAULT NULL,
+  `start_time` datetime(6) NOT NULL,
+  `last_modified_by` varchar(36) DEFAULT NULL,
+  `print_job` varchar(36) NOT NULL,
+  `user_id` varchar(36) NOT NULL,
+  `admin_message` varchar(300) DEFAULT NULL,
+  `user_notes` varchar(300) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
--- ########################################################
--- COMPLETED
--- ########################################################
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `devices`
+--
+
+CREATE TABLE `devices` (
+  `iddevice` uuid NOT NULL,
+  `name` varchar(45) NOT NULL,
+  `model` varchar(60) DEFAULT NULL,
+  `description` varchar(300) DEFAULT NULL,
+  `image` varchar(255) DEFAULT NULL,
+  `booking_availability_blocked_weekdays` text DEFAULT NULL,
+  `print_options` text DEFAULT NULL,
+  `status` enum('Available','Unavailable') NOT NULL DEFAULT 'Unavailable',
+  `type` enum('FDM_Printer','SLA_Printer','Laser_Cutter','Printer') DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `print_jobs`
+--
+
+CREATE TABLE `print_jobs` (
+  `device` uuid DEFAULT NULL,
+  `idprintjob` varchar(36) NOT NULL,
+  `file_path` varchar(45) DEFAULT NULL,
+  `livestream` varchar(60) DEFAULT NULL,
+  `settings` text DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `users`
+--
+
+CREATE TABLE `users` (
+  `idusers` varchar(36) NOT NULL,
+  `email` varchar(60) NOT NULL,
+  `password` varchar(100) DEFAULT NULL,
+  `role` enum('user','admin') NOT NULL DEFAULT 'user'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+
+--
+-- Indizes der exportierten Tabellen
+--
+
+--
+-- Indizes für die Tabelle `bookings`
+--
+ALTER TABLE `bookings`
+  ADD PRIMARY KEY (`idbooking`),
+  ADD KEY `FKqg03jsdjcgcxv5a5dtm1og3fq` (`last_modified_by`),
+  ADD KEY `FKt2lu3hvqy1ae9gf6ki2ic8b84` (`print_job`),
+  ADD KEY `FKeyog2oic85xg7hsu2je2lx3s6` (`user_id`);
+
+--
+-- Indizes für die Tabelle `devices`
+--
+ALTER TABLE `devices`
+  ADD PRIMARY KEY (`iddevice`);
+
+--
+-- Indizes für die Tabelle `print_jobs`
+--
+ALTER TABLE `print_jobs`
+  ADD PRIMARY KEY (`idprintjob`),
+  ADD KEY `FKqo4i7qrn3b3i8t99aw82f7v8a` (`device`);
+
+--
+-- Indizes für die Tabelle `users`
+--
+ALTER TABLE `users`
+  ADD PRIMARY KEY (`idusers`),
+  ADD UNIQUE KEY `UK6dotkott2kjsp8vw4d0m25fb7` (`email`);
+
+--
+-- AUTO_INCREMENT für exportierte Tabellen
+--
+
+--
+-- AUTO_INCREMENT für Tabelle `bookings`
+--
+ALTER TABLE `bookings`
+  MODIFY `idbooking` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- Constraints der exportierten Tabellen
+--
+
+--
+-- Constraints der Tabelle `bookings`
+--
+ALTER TABLE `bookings`
+  ADD CONSTRAINT `FKeyog2oic85xg7hsu2je2lx3s6` FOREIGN KEY (`user_id`) REFERENCES `users` (`idusers`),
+  ADD CONSTRAINT `FKqg03jsdjcgcxv5a5dtm1og3fq` FOREIGN KEY (`last_modified_by`) REFERENCES `users` (`idusers`),
+  ADD CONSTRAINT `FKt2lu3hvqy1ae9gf6ki2ic8b84` FOREIGN KEY (`print_job`) REFERENCES `print_jobs` (`idprintjob`);
+
+--
+-- Constraints der Tabelle `print_jobs`
+--
+ALTER TABLE `print_jobs`
+  ADD CONSTRAINT `FKqo4i7qrn3b3i8t99aw82f7v8a` FOREIGN KEY (`device`) REFERENCES `devices` (`iddevice`);
+COMMIT;
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
