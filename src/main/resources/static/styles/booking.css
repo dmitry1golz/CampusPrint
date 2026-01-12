@@ -6,6 +6,10 @@
     background: #fff;
 }
 
+.printer-preview {
+    border-bottom: 1px solid var(--border-color);
+}
+
 .dateSelectorHeader {
     display: flex;
     justify-content: space-between;
