@@ -57,3 +57,57 @@ Das Setzen dieser Variablen kann direkt über die jeweiligen Startkonfiguratione
 
 > **Hinweis zu Vorlagen:** In beiden IDEs existieren Konfigurations- oder Vorlagendateien, die als Basis für Ihre lokale Startkonfiguration dienen. Passen Sie diese an, um Ihre lokalen Pfade und Umgebungsvariablen zu verwenden.
 
+---
+What is schema-mysql.sql Responsible For?
+The schema-mysql.sql file defines the complete database structure for MariaDB/MySQL production deployments. It's responsible for:
+1. Creating All Tables
+   - users - Authentication table for admin and regular users
+   - devices - Available printers, laser cutters, and equipment
+   - print_jobs - Print job configuration and settings
+   - bookings - Booking records with timestamps and status
+2. Defining Constraints
+   - Primary keys for each table
+   - Foreign key relationships (e.g., bookings → users, print_jobs → devices)
+   - Cascade rules (ON DELETE CASCADE, ON UPDATE CASCADE)
+   - Unique constraints (e.g., users.email must be unique)
+3. Setting Data Types
+   - ENUM types for status fields (Available/Unavailable, pending/confirmed/etc.)
+   - JSON data stored as TEXT (MariaDB doesn't support JSON natively)
+   - UUID columns stored as VARCHAR(36)
+   - Proper timestamp handling with auto-update
+4. Optimization
+   - Indexes on frequently queried columns (user_id, print_job, status, time fields)
+   - InnoDB engine for transaction support
+   - UTF8MB4 charset for Unicode support
+5. Database Engine Configuration
+   - SET default_storage_engine=InnoDB - MariaDB-specific directive
+   - SET NAMES utf8mb4 - Proper charset configuration
+Why Two Different Schema Files?
+| File | Purpose | When Used |
+|------|---------|-----------|
+| schema-mysql.sql | Production MariaDB database | Loaded automatically when Spring detects MySQL/MariaDB driver |
+| No schema file | Development H2 database | Hibernate creates tables automatically (ddl-auto=update) |
+The file was renamed from schema.sql to schema-mysql.sql to prevent H2 from trying to execute MariaDB-specific commands (like SET default_storage_engine=InnoDB), which would cause syntax errors in dev mode.
+---
+Files Changed Summary
+New Files:
+- src/main/java/thl/campusprint/config/SecurityConfig.java
+- src/main/java/thl/campusprint/config/JwtUtil.java
+- src/main/java/thl/campusprint/config/JwtAuthenticationFilter.java
+- src/main/java/thl/campusprint/controllers/AuthController.java
+- src/main/java/thl/campusprint/service/CustomUserDetailsService.java
+- src/main/resources/schema-mysql.sql
+- AGENTS.md
+Modified Files:
+- pom.xml - Added Security, JWT, and MariaDB dependencies
+- src/main/java/thl/campusprint/controllers/BookingController.java
+- src/main/java/thl/campusprint/controllers/DeviceController.java
+- src/main/resources/data.sql - Updated admin password with BCrypt
+- src/main/resources/static/header.html - Added logout button style
+- src/main/resources/static/scripts/authService.ts - Complete JWT rewrite
+- src/main/resources/static/scripts/bookingService.ts - Added auth headers
+- src/main/resources/static/scripts/deviceService.ts - Added auth headers
+- src/main/resources/static/scripts/adminLogin.ts - Async/await update
+- src/main/resources/static/scripts/include.ts - Dynamic header auth state
+- src/main/resources/tsconfig.json - Module update for dynamic imports
+---

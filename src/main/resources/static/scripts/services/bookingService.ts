@@ -1,13 +1,13 @@
 import {Booking, BookingAvailability, NewBooking} from '../models/booking.js';
 import {Device} from '../models/device.js';
+import { getAuthHeaders } from './authService.js';
 
-const API_URL = 'http://localhost:8090/api/bookings';
+const API_URL = '/api/bookings';
 
 // API Functions
 
 // Returns sync array because admin.ts expects direct array (for now)
 export async function getAllBookings(): Promise<Booking[]> {
-    // TODO Schon eine ordenfliche Code Duplizierung in den gettern.
     const response = await fetch(`${API_URL}`);
     if (!response.ok) {
         console.error(`Fehler beim Laden der Buchungen: ${response.status}`);
@@ -34,30 +34,27 @@ export async function getBookingsForEmail(email: string): Promise<Booking[] | un
     }));
 }
 
-// CHANGED TO ASYNC: This fixes the 'Property then does not exist' error in admin.ts
 export async function updateBookingStatus(id: string, newStatus: Booking['status'], message?: string): Promise<void> {
-    // TODO Ist id jetzt UUID oder number? Backend-Änderung beachten!
-    // TODO Auth mit schicken (Admin-User)
     const body = {
         bookingId: parseInt(id, 10),
         status: newStatus,
-        ...(message && { adminMessage: message }) // adminMessage nur, wenn gesetzt
+        ...(message && { adminMessage: message })
     };
 
     const response = await fetch(`${API_URL}/status`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' },
         body: JSON.stringify(body)
     });
+
     if (!response.ok) throw new Error(`Fehler beim Aktualisieren des Buchungsstatus: ${response.status}`);
     await response.json();
 }
 
 export async function createNewBooking(newBooking: NewBooking): Promise<Booking | undefined> {
-    // TODO Auth mit schicken (Admin-User)
     const response = await fetch(API_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' },
         body: JSON.stringify(newBooking)
     });
     if (!response.ok) return undefined;
@@ -67,6 +64,7 @@ export async function createNewBooking(newBooking: NewBooking): Promise<Booking 
 export async function getBookingAvailabilityForDevice(device: Device): Promise<BookingAvailability | undefined> {
     const response = await fetch(`${API_URL}?deviceId=${device.id}&futureOnly=true`);
     if (!response.ok) return undefined;
+
     const rawBookings = await response.json();
     const bookings: Booking[] = rawBookings.map((b: any) => ({
         ...b,
@@ -82,12 +80,11 @@ export async function getBookingAvailabilityForDevice(device: Device): Promise<B
 }
 
 type CongestionResult = {
-    over12Hours: Date[];  // local date objects (midnight)
-    under12Hours: Date[]; // local date objects (midnight)
+    over12Hours: Date[];
+    under12Hours: Date[];
 };
 
 function calculateDailyCongestion(bookings: Booking[]): CongestionResult {
-    // Map: local-day (ms since epoch at local midnight) -> total milliseconds booked
     const perDay: Map<number, number> = new Map();
 
     for (const booking of bookings) {
@@ -96,64 +93,57 @@ function calculateDailyCongestion(bookings: Booking[]): CongestionResult {
         let startUtc = new Date(booking.startDate);
         let endUtc = new Date(booking.endDate);
 
-        // Convert to local time instants (Dates always represent UTC internally;
-        // "local" means how we slice by local calendar days).
         const startLocal = new Date(startUtc.getTime());
         const endLocal = new Date(endUtc.getTime());
 
-        // Walk day-by-day in local time
         let current = new Date(
-            startLocal.getFullYear(),
-            startLocal.getMonth(),
-            startLocal.getDate(),
-            0, 0, 0, 0
+                startLocal.getFullYear(),
+                startLocal.getMonth(),
+                startLocal.getDate(),
+                0, 0, 0, 0
         );
 
-        // Iterate while booking overlaps this day
         while (current <= endLocal) {
             const dayStart = new Date(
-                current.getFullYear(),
-                current.getMonth(),
-                current.getDate(),
-                0, 0, 0, 0
+                    current.getFullYear(),
+                    current.getMonth(),
+                    current.getDate(),
+                    0, 0, 0, 0
             );
 
             const dayEnd = new Date(
-                current.getFullYear(),
-                current.getMonth(),
-                current.getDate(),
-                23, 59, 59, 999
+                    current.getFullYear(),
+                    current.getMonth(),
+                    current.getDate(),
+                    23, 59, 59, 999
             );
 
-            // overlap within this day
             const overlapStart = new Date(Math.max(dayStart.getTime(), startLocal.getTime()));
             const overlapEnd = new Date(Math.min(dayEnd.getTime(), endLocal.getTime()));
 
             if (overlapEnd > overlapStart) {
                 const ms = overlapEnd.getTime() - overlapStart.getTime();
-                const key = dayStart.getTime(); // local-midnight identifier
+                const key = dayStart.getTime();
 
                 perDay.set(key, (perDay.get(key) ?? 0) + ms);
             }
 
-            // move to next day
             current.setDate(current.getDate() + 1);
         }
     }
 
-    // Split into ≥ 12h vs < 12h
     const twelveHoursMs = 12 * 60 * 60 * 1000;
 
     const over12Hours: Date[] = [];
     const under12Hours: Date[] = [];
 
     for (const [midnightMs, totalMs] of perDay.entries()) {
-        const date = new Date(midnightMs); // local midnight date
+        const date = new Date(midnightMs);
+
         if (totalMs >= twelveHoursMs) over12Hours.push(date);
         else under12Hours.push(date);
     }
 
-    // Optional: sort results chronologically
     over12Hours.sort((a, b) => a.getTime() - b.getTime());
     under12Hours.sort((a, b) => a.getTime() - b.getTime());
 

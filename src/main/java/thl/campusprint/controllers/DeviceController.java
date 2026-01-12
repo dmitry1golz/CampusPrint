@@ -3,6 +3,8 @@ package thl.campusprint.controllers;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import thl.campusprint.models.Device;
 import thl.campusprint.models.PrintJob;
@@ -11,7 +13,7 @@ import thl.campusprint.repositories.PrintJobRepository;
 
 @RestController
 @RequestMapping("/api/devices")
-@CrossOrigin(origins = "*") // Erlaubt Zugriff vom Frontend
+@CrossOrigin(origins = "*")
 public class DeviceController {
 
     private final DeviceRepository deviceRepository;
@@ -39,19 +41,16 @@ public class DeviceController {
     }
 
     // 3. Gerät erstellen ODER aktualisieren
-    // WICHTIG: Es darf nur EINE @PostMapping Methode ohne Pfad geben!
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public Device createOrUpdateDevice(@RequestBody Device device) {
-        // TODO Authentifizierung und Autorisierung hinzufügen
-        // JPA .save() macht automatisch ein INSERT (wenn ID neu) oder UPDATE (wenn ID existiert)
         return deviceRepository.save(device);
     }
 
     // 4. Gerät löschen
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteDevice(@PathVariable UUID id) {
-        // TODO Authentifizierung und Autorisierung hinzufügen
-
         if (deviceRepository.existsById(id)) {
             List<PrintJob> jobs = printJobRepository.findByDeviceId(id);
             for (PrintJob job : jobs) {

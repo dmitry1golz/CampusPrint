@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -61,19 +63,27 @@ public class BookingController {
     }
 
     @PostMapping("/status")
-    public ResponseEntity<String> changeBookingStatus(@RequestBody ChangeBookingStatusDTO dto) {
-        // TODO Authentifizierung und Autorisierung hinzufügen und den admin user übergeben
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<String> changeBookingStatus(
+            @RequestBody ChangeBookingStatusDTO dto,
+            Authentication authentication) {
         try {
+            String adminEmail = authentication.getName();
             BookingStatus bookingStatus = BookingStatus.valueOf(dto.getStatus());
+            thl.campusprint.models.User adminUser =
+                    bookingService.getAdminUser(adminEmail);
             if (!bookingService.changeBookingStatus(
-                    dto.getBookingId(), bookingStatus, null, dto.getAdminMessage()))
+                    dto.getBookingId(),
+                    bookingStatus,
+                    adminUser,
+                    dto.getAdminMessage()))
                 return ResponseEntity.status(404)
                         .body("{ \"status\": 404, \"message\": \"Booking not Found\"}");
             return ResponseEntity.ok(
                     "{ \"status\": 200, \"message\": \"Booking status updated successfully\"}");
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest()
-                    .body("{ \"status\": 400, \"message\": \"Staus is invalid\"}");
+                    .body("{ \"status\": 400, \"message\": \"Status is invalid\"}");
         }
     }
 }

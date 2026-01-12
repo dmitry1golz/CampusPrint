@@ -1,6 +1,6 @@
 package thl.campusprint.repositories;
 
-import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -9,5 +9,5 @@ import thl.campusprint.models.User;
 @Repository
 public interface UserRepository extends JpaRepository<User, UUID> {
 
-    List<User> findByEmail(String userEmail);
+    Optional<User> findByEmail(String email);
 }

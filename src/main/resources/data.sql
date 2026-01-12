@@ -2,7 +2,7 @@
 -- 1. USERS
 -- ########################################################
 INSERT INTO `users` (`idusers`, `email`, `password`, `role`) VALUES
-('5de20ec1-158e-4f15-8012-3414d8c182a7', 'admin@campusprint.de', 'hashed_password_123', 'admin'),
+('5de20ec1-158e-4f15-8012-3414d8c182a7', 'admin@campusprint.de', '$2a$10$IWDo61g8d4D2qVXpJ/PNk.SxB8bg9hs4/pgewDlVdHT9p4MNbW8fC', 'admin'),
 ('a5835e04-c027-4493-b40e-ca3eeff921c7', 'student@campusprint.de', NULL, 'user'),
 ('ecb1af1e-0f2b-4882-ab1f-5fee1ffccdf3', 'extern@campusprint.de', NULL, 'user');
 

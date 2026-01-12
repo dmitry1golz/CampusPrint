@@ -10,29 +10,27 @@ document.addEventListener('DOMContentLoaded', () => {
     const passwordInput = document.getElementById('password') as HTMLInputElement;
     const errorBanner = document.getElementById('login-error') as HTMLDivElement;
 
-    if (form) {
-        form.addEventListener('submit', (e) => {
-            e.preventDefault();
-            
-            if(errorBanner) errorBanner.classList.add('hidden');
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
 
-            const email = emailInput.value;
-            const password = passwordInput.value;
+        if (errorBanner) errorBanner.classList.add('hidden');
 
-            const success = login(email, password);
+        const email = emailInput.value;
+        const password = passwordInput.value;
 
-            if (success) {
-                window.location.href = 'admin.html';
+        const success = await login(email, password);
+
+        if (success) {
+            window.location.href = 'admin.html';
+        } else {
+            if (errorBanner) {
+                errorBanner.classList.remove('hidden');
             } else {
-                if (errorBanner) {
-                    errorBanner.classList.remove('hidden');
-                } else {
-                    alert('Falsche Zugangsdaten!');
-                }
-                
-                passwordInput.value = '';
-                passwordInput.focus();
+                alert('Falsche Zugangsdaten!');
             }
-        });
-    }
+
+            passwordInput.value = '';
+            passwordInput.focus();
+        }
+    });
 });
