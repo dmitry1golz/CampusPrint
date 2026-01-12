@@ -20,7 +20,6 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <testcontainers.version>1.21.3</testcontainers.version>
-        <lombok.version>edge-SNAPSHOT</lombok.version>
     </properties>
 
     <dependencies>
