@@ -1,4 +1,4 @@
-import { Booking } from "./models/booking.js";
+import { Booking, BookingStatus } from "./models/booking.js";
 import { getBookingsForEmail } from './services/bookingService.js';
 import { getCookie, setCookie } from './services/authService.js';
 
@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!email) return;
 
         setCookie('userEmail', email, 30);
-        var bookings = await getBookingsForEmail(email);
+        const bookings = await getBookingsForEmail(email);
         renderPrintBookings(container, bookings);
     });
 });
@@ -87,8 +87,8 @@ function createCard(b: Booking): HTMLElement {
 }
 
 // helpfunctions
-function translateStatus(s: string): string {
-    const map: any = { 
+function translateStatus(s: BookingStatus): string {
+    const map: Record<BookingStatus, string> = { 
         'pending': 'Ausstehend', 
         'confirmed': 'Bestätigt', 
         'running': 'In Arbeit', 
@@ -114,7 +114,7 @@ function formatDate(start: Date, end: Date): string {
 }
 
 function formatTime(start: Date, end: Date): string {
-    const opts: any = { hour: '2-digit', minute: '2-digit' };
+    const opts: Intl.DateTimeFormatOptions = { hour: '2-digit', minute: '2-digit' };
     return `${new Date(start).toLocaleTimeString('de-DE', opts)} - ${new Date(end).toLocaleTimeString('de-DE', opts)}`;
 }
 
@@ -124,12 +124,12 @@ function renderPrintSettings(b: Booking): string {
     let settingsContent = '';
     
     if (b.print_options.tech_type === 'FDM') {
-        const opts = b.print_options as any;
+        const opts = b.print_options;
         settingsContent = `
             <div class="print-setting-item">
                 <div class="setting-content">
                     <div class="setting-label">Material</div>
-                    <div class="setting-value">${opts.selected_material.name}</div>
+                    <div class="setting-value">${opts.selected_material?.name}</div>
                 </div>
             </div>
             <div class="print-setting-item">
@@ -158,12 +158,12 @@ function renderPrintSettings(b: Booking): string {
             </div>
         `;
     } else if (b.print_options.tech_type === 'SLA') {
-        const opts = b.print_options as any;
+        const opts = b.print_options;
         settingsContent = `
             <div class="print-setting-item">
                 <div class="setting-content">
                     <div class="setting-label">Material</div>
-                    <div class="setting-value">${opts.selected_material.name}</div>
+                    <div class="setting-value">${opts.selected_material?.name}</div>
                 </div>
             </div>
             <div class="print-setting-item">
@@ -180,35 +180,35 @@ function renderPrintSettings(b: Booking): string {
             </div>
         `;
     } else if (b.print_options.tech_type === 'LASER') {
-        const opts = b.print_options as any;
+        const opts = b.print_options;
         settingsContent = `
             <div class="print-setting-item">
                 <div class="setting-content">
                     <div class="setting-label">Material</div>
-                    <div class="setting-value">${opts.selected_preset.material}</div>
+                    <div class="setting-value">${opts.selected_preset?.material}</div>
                 </div>
             </div>
             <div class="print-setting-item">
                 <div class="setting-content">
                     <div class="setting-label">Dicke</div>
-                    <div class="setting-value">${opts.selected_preset.thickness}mm</div>
+                    <div class="setting-value">${opts.selected_preset?.thickness}mm</div>
                 </div>
             </div>
             <div class="print-setting-item">
                 <div class="setting-content">
                     <div class="setting-label">Leistung</div>
-                    <div class="setting-value">${opts.selected_preset.power}%</div>
+                    <div class="setting-value">${opts.selected_preset?.power}%</div>
                 </div>
             </div>
             <div class="print-setting-item">
                 <div class="setting-content">
                     <div class="setting-label">Geschwindigkeit</div>
-                    <div class="setting-value">${opts.selected_preset.speed}%</div>
+                    <div class="setting-value">${opts.selected_preset?.speed}%</div>
                 </div>
             </div>
         `;
     } else if (b.print_options.tech_type === 'PAPER') {
-        const opts = b.print_options as any;
+        const opts = b.print_options;
         settingsContent = `
             <div class="print-setting-item">
                 <div class="setting-content">

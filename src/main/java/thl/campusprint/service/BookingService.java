@@ -2,7 +2,7 @@ package thl.campusprint.service;
 
 import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Optional;
 import org.springframework.stereotype.Service;
 import thl.campusprint.models.Booking;
 import thl.campusprint.models.BookingStatus;
@@ -37,29 +37,22 @@ public class BookingService {
 
     @Transactional
     public Booking createBooking(CreateBookingDTO dto) {
-        List<User> users = userRepository.findByEmail(dto.getUserEmail());
-
-        if (users.size() > 1) {
-            throw new IllegalArgumentException("Multiple users with same email");
-        }
+        Optional<User> userOpt = userRepository.findByEmail(dto.getUserEmail());
 
         Device device =
                 deviceRepository
                         .findById(dto.getPrinterId())
-                        .orElseThrow(
-                                () ->
-                                        new IllegalArgumentException(
-                                                "Multiple users with same email"));
+                        .orElseThrow(() -> new IllegalArgumentException("Device not found"));
 
         User user;
-        if (users.isEmpty()) {
+        if (userOpt.isEmpty()) {
             // Create user if it does not exist
             user = new User();
             user.setEmail(dto.getUserEmail());
             user.setRole(UserRole.user);
             user = userRepository.save(user);
         } else {
-            user = users.get(0);
+            user = userOpt.get();
         }
 
         PrintJob printJob = new PrintJob();
@@ -81,18 +74,29 @@ public class BookingService {
 
     @Transactional
     public boolean changeBookingStatus(
-            int bookingId, BookingStatus status, User modifiedBy, String adminMessage) {
+            int bookingId,
+            BookingStatus status,
+            thl.campusprint.models.User modifiedBy,
+            String adminMessage) {
         return bookingRepository
                 .findById(bookingId)
                 .map(
                         booking -> {
                             booking.setStatus(status);
-                            booking.setLastModifiedBy(null);
+
+                            // FIX: Using LocalDateTime.now() instead of email string
+                            // The field is a timestamp, so we record WHEN it changed.
+                            booking.setLastModified(LocalDateTime.now());
+
                             if (adminMessage != null) booking.setAdminMessage(adminMessage);
-                            // Last modified automatically updated by @PreUpdate
                             bookingRepository.save(booking);
                             return true;
                         })
                 .orElse(false);
+    }
+
+    // FIX: Removed duplicate method definitions
+    public User getAdminUser(String email) {
+        return userRepository.findByEmail(email).orElse(null);
     }
 }

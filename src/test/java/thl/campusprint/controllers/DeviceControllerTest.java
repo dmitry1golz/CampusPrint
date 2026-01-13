@@ -11,13 +11,17 @@ import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import thl.campusprint.config.JwtUtil;
 import thl.campusprint.models.Device;
 import thl.campusprint.models.DeviceType; // <--- WICHTIG: Das Enum importieren
 import thl.campusprint.repositories.DeviceRepository;
+import thl.campusprint.repositories.PrintJobRepository;
 
 /**
  * Testklasse für den DeviceController. * ZWECK: Dieser Test prüft die "Web-Schicht" (Controller)
@@ -36,12 +40,16 @@ import thl.campusprint.repositories.DeviceRepository;
  * Methoden im Repository auf?
  */
 @WebMvcTest(DeviceController.class)
+@AutoConfigureMockMvc(addFilters = false)
 class DeviceControllerTest {
 
     @Autowired private MockMvc mockMvc;
 
-    @MockitoBean
-    private DeviceRepository deviceRepository;
+    @MockitoBean private DeviceRepository deviceRepository;
+    @MockitoBean private PrintJobRepository printJobRepository;
+    @MockitoBean private JwtUtil jwtUtil;
+
+    @MockitoBean private PasswordEncoder passwordEncoder;
 
     @Autowired private ObjectMapper objectMapper;
 

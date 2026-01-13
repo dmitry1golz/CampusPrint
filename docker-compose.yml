@@ -1,0 +1,36 @@
+services:
+  mariadb:
+    image: mariadb:latest
+    container_name: campusprint_db
+    ports:
+      - "3306:3306"
+    environment:
+      - MARIADB_DATABASE=CampusPrint
+      - MARIADB_USER=foo
+      - MARIADB_PASSWORD=bar
+      - MARIADB_ROOT_PASSWORD=admin
+    volumes:
+      # Persist database data
+      - mariadb_data:/var/lib/mysql
+      
+      # Automate SQL Import (Replaces manual docker exec commands)
+      # 01-schema runs first, 02-data runs second
+      - ./src/main/resources/schema-mysql.sql:/docker-entrypoint-initdb.d/01-schema.sql
+      - ./src/main/resources/data.sql:/docker-entrypoint-initdb.d/02-data.sql
+    restart: unless-stopped
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: phpmyadmin
+    restart: unless-stopped
+    environment:
+      PMA_HOST: mariadb
+      PMA_USER: foo
+      PMA_PASSWORD: bar
+    ports:
+      - "8085:80"
+    depends_on:
+      - mariadb
+
+volumes:
+  mariadb_data:

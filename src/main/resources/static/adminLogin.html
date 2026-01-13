@@ -1,47 +1,49 @@
 <!DOCTYPE html>
 <html lang="de">
-<head>
-    <meta charset="UTF-8"/>
-    <title>CampusPrint - Admin Login</title>
-    <link rel="stylesheet" href="styles/base.css" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet"/>
-<body>
-<div class="page-wrapper">
-    <div data-include="header.html"></div>
+    <head>
+        <meta charset="UTF-8"/>
+        <title>CampusPrint - Admin Login</title>
+        <link rel="stylesheet" href="styles/base.css" />
+        <link rel="stylesheet" href="styles/adminLogin.css" />
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet"/>
+    </head>
+    <body>
+        <div class="page-wrapper">
+            <div data-include="header.html"></div>
 
-    <main class="main-content layout-centered">
+            <main class="main-content layout-centered">
 
-        <div class="card" style="width: 100%; max-width: 400px;">
-            <div id="login-error" class="alert alert-danger shake hidden">
-                E-Mail oder Passwort falsch!
-            </div>
-            <p class="text-muted text-center">Nur für Laborpersonal</p>
-            <h2 class="text-center mb-2">🛡️ Admin Login</h2>
+                <div class="card admin-login-card">
+                    <div id="login-error" class="alert alert-danger shake hidden">
+                        E-Mail oder Passwort falsch!
+                    </div>
+                    <p class="text-muted text-center">Nur für Laborpersonal</p>
+                    <h2 class="text-center mb-2">🛡️ Admin Login</h2>
 
-            <form id="adminLoginForm">
-                <div class="form-group">
-                    <label for="email">E-Mail</label>
-                    <input type="email" id="email" placeholder="admin@campusprint.de" required />
+                    <form id="adminLoginForm">
+                        <div class="form-group">
+                            <label for="email">E-Mail</label>
+                            <input type="email" id="email" placeholder="admin@campusprint.de" required />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="password">Passwort</label>
+                            <input type="password" id="password" placeholder="••••••••" required />
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-full">
+                            Login
+                        </button>
+                    </form>
+
+                    <a href="index.html" class="btn btn-text text-center mt-1" style="display:block;">
+                        &larr; Zurück zur Startseite
+                    </a>
                 </div>
-
-                <div class="form-group">
-                    <label for="password">Passwort</label>
-                    <input type="password" id="password" placeholder="••••••••" required />
-                </div>
-
-                <button type="submit" class="btn btn-primary" style="width: 100%;">
-                    Als Admin anmelden
-                </button>
-            </form>
-
-            <a href="index.html" class="btn btn-text text-center mt-1" style="display:block;">
-                &larr; Zurück zur Startseite
-            </a>
+            </main>
+            <div data-include="footer.html"></div>
         </div>
-    </main>
-    <div data-include="footer.html"></div>
-</div>
-<script src="js/include.js"></script>
-<script type="module" src="js/adminLogin.js"></script>
-</body>
+        <script src="js/include.js"></script>
+        <script type="module" src="js/adminLogin.js"></script>
+    </body>
 </html>

@@ -1,6 +1,7 @@
 import { Device, DeviceStatus } from '../models/device.js';
+import { getAuthHeaders, requireAuth } from './authService.js';
 
-const API_URL = 'http://localhost:8090/api/devices';
+const API_URL = '/api/devices';
 
 export async function getAllDevices(): Promise<Device[]> {
     try {
@@ -19,28 +20,32 @@ export async function getDeviceById(id: string): Promise<Device | undefined> {
         if (!response.ok) return undefined;
         return await response.json();
     } catch (error) {
+        console.error("Fehler beim Laden:", error);
         return undefined;
     }
 }
 
 // Erstellen ODER Update (da Spring Boot .save() für beides nutzt)
 export async function addDevice(device: Device): Promise<void> {
-    // TODO Auth mit schicken (Admin-User)
+    requireAuth();
     await fetch(API_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' },
         body: JSON.stringify(device)
     });
 }
 
 export async function deleteDevice(id: string): Promise<void> {
-    // TODO Auth mit schicken (Admin-User)
-    await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+    requireAuth();
+    await fetch(`${API_URL}/${id}`, {
+        method: 'DELETE',
+        ...getAuthHeaders()
+    });
 }
 
 // Status ändern: Wir laden das Gerät, ändern den Status, speichern es.
 export async function updateDeviceStatus(id: string, newStatus: DeviceStatus): Promise<void> {
-    // TODO Auth mit schicken (Admin-User)
+    requireAuth();
     const device = await getDeviceById(id);
     if (device) {
         device.status = newStatus;

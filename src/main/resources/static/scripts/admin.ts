@@ -9,7 +9,6 @@ declare global { interface Window { lucide: { createIcons: () => void; }; } }
 requireAuth();
 
 document.addEventListener('DOMContentLoaded', () => {
-
     // --- STATE ---
     let editingDeviceId: string | null = null;
     let currentRejectId: string | null = null;
@@ -114,8 +113,8 @@ document.addEventListener('DOMContentLoaded', () => {
             row.className = 'item-row';
             row.innerHTML = `
                 <div style="display:flex; align-items:center; gap:8px;">
-                    <div style="width:12px; height:12px; background:${m.color_hex}; border-radius:50%; border:1px solid #ccc;"></div>
-                    <strong>${m.name}</strong> ${tempInfo}
+                    <div style="width:12px; height:12px; background:${m?.color_hex}; border-radius:50%; border:1px solid #ccc;"></div>
+                    <strong>${m?.name}</strong> ${tempInfo}
                 </div>
                 <button class="btn-del text-danger" style="background:none; border:none; cursor:pointer;" data-idx="${i}" data-type="fdm">✕</button>
             `;
@@ -136,8 +135,8 @@ document.addEventListener('DOMContentLoaded', () => {
             row.className = 'item-row';
             row.innerHTML = `
                 <div style="display:flex; align-items:center; gap:8px;">
-                    <div style="width:12px; height:12px; background:${m.color_hex}; border-radius:50%; border:1px solid #ccc;"></div>
-                    <strong>${m.name}</strong>
+                    <div style="width:12px; height:12px; background:${m?.color_hex}; border-radius:50%; border:1px solid #ccc;"></div>
+                    <strong>${m?.name}</strong>
                 </div>
                 <button class="btn-del text-danger" style="background:none; border:none; cursor:pointer;" data-idx="${i}" data-type="sla">✕</button>
             `;
@@ -155,7 +154,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const row = document.createElement('div');
             row.className = 'item-row';
             row.innerHTML = `
-                <div><strong>${p.material}</strong> (${p.thickness}mm) - P:${p.power}% S:${p.speed}%</div>
+                <div><strong>${p?.material}</strong> (${p?.thickness}mm) - P:${p?.power}% S:${p?.speed}%</div>
                 <button class="btn-del text-danger" style="background:none; border:none; cursor:pointer;" data-idx="${i}" data-type="las">✕</button>
             `;
             forms.listLas.appendChild(row);
@@ -533,16 +532,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else if (b.status === 'confirmed') actionsHtml = `<button class="btn btn-primary action-btn w-full" data-action="run" data-id="${b.id}">Starten</button>`;
                 else if (b.status === 'running') actionsHtml = `<button class="btn btn-primary action-btn w-full" data-action="complete" data-id="${b.id}">Abschließen</button>`;
 
-                    let userEmailHTML = `<p class="text-sm"><strong>E-Mail:</strong> ${b.email}</p>`;
-                    let startDateInfoHTML = b.startDate ? `<p class="text-sm"><strong>Start:</strong> ${new Date(b.startDate).toLocaleDateString()}</p>` : '';
-                    let endDateInfoHTML = b.endDate ? `<p class="text-sm"><strong>Ende:</strong> ${new Date(b.endDate).toLocaleDateString()}</p>` : '';
-                    let noteInfoHTML = b.notes ? `<p class="text-sm"><strong>Notiz:</strong> ${b.notes}</p>` : '';
-                    let deviceHTML = `<p class="text-sm"><strong>Gerät:</strong> ${b.deviveName ? b.deviveName : 'Gelöscht'}</p>`;
-                    let filePathHTML = b.filePath ? `<p class="text-sm"><strong>Pfad:</strong> ${b.filePath}/</p>` : '';
+                    const userEmailHTML = `<p class="text-sm"><strong>E-Mail:</strong> ${b.email}</p>`;
+                    const startDateInfoHTML = b.startDate ? `<p class="text-sm"><strong>Start:</strong> ${new Date(b.startDate).toLocaleDateString()}</p>` : '';
+                    const endDateInfoHTML = b.endDate ? `<p class="text-sm"><strong>Ende:</strong> ${new Date(b.endDate).toLocaleDateString()}</p>` : '';
+                    const noteInfoHTML = b.notes ? `<p class="text-sm"><strong>Notiz:</strong> ${b.notes}</p>` : '';
+                    const deviceHTML = `<p class="text-sm"><strong>Gerät:</strong> ${b.deviveName ? b.deviveName : 'Gelöscht'}</p>`;
+                    const filePathHTML = b.filePath ? `<p class="text-sm"><strong>Pfad:</strong> ${b.filePath}/</p>` : '';
 
-                    let adminEmailHTML = b.lastModifiedBy ? `<p class="text-sm"><strong>Admin:</strong> ${b.lastModifiedBy}</p>` : '';
-                    let lastModifiedAtHTML = b.lastModifiedAt ? `<p class="text-sm"><strong>Letzte Änderung:</strong> ${new Date(b.lastModifiedAt).toLocaleString()}</p>` : '';
-                    let adminMsgInfoHTML = b.message ? `<p class="text-sm"><strong class="text-danger">Grund:</strong> ${b.message}</p>` : '';
+                    const adminEmailHTML = b.lastModifiedBy ? `<p class="text-sm"><strong>Admin:</strong> ${b.lastModifiedBy}</p>` : '';
+                    const lastModifiedAtHTML = b.lastModifiedAt ? `<p class="text-sm"><strong>Letzte Änderung:</strong> ${new Date(b.lastModifiedAt).toLocaleString()}</p>` : '';
+                    const adminMsgInfoHTML = b.message ? `<p class="text-sm"><strong class="text-danger">Grund:</strong> ${b.message}</p>` : '';
 
 
                     let settingsHTML = '';
@@ -551,7 +550,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             const opts = b.print_options as SelectedFdmOptions;
                             settingsHTML = `
                                 <div class="settings-box">
-                                    <p class="text-sm"><strong>Material:</strong> ${opts.selected_material.name}</p>
+                                    <p class="text-sm"><strong>Material:</strong> ${opts.selected_material?.name}</p>
                                     <p class="text-sm"><strong>Schichthöhe:</strong> ${opts.selected_layer_height}mm</p>
                                     <p class="text-sm"><strong>Düse:</strong> ${opts.selected_nozzle_size}mm</p>
                                     <p class="text-sm"><strong>Füllung:</strong> ${opts.selected_infill_percentage}%</p>
@@ -562,7 +561,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             const opts = b.print_options as SelectedSlaOptions;
                             settingsHTML = `
                                 <div class="settings-box">
-                                    <p class="text-sm"><strong>Material:</strong> ${opts.selected_material.name}</p>
+                                    <p class="text-sm"><strong>Material:</strong> ${opts.selected_material?.name}</p>
                                     <p class="text-sm"><strong>Schichthöhe:</strong> ${opts.selected_layer_height}mm</p>
                                     <p class="text-sm"><strong>Support:</strong> ${opts.selected_support_type}</p>
                                 </div>
@@ -571,10 +570,10 @@ document.addEventListener('DOMContentLoaded', () => {
                             const opts = b.print_options as SelectedLaserOptions;
                             settingsHTML = `
                                 <div class="settings-box">
-                                    <p class="text-sm"><strong>Material:</strong> ${opts.selected_preset.material}</p>
-                                    <p class="text-sm"><strong>Dicke:</strong> ${opts.selected_preset.thickness}mm</p>
-                                    <p class="text-sm"><strong>Leistung:</strong> ${opts.selected_preset.power}%</p>
-                                    <p class="text-sm"><strong>Geschw.:</strong> ${opts.selected_preset.speed}%</p>
+                                    <p class="text-sm"><strong>Material:</strong> ${opts.selected_preset?.material}</p>
+                                    <p class="text-sm"><strong>Dicke:</strong> ${opts.selected_preset?.thickness}mm</p>
+                                    <p class="text-sm"><strong>Leistung:</strong> ${opts.selected_preset?.power}%</p>
+                                    <p class="text-sm"><strong>Geschw.:</strong> ${opts.selected_preset?.speed}%</p>
                                 </div>
                             `;
                         } else if (b.print_options.tech_type === 'PAPER') {

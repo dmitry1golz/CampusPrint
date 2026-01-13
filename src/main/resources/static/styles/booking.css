@@ -6,6 +6,10 @@
     background: #fff;
 }
 
+.printer-preview {
+    border-bottom: 1px solid var(--border-color);
+}
+
 .dateSelectorHeader {
     display: flex;
     justify-content: space-between;
@@ -51,10 +55,31 @@
     cursor: default;
 }
 
-.date-availible { background-color: #dcfce7; color: #166534; cursor: pointer; border: 1px solid #bbf7d0; }
-.date-unavailible { background-color: #f1f5f9; color: #94a3b8; border: 1px solid #e2e8f0; }
-.date-booked { background-color: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
-.date-partially { background-color: #fef3c7; color: #92400e; cursor: pointer; border: 1px solid #fde68a; }
+.date-availible {
+    background-color: #dcfce7;
+    color: #166534;
+    cursor: pointer;
+    border: 1px solid #bbf7d0;
+}
+
+.date-unavailible {
+    background-color: #f1f5f9;
+    color: #94a3b8;
+    border: 1px solid #e2e8f0;
+}
+
+.date-booked {
+    background-color: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+}
+
+.date-partially {
+    background-color: #fef3c7;
+    color: #92400e;
+    cursor: pointer;
+    border: 1px solid #fde68a;
+}
 
 .dateSelectorRow .selectable:hover {
     filter: brightness(0.9);
@@ -74,7 +99,10 @@
 }
 
 @media (width <= 480px) {
-    .form-row { flex-direction: column; gap: 0; }
+    .form-row {
+        flex-direction: column;
+        gap: 0;
+    }
 }
 
 .device-config .form-row > div {
