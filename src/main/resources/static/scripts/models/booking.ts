@@ -1,5 +1,23 @@
 import { FdmMaterial, LaserPreset, SlaMaterial } from "./device";
 
+export interface RawBooking {
+    id: string;
+    printerName: string;
+    startDate: string;
+    endDate: string;
+    notes?: string;
+    message?: string;
+    videoUrl?: string;
+    lastModifiedBy?: string;
+    lastModifiedAt?: string;
+    email: string;
+    deviveName: string;
+    deviceId: string;
+    filePath?: string;
+    print_options?: SelectedFdmOptions | SelectedSlaOptions | SelectedLaserOptions | SelectedPaperOptions;
+    status: 'pending' | 'confirmed' | 'completed' | 'rejected' | 'running';
+}
+
 // Export Bookinginterface
 export interface Booking {
     id: string;
@@ -55,7 +73,7 @@ export interface SelectedPaperOptions {
 }
 
 export interface BaseNewBooking {
-    printerId: String;
+    printerId: string;
     userEmail: string;
     startDate: Date;
     endDate: Date;

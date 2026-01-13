@@ -343,7 +343,7 @@ async function handleFormSubmit(e: Event) {
         notes: notes
     };
 
-    var booking: NewBooking;
+    let booking: NewBooking;
     switch (device.type) {
         case "FDM_Printer":
             booking = {

@@ -533,16 +533,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else if (b.status === 'confirmed') actionsHtml = `<button class="btn btn-primary action-btn w-full" data-action="run" data-id="${b.id}">Starten</button>`;
                 else if (b.status === 'running') actionsHtml = `<button class="btn btn-primary action-btn w-full" data-action="complete" data-id="${b.id}">Abschließen</button>`;
 
-                    let userEmailHTML = `<p class="text-sm"><strong>E-Mail:</strong> ${b.email}</p>`;
-                    let startDateInfoHTML = b.startDate ? `<p class="text-sm"><strong>Start:</strong> ${new Date(b.startDate).toLocaleDateString()}</p>` : '';
-                    let endDateInfoHTML = b.endDate ? `<p class="text-sm"><strong>Ende:</strong> ${new Date(b.endDate).toLocaleDateString()}</p>` : '';
-                    let noteInfoHTML = b.notes ? `<p class="text-sm"><strong>Notiz:</strong> ${b.notes}</p>` : '';
-                    let deviceHTML = `<p class="text-sm"><strong>Gerät:</strong> ${b.deviveName ? b.deviveName : 'Gelöscht'}</p>`;
-                    let filePathHTML = b.filePath ? `<p class="text-sm"><strong>Pfad:</strong> ${b.filePath}/</p>` : '';
+                    const userEmailHTML = `<p class="text-sm"><strong>E-Mail:</strong> ${b.email}</p>`;
+                    const startDateInfoHTML = b.startDate ? `<p class="text-sm"><strong>Start:</strong> ${new Date(b.startDate).toLocaleDateString()}</p>` : '';
+                    const endDateInfoHTML = b.endDate ? `<p class="text-sm"><strong>Ende:</strong> ${new Date(b.endDate).toLocaleDateString()}</p>` : '';
+                    const noteInfoHTML = b.notes ? `<p class="text-sm"><strong>Notiz:</strong> ${b.notes}</p>` : '';
+                    const deviceHTML = `<p class="text-sm"><strong>Gerät:</strong> ${b.deviveName ? b.deviveName : 'Gelöscht'}</p>`;
+                    const filePathHTML = b.filePath ? `<p class="text-sm"><strong>Pfad:</strong> ${b.filePath}/</p>` : '';
 
-                    let adminEmailHTML = b.lastModifiedBy ? `<p class="text-sm"><strong>Admin:</strong> ${b.lastModifiedBy}</p>` : '';
-                    let lastModifiedAtHTML = b.lastModifiedAt ? `<p class="text-sm"><strong>Letzte Änderung:</strong> ${new Date(b.lastModifiedAt).toLocaleString()}</p>` : '';
-                    let adminMsgInfoHTML = b.message ? `<p class="text-sm"><strong class="text-danger">Grund:</strong> ${b.message}</p>` : '';
+                    const adminEmailHTML = b.lastModifiedBy ? `<p class="text-sm"><strong>Admin:</strong> ${b.lastModifiedBy}</p>` : '';
+                    const lastModifiedAtHTML = b.lastModifiedAt ? `<p class="text-sm"><strong>Letzte Änderung:</strong> ${new Date(b.lastModifiedAt).toLocaleString()}</p>` : '';
+                    const adminMsgInfoHTML = b.message ? `<p class="text-sm"><strong class="text-danger">Grund:</strong> ${b.message}</p>` : '';
 
 
                     let settingsHTML = '';

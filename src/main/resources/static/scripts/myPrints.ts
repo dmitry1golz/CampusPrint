@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!email) return;
 
         setCookie('userEmail', email, 30);
-        var bookings = await getBookingsForEmail(email);
+        const bookings = await getBookingsForEmail(email);
         renderPrintBookings(container, bookings);
     });
 });
@@ -208,7 +208,7 @@ function renderPrintSettings(b: Booking): string {
             </div>
         `;
     } else if (b.print_options.tech_type === 'PAPER') {
-        const opts = b.print_options as any;
+        const opts = b.print_options;
         settingsContent = `
             <div class="print-setting-item">
                 <div class="setting-content">

@@ -1,4 +1,4 @@
-import {Booking, BookingAvailability, NewBooking} from '../models/booking.js';
+import {Booking, BookingAvailability, NewBooking, RawBooking} from '../models/booking.js';
 import {Device} from '../models/device.js';
 import { getAuthHeaders } from './authService.js';
 
@@ -15,7 +15,7 @@ export async function getAllBookings(): Promise<Booking[]> {
     }
 
     const rawBookings = await response.json();
-    return rawBookings.map((b: any) => ({
+    return rawBookings.map((b: RawBooking) => ({
         ...b,
         startDate: new Date(b.startDate),
         endDate: new Date(b.endDate),
@@ -27,7 +27,7 @@ export async function getBookingsForEmail(email: string): Promise<Booking[] | un
     if (!response.ok) return undefined;
 
     const rawBookings = await response.json();
-    return rawBookings.map((b: any) => ({
+    return rawBookings.map((b: RawBooking) => ({
         ...b,
         startDate: new Date(b.startDate),
         endDate: new Date(b.endDate),
@@ -66,7 +66,7 @@ export async function getBookingAvailabilityForDevice(device: Device): Promise<B
     if (!response.ok) return undefined;
 
     const rawBookings = await response.json();
-    const bookings: Booking[] = rawBookings.map((b: any) => ({
+    const bookings: Booking[] = rawBookings.map((b: RawBooking) => ({
         ...b,
         startDate: new Date(b.startDate),
         endDate: new Date(b.endDate),
@@ -96,7 +96,7 @@ function calculateDailyCongestion(bookings: Booking[]): CongestionResult {
         const startLocal = new Date(startUtc.getTime());
         const endLocal = new Date(endUtc.getTime());
 
-        let current = new Date(
+        const current = new Date(
                 startLocal.getFullYear(),
                 startLocal.getMonth(),
                 startLocal.getDate(),

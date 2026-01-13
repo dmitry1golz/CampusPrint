@@ -20,6 +20,7 @@ export async function getDeviceById(id: string): Promise<Device | undefined> {
         if (!response.ok) return undefined;
         return await response.json();
     } catch (error) {
+        console.error("Fehler beim Laden:", error);
         return undefined;
     }
 }
