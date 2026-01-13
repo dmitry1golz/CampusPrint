@@ -1,5 +1,7 @@
 import { FdmMaterial, LaserPreset, SlaMaterial } from "./device";
 
+export type BookingStatus = 'pending' | 'confirmed' | 'completed' | 'rejected' | 'running';
+
 export interface RawBooking {
     id: string;
     printerName: string;
@@ -15,7 +17,7 @@ export interface RawBooking {
     deviceId: string;
     filePath?: string;
     print_options?: SelectedFdmOptions | SelectedSlaOptions | SelectedLaserOptions | SelectedPaperOptions;
-    status: 'pending' | 'confirmed' | 'completed' | 'rejected' | 'running';
+    status: BookingStatus;
 }
 
 // Export Bookinginterface
@@ -31,14 +33,14 @@ export interface Booking {
     lastModifiedAt?: Date;
     email: string;
 
-    deviveName: String;
-    deviceId : String;
-    filePath? : String;
+    deviveName: string;
+    deviceId : string;
+    filePath? : string;
 
     print_options?: SelectedFdmOptions | SelectedSlaOptions | SelectedLaserOptions | SelectedPaperOptions;
     
     // All status info combined
-    status: 'pending' | 'confirmed' | 'completed' | 'rejected' | 'running';
+    status:BookingStatus;
 }
 
 export type SupportType = 'none' | 'touching_bed' | 'everywhere' | 'auto';

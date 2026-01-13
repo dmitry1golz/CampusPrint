@@ -90,8 +90,8 @@ function calculateDailyCongestion(bookings: Booking[]): CongestionResult {
     for (const booking of bookings) {
         if (!booking.startDate || !booking.endDate) continue;
 
-        let startUtc = new Date(booking.startDate);
-        let endUtc = new Date(booking.endDate);
+        const startUtc = new Date(booking.startDate);
+        const endUtc = new Date(booking.endDate);
 
         const startLocal = new Date(startUtc.getTime());
         const endLocal = new Date(endUtc.getTime());
