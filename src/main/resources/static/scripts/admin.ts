@@ -9,7 +9,6 @@ declare global { interface Window { lucide: { createIcons: () => void; }; } }
 requireAuth();
 
 document.addEventListener('DOMContentLoaded', () => {
-
     // --- STATE ---
     let editingDeviceId: string | null = null;
     let currentRejectId: string | null = null;
